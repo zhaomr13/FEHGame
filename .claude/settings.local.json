@@ -7,7 +7,9 @@
       "Bash(head:*)",
       "Bash(tail:*)",
       "Bash(python3:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(mkdir:*)",
+      "Bash(/Applications/Godot.app/Contents/MacOS/Godot:*)"
     ]
   }
 }
