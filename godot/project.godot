@@ -1,0 +1,15 @@
+; Engine Configuration File
+; Godot version: 4.x
+
+[application]
+config/name="SSBP Fighter Demo"
+config/features=PackedStringArray("4.2", "Mobile")
+config/icon="res://icon.svg"
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="mobile"
