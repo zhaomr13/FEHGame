@@ -3,6 +3,7 @@
 
 [application]
 config/name="SSBP Fighter Demo"
+run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
