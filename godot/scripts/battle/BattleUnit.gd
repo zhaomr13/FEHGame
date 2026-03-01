@@ -36,8 +36,8 @@ func update_time_bar(delta: float):
 	if is_ready or character_data.is_defeated():
 		return
 
-	# Speed determines fill rate
-	var fill_rate = character_data.speed * 10.0  # Adjust multiplier for game feel
+	# Speed determines fill rate (increased for faster battles)
+	var fill_rate = character_data.speed * 50.0  # 5x faster
 	time_bar += fill_rate * delta
 
 	if time_bar >= max_time_bar:
@@ -57,9 +57,9 @@ func process_turn(all_enemy_units: Array, all_ally_units: Array):
 		print("DEBUG BattleUnit: ", character_data.character_name, " is defeated, returning")
 		return
 
-	# Fill time bar until ready (max 3 seconds for fast gameplay)
+	# Fill time bar until ready (max 1 second for very fast gameplay)
 	var wait_time = 0.0
-	var max_wait = 3.0
+	var max_wait = 1.0
 	print("DEBUG BattleUnit: Waiting for time bar, is_ready=", is_ready)
 	while not is_ready and wait_time < max_wait:
 		update_time_bar(0.05)
@@ -118,15 +118,15 @@ func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 			print("DEBUG: Attack complete")
 		Tactic.ActionType.DEFEND:
 			character_data.is_defending = true
-			await get_tree().create_timer(0.3).timeout
+			await get_tree().create_timer(0.1).timeout
 		Tactic.ActionType.MOVE_FORWARD:
 			if battle_position >= 3:  # Currently in back
 				battle_position -= 3
-			await get_tree().create_timer(0.3).timeout
+			await get_tree().create_timer(0.1).timeout
 		Tactic.ActionType.MOVE_BACKWARD:
 			if battle_position < 3:  # Currently in front
 				battle_position += 3
-			await get_tree().create_timer(0.3).timeout
+			await get_tree().create_timer(0.1).timeout
 	print("DEBUG: execute_action complete")
 
 func find_nearest_target(enemy_units: Array) -> BattleUnit:
@@ -178,12 +178,12 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 			print("DEBUG perform_attack: animation_finished received")
 		else:
 			# No valid animation, just wait a short delay
-			print("DEBUG perform_attack: no valid anim, waiting 0.3s")
-			await get_tree().create_timer(0.3).timeout
+			print("DEBUG perform_attack: no valid anim, waiting 0.1s")
+			await get_tree().create_timer(0.1).timeout
 	else:
 		# No character or no sprite_frames, wait a short delay
-		print("DEBUG perform_attack: no character/sprite_frames, waiting 0.3s")
-		await get_tree().create_timer(0.3).timeout
+		print("DEBUG perform_attack: no character/sprite_frames, waiting 0.1s")
+		await get_tree().create_timer(0.1).timeout
 
 	print("DEBUG perform_attack: applying damage to target...")
 	await target.take_damage(damage)

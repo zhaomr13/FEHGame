@@ -172,11 +172,11 @@ func start_combat_round():
 				print("DEBUG: Victory checked, battle ending")
 				return
 
-			# Short delay between actions
-			await get_tree().create_timer(0.2).timeout
+			# Very short delay between actions
+			await get_tree().create_timer(0.05).timeout
 
-		# Short delay between turns
-		await get_tree().create_timer(0.5).timeout
+		# Very short delay between turns
+		await get_tree().create_timer(0.1).timeout
 
 	if is_battle_active:
 		print("Battle ended by turn limit")
