@@ -42,7 +42,7 @@ func update_time_bar(delta: float):
 
 func enter_ready_state():
     """Character is ready to act - evaluate tactics"""
-    character.set_state(Character.State.READY)
+    character.set_state(Character.State.SELECTED)
 
 func process_turn(all_enemy_units: Array, all_ally_units: Array):
     """Process a full turn for this unit"""
