@@ -57,5 +57,7 @@ visible = false
 [node name="BattleScene" parent="." instance=ExtResource("3_battlescene")]
 visible = false
 
-[node name="FactionSelect" parent="." instance=ExtResource("4_faction")]
+[node name="FactionSelectLayer" type="CanvasLayer" parent="."]
+
+[node name="FactionSelect" parent="FactionSelectLayer" instance=ExtResource("4_faction")]
 visible = false

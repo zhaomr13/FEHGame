@@ -4,12 +4,15 @@ signal city_closed
 signal heal_army
 signal recruit_troops
 signal open_formation
+signal deploy_army
 
 var current_city_name: String = ""
 var gold_reward: int = 100
+var is_current_city: bool = false
 
 @onready var title_label = $Panel/VBoxContainer/TitleLabel
 @onready var info_label = $Panel/VBoxContainer/InfoLabel
+@onready var deploy_button = $Panel/VBoxContainer/DeployButton
 
 func _ready():
 	visible = false
@@ -20,8 +23,12 @@ func _ready():
 	$Panel/VBoxContainer/ButtonContainer/FormationButton.pressed.connect(_on_formation)
 	$Panel/VBoxContainer/CloseButton.pressed.connect(_on_close)
 
-func show_city(city_name: String, city_type: int):
+	if deploy_button:
+		deploy_button.pressed.connect(_on_deploy)
+
+func show_city(city_name: String, city_type: int, is_current: bool = false):
 	current_city_name = city_name
+	is_current_city = is_current
 	visible = true
 
 	title_label.text = city_name
@@ -38,10 +45,19 @@ func show_city(city_name: String, city_type: int):
 			city_type_name = "Village"
 			gold_reward = 100
 
-	info_label.text = "Type: %s\nGold Income: %d\n\nWhat would you like to do?" % [city_type_name, gold_reward]
+	if is_current:
+		info_label.text = "Type: %s\nGold Income: %d\n\nYou are here. Manage your army or deploy to attack." % [city_type_name, gold_reward]
+		if deploy_button:
+			deploy_button.visible = true
+			deploy_button.text = "Deploy Army"
+	else:
+		info_label.text = "Type: %s\nGold Income: %d\n\nThis city is under your control." % [city_type_name, gold_reward]
+		if deploy_button:
+			deploy_button.visible = false
 
-	# Add gold to player
-	GameManager.player_gold += gold_reward
+	# Add gold to player (only once per visit)
+	if is_current:
+		GameManager.player_gold += gold_reward
 
 func _on_heal():
 	heal_army.emit()
@@ -62,6 +78,9 @@ func _on_recruit():
 func _on_formation():
 	open_formation.emit()
 	info_label.text = "Formation editor would open here..."
+
+func _on_deploy():
+	deploy_army.emit()
 
 func _on_close():
 	visible = false

@@ -70,6 +70,12 @@ layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
 text = "Formation"
 
+[node name="DeployButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(150, 50)
+text = "Deploy Army"
+
 [node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4

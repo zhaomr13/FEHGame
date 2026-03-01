@@ -3,7 +3,16 @@ extends Node2D
 @onready var world_map = $WorldMap
 @onready var battle_manager = $BattleScene
 @onready var main_menu = $MainMenu
-@onready var faction_select = $FactionSelect
+@onready var faction_select = $FactionSelectLayer/FactionSelect
+
+# Faction starting positions
+const FACTION_START_POSITIONS = {
+	"askr": "city_3",  # Askr starts at central city
+	"embla": "city_1", # Embla starts at northern fort
+	"nifl": "city_8"   # Nifl starts at southern city
+}
+
+var selected_faction: String = ""
 
 func _ready():
 	# Connect start button
@@ -36,12 +45,21 @@ func _on_faction_back_pressed():
 	main_menu.visible = true
 
 func _on_faction_selected(faction: String):
+	selected_faction = faction
+
 	# Initialize player army based on faction
 	initialize_player_army(faction)
+
+	# Set starting position based on faction
+	var start_city = FACTION_START_POSITIONS.get(faction, "city_3")
+	world_map.current_node_id = start_city
 
 	faction_select.visible = false
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	world_map.visible = true
+
+	# Reinitialize world map with new starting position
+	world_map.setup_faction_start(faction, start_city)
 
 func initialize_player_army(faction: String):
 	"""Create starting characters based on faction choice"""
@@ -86,9 +104,9 @@ func _get_sprite_name(char_name: String) -> String:
 	"""Map character name to sprite folder"""
 	match char_name:
 		"Sharena": return "char_06_sharena"
-		"Alfonse": return "char_01_alm"  # Using Alm as placeholder
-		"Anna": return "char_07_lyn"     # Using Lyn as placeholder
-		"Marth": return "char_01_alm"   # Using Alm as placeholder
+		"Alfonse": return "char_01_alm"
+		"Anna": return "char_07_lyn"
+		"Marth": return "char_01_alm"
 		"Cain": return "char_04_abel"
 		"Abel": return "char_04_abel"
 		"Klein": return "char_05_klein"
