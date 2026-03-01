@@ -266,12 +266,17 @@ func _on_battle_ended(victory: bool):
 		if map_nodes.has(current_node_id):
 			map_nodes[current_node_id].set_faction_color(current_faction)
 
-	# Return to world map
-	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
-	visible = true
+		# Return to world map
+		GameManager.change_state(GameConstants.GameState.WORLD_MAP)
+		visible = true
 
-	# Check if more battles needed
-	process_battle_phase()
+		# Check if more battles needed
+		process_battle_phase()
+	else:
+		# Defeat - return to world map and end turn
+		GameManager.change_state(GameConstants.GameState.WORLD_MAP)
+		visible = true
+		end_player_turn()
 
 func generate_enemy_army(node: MapNode) -> Array[CharacterData]:
 	return generate_enemy_army_for_faction("")
