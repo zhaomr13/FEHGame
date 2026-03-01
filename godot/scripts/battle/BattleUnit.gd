@@ -52,13 +52,22 @@ func enter_ready_state():
 
 func process_turn(all_enemy_units: Array, all_ally_units: Array):
 	"""Process a full turn for this unit"""
-	# Fill time bar until ready
-	while not is_ready and not character_data.is_defeated():
-		update_time_bar(0.016)  # Approx 60fps
-		await get_tree().create_timer(0.016).timeout
+	if character_data.is_defeated():
+		return
+
+	# Fill time bar until ready (max 3 seconds for fast gameplay)
+	var wait_time = 0.0
+	var max_wait = 3.0
+	while not is_ready and wait_time < max_wait:
+		update_time_bar(0.05)
+		wait_time += 0.05
+		await get_tree().create_timer(0.05).timeout
 
 	if character_data.is_defeated():
 		return
+
+	# Force ready if timeout
+	is_ready = true
 
 	# Execute tactics
 	await execute_tactics(all_enemy_units, all_ally_units)
