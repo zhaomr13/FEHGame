@@ -1,9 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://djctfbygkh2x2"]
+[gd_scene load_steps=6 format=3 uid="uid://djctfbygkh2x2"]
 
 [ext_resource type="Script" uid="uid://dnwkk5m8jbkcu" path="res://scripts/Main.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/world_map/WorldMap.tscn" id="2_worldmap"]
 [ext_resource type="PackedScene" path="res://scenes/battle/BattleScene.tscn" id="3_battlescene"]
-[ext_resource type="PackedScene" uid="uid://faction_select" path="res://scenes/ui/FactionSelect.tscn" id="4_faction"]
+[ext_resource type="PackedScene" path="res://scenes/ui/FactionSelect.tscn" id="4_faction"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1"]
 font_size = 48

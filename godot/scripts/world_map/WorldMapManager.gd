@@ -74,6 +74,11 @@ func initialize_map():
             map_nodes[child.node_id] = child
             child.node_clicked.connect(_on_node_clicked)
 
+    # Explore starting city
+    var start_node = map_nodes.get(current_node_id)
+    if start_node:
+        start_node.explore()
+
 func _on_node_clicked(node: MapNode):
     if not is_player_turn:
         return

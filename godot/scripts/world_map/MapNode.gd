@@ -13,26 +13,31 @@ var position_on_map: Vector2i
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var label: Label = $Label
+@onready var area: Area2D = $Area2D
 
 func _ready():
-    if label:
-        label.text = node_name
-    update_visual()
+	if label:
+		label.text = node_name
+	update_visual()
+
+	# Connect Area2D input event
+	if area:
+		area.input_event.connect(_on_area_input_event)
+
+func _on_area_input_event(viewport, event, shape_idx):
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		node_clicked.emit(self)
 
 func update_visual():
-    if not is_explored:
-        sprite.modulate = Color(0.3, 0.3, 0.3, 1.0)
-        if label:
-            label.visible = false
-    else:
-        sprite.modulate = Color.WHITE
-        if label:
-            label.visible = true
-
-func _input_event(viewport, event, shape_idx):
-    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-        node_clicked.emit(self)
+	if not is_explored:
+		sprite.modulate = Color(0.3, 0.3, 0.3, 1.0)
+		if label:
+			label.visible = false
+	else:
+		sprite.modulate = Color.WHITE
+		if label:
+			label.visible = true
 
 func explore():
-    is_explored = true
-    update_visual()
+	is_explored = true
+	update_visual()
