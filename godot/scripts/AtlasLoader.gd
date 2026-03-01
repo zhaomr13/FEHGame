@@ -38,7 +38,9 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 
 		# Add animation to SpriteFrames
 		sprite_frames.add_animation(anim_name)
-		sprite_frames.set_animation_loop(anim_name, true)
+		# Only loop idle animations, not attacks or one-shots
+		var should_loop = anim_name in ["Idle", "Attack1_Loop", "Attack2_Loop"]
+		sprite_frames.set_animation_loop(anim_name, should_loop)
 		sprite_frames.set_animation_speed(anim_name, 30.0)
 
 		# Add frames to animation
