@@ -26,7 +26,7 @@ func start_battle(player_units: Array, enemy_units: Array):
 func start_battle_with_background(player_units: Array, enemy_units: Array, background_type: String):
     current_battle_background = background_type
     battle_started_with_background.emit(player_units, enemy_units, background_type)
-    start_battle(player_units, enemy_units)
+    change_state(GameConstants.GameState.BATTLE_DEPLOYMENT)
 
 func end_battle(victory: bool):
     battle_ended.emit(victory)

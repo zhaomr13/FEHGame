@@ -206,8 +206,7 @@ func start_attack_on_city(target_node: MapNode):
 
 	# Start battle
 	var battle_bg = select_battle_background(target_node)
-	GameManager.battle_started_with_background.emit(GameManager.player_army, enemy_units, battle_bg)
-	GameManager.start_battle(GameManager.player_army, enemy_units)
+	GameManager.start_battle_with_background(GameManager.player_army, enemy_units, battle_bg)
 
 func move_to_node(target_node: MapNode):
 	current_node_id = target_node.node_id

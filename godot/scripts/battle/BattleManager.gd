@@ -38,7 +38,6 @@ const BATTLE_BACKGROUNDS = {
 }
 
 func _ready():
-	GameManager.battle_started.connect(_on_battle_started)
 	GameManager.battle_started_with_background.connect(_on_battle_started_with_background)
 	visible = false
 
@@ -50,12 +49,6 @@ func set_background(bg_type: String):
 		background_sprite.texture = load(bg_path)
 	if foreground_sprite:
 		foreground_sprite.texture = load(fg_path)
-
-func _on_battle_started(player_army: Array, enemy_army: Array):
-	if is_battle_active:
-		return
-	set_background(GameManager.current_battle_background)
-	start_deployment(player_army, enemy_army)
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
 	if is_battle_active:
