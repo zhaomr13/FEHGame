@@ -80,15 +80,26 @@ func process_turn(all_enemy_units: Array, all_ally_units: Array):
 
 func execute_tactics(all_enemy_units: Array, all_ally_units: Array):
 	"""Evaluate tactics in priority order and execute first matching one"""
-	for tactic in character_data.tactics:
+	print("DEBUG: execute_tactics, tactics count: ", character_data.tactics.size())
+	for i in range(character_data.tactics.size()):
+		var tactic = character_data.tactics[i]
+		print("DEBUG: Checking tactic ", i, " type: ", tactic.action_type)
 		if tactic.is_condition_met(self, all_enemy_units, all_ally_units):
+			print("DEBUG: Tactic ", i, " condition met, executing")
 			await execute_action(tactic, all_enemy_units, all_ally_units)
+			print("DEBUG: Tactic ", i, " executed")
 			return
+		else:
+			print("DEBUG: Tactic ", i, " condition not met")
 
 	# Default: Attack nearest enemy
+	print("DEBUG: No tactic matched, using default attack")
 	var target = find_nearest_target(all_enemy_units)
 	if target:
+		print("DEBUG: Attacking nearest target: ", target.character_data.character_name)
 		await perform_attack(target, false)
+	else:
+		print("DEBUG: No target found!")
 
 func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 	"""Execute the tactic action"""
@@ -149,9 +160,16 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 		damage = int(damage * (1.5 + 0.3 * adjacent_allies))  # Pincer bonus
 
 	# Play animation
-	if character:
-		character.play_attack_animation()
-		await character.animated_sprite.animation_finished
+	if character and character.animated_sprite.sprite_frames:
+		var anim_name = character.play_attack_animation()
+		if anim_name != "" and character.animated_sprite.sprite_frames.has_animation(anim_name):
+			await character.animated_sprite.animation_finished
+		else:
+			# No valid animation, just wait a short delay
+			await get_tree().create_timer(0.3).timeout
+	else:
+		# No character or no sprite_frames, wait a short delay
+		await get_tree().create_timer(0.3).timeout
 
 	await target.take_damage(damage)
 

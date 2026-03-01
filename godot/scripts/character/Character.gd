@@ -77,7 +77,12 @@ func play_attack_animation() -> String:
 func take_damage(amount: int):
 	character_data.take_damage(amount)
 	set_state(State.DAMAGED)
-	await animated_sprite.animation_finished
+	# Only await if we have a valid animation playing
+	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("Damage"):
+		await animated_sprite.animation_finished
+	else:
+		# No animation, just wait a short delay
+		await get_tree().create_timer(0.2).timeout
 	if character_data.is_defeated():
 		set_state(State.DEFEATED)
 	else:
