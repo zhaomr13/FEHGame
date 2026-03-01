@@ -94,18 +94,25 @@ func initialize_player_army(faction: String):
 		character.weapon_type = char_data.weapon
 		character.setup_default_tactics()
 
-		# Set sprite path (use atlas in assets folder)
+		# Set sprite path (use characters folder structure)
 		var sprite_name = _get_sprite_name(char_data.name)
-		character.sprite_frames_path = "res://assets/" + sprite_name + ".png"
+		character.sprite_frames_path = "res://assets/characters/" + sprite_name + "/Idle.png"
 
 		GameManager.player_army.append(character)
 
 func _get_sprite_name(char_name: String) -> String:
-	"""Map character name to atlas name (available: Diadora, ArmorAX)"""
+	"""Map character name to character folder"""
 	match char_name:
-		"Sharena", "Anna", "Lyn", "Rebecca": return "Diadora"
-		"Alfonse", "Marth", "Cain", "Abel", "Klein": return "ArmorAX"
-		_: return "Diadora"
+		"Sharena": return "char_02_lilina"
+		"Alfonse": return "char_01_alm"
+		"Anna": return "char_08_robin"
+		"Marth": return "char_01_alm"
+		"Cain": return "char_04_abel"
+		"Abel": return "char_04_abel"
+		"Klein": return "char_05_klein"
+		"Rebecca": return "char_09_rebecca"
+		"Lyn": return "char_07_lyn"
+		_: return "char_01_alm"
 
 func _on_state_changed(new_state: GameConstants.GameState):
 	match new_state:

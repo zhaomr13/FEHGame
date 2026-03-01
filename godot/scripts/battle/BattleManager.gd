@@ -107,7 +107,9 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 			enemy_data.attack = 5 + randi() % 5
 			enemy_data.defense = 3 + randi() % 3
 			enemy_data.speed = 4 + randi() % 4
-			enemy_data.sprite_frames_path = "res://assets/ArmorAX.png"
+			# Use random character from available folders for enemies
+			var enemy_sprites = ["char_03_dorcas", "char_10_hector", "char_armorax", "char_armorsw"]
+			enemy_data.sprite_frames_path = "res://assets/characters/" + enemy_sprites[randi() % enemy_sprites.size()] + "/Idle.png"
 			enemy_data.setup_default_tactics()
 		var unit = create_battle_unit(enemy_data, i, false)
 		enemy_units.append(unit)

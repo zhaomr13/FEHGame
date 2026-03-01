@@ -288,7 +288,9 @@ func generate_enemy_army_for_faction(faction: String) -> Array[CharacterData]:
 		enemy.attack = 5 + randi() % 5
 		enemy.defense = 3 + randi() % 3
 		enemy.speed = 4 + randi() % 4
-		enemy.sprite_frames_path = "res://assets/ArmorAX.png"
+		# Use random character from available folders for enemies
+		var enemy_sprites = ["char_03_dorcas", "char_10_hector", "char_armorax", "char_armorsw"]
+		enemy.sprite_frames_path = "res://assets/characters/" + enemy_sprites[randi() % enemy_sprites.size()] + "/Idle.png"
 		enemy.setup_default_tactics()
 		enemies.append(enemy)
 
