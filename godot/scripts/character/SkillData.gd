@@ -13,20 +13,20 @@ enum TargetType { SELF, SINGLE, AOE, ALLY, ALL_ALLIES }
 @export var current_cooldown: int = 0
 
 func calculate_damage(user: CharacterData, target: CharacterData) -> int:
-    match skill_type:
-        SkillType.ACTIVE:
-            return max(1, user.attack * power / 10 - target.defense)
-        SkillType.PASSIVE:
-            return 0
-        SkillType.LEADER:
-            return 0
-    return 0
+	match skill_type:
+		SkillType.ACTIVE:
+			return max(1, user.attack * power / 10 - target.defense)
+		SkillType.PASSIVE:
+			return 0
+		SkillType.LEADER:
+			return 0
+	return 0
 
 func can_use() -> bool:
-    return current_cooldown <= 0
+	return current_cooldown <= 0
 
 func use():
-    current_cooldown = cooldown
+	current_cooldown = cooldown
 
 func update_cooldown():
-    current_cooldown = max(0, current_cooldown - 1)
+	current_cooldown = max(0, current_cooldown - 1)

@@ -18,12 +18,22 @@ func _ready():
 	var atlas_loader = preload("res://scripts/AtlasLoader.gd")
 	animated_sprite.sprite_frames = atlas_loader.load_atlas(json_path, png_path)
 
-	animated_sprite.play("Idle")
+	# Wait a frame for sprite_frames to be assigned, then play Idle
+	call_deferred("_play_idle_animation")
 
 	# Flip if not player (face left)
 	if not is_player:
 		facing_right = false
 		animated_sprite.flip_h = true
+
+func _play_idle_animation():
+	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("Idle"):
+		animated_sprite.play("Idle")
+	elif animated_sprite.sprite_frames:
+		# Fallback: play first available animation
+		var anims = animated_sprite.sprite_frames.get_animation_names()
+		if anims.size() > 0:
+			animated_sprite.play(anims[0])
 
 func _physics_process(delta):
 	match current_state:
@@ -70,15 +80,21 @@ func handle_attack(delta):
 func change_state(new_state: State):
 	current_state = new_state
 
+	if not animated_sprite.sprite_frames:
+		return
+
 	match new_state:
 		State.IDLE:
-			animated_sprite.play("Idle")
+			if animated_sprite.sprite_frames.has_animation("Idle"):
+				animated_sprite.play("Idle")
 			velocity = Vector2.ZERO
 		State.WALK:
-			animated_sprite.play("Idle")  # Use Idle for walk (no walk anim)
+			if animated_sprite.sprite_frames.has_animation("Idle"):
+				animated_sprite.play("Idle")  # Use Idle for walk (no walk anim)
 		State.ATTACK:
-			animated_sprite.play("Attack1")
-			animated_sprite.animation_finished.connect(_on_attack_finished, CONNECT_ONE_SHOT)
+			if animated_sprite.sprite_frames.has_animation("Attack1"):
+				animated_sprite.play("Attack1")
+				animated_sprite.animation_finished.connect(_on_attack_finished, CONNECT_ONE_SHOT)
 
 func _on_attack_finished():
 	change_state(State.IDLE)

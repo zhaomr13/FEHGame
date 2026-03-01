@@ -128,7 +128,9 @@ func initialize_map():
 	for child in map_nodes_container.get_children():
 		if child is MapNode:
 			map_nodes[child.node_id] = child
-			child.node_clicked.connect(_on_node_clicked)
+			# Only connect if not already connected
+			if not child.node_clicked.is_connected(_on_node_clicked):
+				child.node_clicked.connect(_on_node_clicked)
 
 	# Explore starting city
 	var start_node = map_nodes.get(current_node_id)
