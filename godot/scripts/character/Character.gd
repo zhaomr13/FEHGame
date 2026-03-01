@@ -22,10 +22,10 @@ func setup_sprite():
 		return
 
 	var atlas_loader = preload("res://scripts/AtlasLoader.gd")
-	var json_path = character_data.sprite_frames_path.replace(".png", ".json")
-	var png_path = character_data.sprite_frames_path
+	# Get the folder path from the sprite_frames_path
+	var folder = character_data.sprite_frames_path.get_base_dir()
 
-	animated_sprite.sprite_frames = atlas_loader.load_atlas(json_path, png_path)
+	animated_sprite.sprite_frames = atlas_loader.load_character_atlas(folder)
 	if animated_sprite.sprite_frames:
 		# Play first available animation if Idle doesn't exist
 		if animated_sprite.sprite_frames.has_animation("Idle"):
@@ -65,18 +65,13 @@ func set_state(new_state: State):
 			modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 func play_attack_animation() -> String:
-	print("DEBUG Character.play_attack_animation: checking sprite_frames...")
 	if not animated_sprite.sprite_frames:
-		print("DEBUG Character.play_attack_animation: no sprite_frames!")
 		return ""
 	var attack_type = "Attack1"
 	if randf() > 0.5 and animated_sprite.sprite_frames.has_animation("Attack2"):
 		attack_type = "Attack2"
-	print("DEBUG Character.play_attack_animation: attack_type=", attack_type, " has_anim=", animated_sprite.sprite_frames.has_animation(attack_type))
 	if animated_sprite.sprite_frames.has_animation(attack_type):
-		print("DEBUG Character.play_attack_animation: playing animation...")
 		animated_sprite.play(attack_type)
-		print("DEBUG Character.play_attack_animation: animation started, is_playing=", animated_sprite.is_playing())
 	return attack_type
 
 func take_damage(amount: int):
