@@ -166,16 +166,23 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 	if adjacent_allies > 0:
 		damage = int(damage * (1.5 + 0.3 * adjacent_allies))  # Pincer bonus
 
+	print("DEBUG perform_attack: checking character...")
 	# Play animation
 	if character and character.animated_sprite.sprite_frames:
+		print("DEBUG perform_attack: character valid, playing animation...")
 		var anim_name = character.play_attack_animation()
+		print("DEBUG perform_attack: animation name: ", anim_name)
 		if anim_name != "" and character.animated_sprite.sprite_frames.has_animation(anim_name):
+			print("DEBUG perform_attack: awaiting animation_finished...")
 			await character.animated_sprite.animation_finished
+			print("DEBUG perform_attack: animation_finished received")
 		else:
 			# No valid animation, just wait a short delay
+			print("DEBUG perform_attack: no valid anim, waiting 0.3s")
 			await get_tree().create_timer(0.3).timeout
 	else:
 		# No character or no sprite_frames, wait a short delay
+		print("DEBUG perform_attack: no character/sprite_frames, waiting 0.3s")
 		await get_tree().create_timer(0.3).timeout
 
 	print("DEBUG perform_attack: applying damage to target...")
