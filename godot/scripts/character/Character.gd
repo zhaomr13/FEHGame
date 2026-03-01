@@ -65,10 +65,13 @@ func set_state(new_state: State):
 			modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 func play_attack_animation() -> String:
+	if not animated_sprite.sprite_frames:
+		return ""
 	var attack_type = "Attack1"
 	if randf() > 0.5 and animated_sprite.sprite_frames.has_animation("Attack2"):
 		attack_type = "Attack2"
-	animated_sprite.play(attack_type)
+	if animated_sprite.sprite_frames.has_animation(attack_type):
+		animated_sprite.play(attack_type)
 	return attack_type
 
 func take_damage(amount: int):

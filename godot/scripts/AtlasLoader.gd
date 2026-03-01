@@ -24,15 +24,11 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 	var meta = data["meta"]
 	var tags = meta.get("frameTags", [])
 
-	# Load PNG texture
-	var image = Image.new()
-	var err = image.load(png_path)
-	if err != OK:
-		push_error("Failed to load image: " + png_path)
+	# Load PNG texture using load() for proper import
+	var full_texture = load(png_path) as Texture2D
+	if full_texture == null:
+		push_error("Failed to load texture: " + png_path)
 		return sprite_frames
-
-	# Create atlas texture from full image
-	var full_texture = ImageTexture.create_from_image(image)
 
 	# Create animations from tags
 	for tag in tags:
