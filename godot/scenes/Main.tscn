@@ -1,20 +1,57 @@
-[gd_scene load_steps=2 format=3 uid="uid://main_scene"]
+[gd_scene load_steps=5 format=3 uid="uid://djctfbygkh2x2"]
 
-[ext_resource type="PackedScene" path="res://scenes/Character.tscn" id="1_character"]
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://worldmap_scene" path="res://scenes/world_map/WorldMap.tscn" id="2_worldmap"]
+[ext_resource type="PackedScene" uid="uid://battlescene_base" path="res://scenes/battle/BattleScene.tscn" id="3_battlescene"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1"]
+font_size = 48
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
-offset_right = 1280.0
-offset_bottom = 720.0
-color = Color(0.2, 0.3, 0.4, 1.0)
+[node name="MainMenu" type="CanvasLayer" parent="."]
 
-[node name="Player1" parent="." instance=ExtResource("1_character")]
-position = Vector2(400, 500)
-character_name = "Diadora"
-is_player = true
+[node name="Background" type="ColorRect" parent="MainMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.15, 0.25, 1)
 
-[node name="Player2" parent="." instance=ExtResource("1_character")]
-position = Vector2(880, 500)
-character_name = "ArmorAX"
-is_player = false
+[node name="Title" type="Label" parent="MainMenu"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Fire Emblem Strategy RPG"
+label_settings = SubResource("LabelSettings_1")
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="MainMenu"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Start Game"
+
+[node name="WorldMap" parent="." instance=ExtResource("2_worldmap")]
+visible = false
+
+[node name="BattleScene" parent="." instance=ExtResource("3_battlescene")]
+visible = false
