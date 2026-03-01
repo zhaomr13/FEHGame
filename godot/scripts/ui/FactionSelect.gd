@@ -36,34 +36,40 @@ func create_faction_buttons():
 	for faction_id in FACTIONS.keys():
 		var faction = FACTIONS[faction_id]
 
-		# Create a container for each faction button
-		var container = PanelContainer.new()
-		container.custom_minimum_size = Vector2(500, 100)
+		# Create a container for each faction button - CENTERED
+		var container = CenterContainer.new()
+		container.custom_minimum_size = Vector2(500, 120)
+		container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-		# Style the container
+		# Panel with styling
+		var panel = PanelContainer.new()
+		panel.custom_minimum_size = Vector2(450, 100)
+
+		# Style the panel
 		var style = StyleBoxFlat.new()
-		style.bg_color = faction.color.darkened(0.3)
-		style.border_width_left = 4
-		style.border_width_top = 4
-		style.border_width_right = 4
-		style.border_width_bottom = 4
+		style.bg_color = faction.color.darkened(0.4)
+		style.border_width_left = 3
+		style.border_width_top = 3
+		style.border_width_right = 3
+		style.border_width_bottom = 3
 		style.border_color = faction.color
-		style.corner_radius_top_left = 10
-		style.corner_radius_top_right = 10
-		style.corner_radius_bottom_left = 10
-		style.corner_radius_bottom_right = 10
-		container.add_theme_stylebox_override("panel", style)
+		style.corner_radius_top_left = 8
+		style.corner_radius_top_right = 8
+		style.corner_radius_bottom_left = 8
+		style.corner_radius_bottom_right = 8
+		panel.add_theme_stylebox_override("panel", style)
 
 		# Inner layout
 		var vbox = VBoxContainer.new()
 		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-		container.add_child(vbox)
+		vbox.add_theme_constant_override("separation", 5)
+		panel.add_child(vbox)
 
 		# Name label
 		var name_label = Label.new()
 		name_label.text = faction.name
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 24)
+		name_label.add_theme_font_size_override("font_size", 22)
 		name_label.add_theme_color_override("font_color", Color.WHITE)
 		vbox.add_child(name_label)
 
@@ -76,19 +82,21 @@ func create_faction_buttons():
 
 		# Bonus
 		var bonus_label = Label.new()
-		bonus_label.text = "Bonus: " + faction.bonus
+		bonus_label.text = faction.bonus
 		bonus_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		bonus_label.add_theme_font_size_override("font_size", 12)
-		bonus_label.add_theme_color_override("font_color", faction.color.lightened(0.3))
+		bonus_label.add_theme_color_override("font_color", faction.color.lightened(0.4))
 		vbox.add_child(bonus_label)
 
-		# Make the container clickable
+		# Select button
 		var button = Button.new()
 		button.text = "Select"
 		button.custom_minimum_size = Vector2(100, 30)
+		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		button.pressed.connect(_on_faction_button_pressed.bind(faction_id))
 		vbox.add_child(button)
 
+		container.add_child(panel)
 		faction_list.add_child(container)
 
 func _on_faction_button_pressed(faction_id: String):
