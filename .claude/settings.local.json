@@ -9,7 +9,13 @@
       "Bash(python3:*)",
       "Bash(git:*)",
       "Bash(mkdir:*)",
-      "Bash(/Applications/Godot.app/Contents/MacOS/Godot:*)"
+      "Bash(/Applications/Godot.app/Contents/MacOS/Godot:*)",
+      "Bash(pip3 install:*)",
+      "Bash(./ssbp_viewer *)",
+      "Bash(find:*)",
+      "Bash(./convert_all_atlases.sh:*)",
+      "Bash(open:*)",
+      "Bash(killall Godot:*)"
     ]
   }
 }

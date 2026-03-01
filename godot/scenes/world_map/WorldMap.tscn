@@ -9,7 +9,8 @@ script = ExtResource("1_script")
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -1
 texture = ExtResource("2_bg")
-centered = false
+centered = true
+position = Vector2(640, 360)
 
 [node name="Connections" type="Node2D" parent="."]
 

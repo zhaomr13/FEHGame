@@ -46,11 +46,15 @@ func _ready():
 
 func setup_background():
     """Setup the world map background (201805.png)"""
-    if background_sprite:
-        background_sprite.texture = load(WORLD_BACKGROUNDS["world_map"])
-        # Center the background if it's larger than viewport
+    if background_sprite and background_sprite.texture:
+        # Center the background
         var bg_size = background_sprite.texture.get_size()
-        background_sprite.position = bg_size / 2
+        background_sprite.position = Vector2(640, 360)  # Center of 1280x720 screen
+        # Scale to fit screen if needed
+        var screen_size = Vector2(1280, 720)
+        var scale_factor = max(screen_size.x / bg_size.x, screen_size.y / bg_size.y)
+        if scale_factor > 1:
+            background_sprite.scale = Vector2(scale_factor, scale_factor)
 
 func create_map_nodes():
     """Create map nodes from NODE_CONFIG"""
