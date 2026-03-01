@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://battleunit_scene"]
+
+[ext_resource type="PackedScene" uid="uid://character_scene_base" path="res://scenes/character/Character.tscn" id="1_character"]
+[ext_resource type="Script" path="res://scripts/battle/BattleUnit.gd" id="2_script"]
+
+[node name="BattleUnit" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="Character" parent="." instance=ExtResource("1_character")]
