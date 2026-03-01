@@ -108,16 +108,22 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 	unit.setup(data, position, is_player)
 
 	# Position unit based on formation
+	# Position 0-2: Front row, Position 3-5: Back row
+	var row = position / 3  # 0 or 1
+	var col = position % 3  # 0, 1, 2
+
+	# Layout: 3 columns, 2 rows
+	# x: 0, 100, 200 (left to right)
+	# y: -80 (front), 80 (back)
+	var x_pos = col * 100
+	var y_pos = -80 if row == 0 else 80
+
 	if is_player:
-		# Front row: positions 0-2, Back row: positions 3-5
-		var row = position / 3
-		var col = position % 3
-		unit.position = Vector2(col * 80, row * 100 - 50)
+		unit.position = Vector2(x_pos, y_pos)
 		player_formation.add_child(unit)
 	else:
-		var row = position / 3
-		var col = position % 3
-		unit.position = Vector2(col * 80, row * 100 - 50)
+		unit.position = Vector2(x_pos, y_pos)
+		unit.scale.x = -1  # Flip enemy to face left
 		enemy_formation.add_child(unit)
 
 	return unit

@@ -20,10 +20,10 @@ centered = true
 position = Vector2(640, 360)
 
 [node name="PlayerFormation" type="Node2D" parent="."]
-position = Vector2(300, 360)
+position = Vector2(350, 360)
 
 [node name="EnemyFormation" type="Node2D" parent="."]
-position = Vector2(980, 360)
+position = Vector2(930, 360)
 
 [node name="DeploymentUI" type="CanvasLayer" parent="."]
 

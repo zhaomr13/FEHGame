@@ -39,6 +39,10 @@ func _on_area_input_event(viewport, event, shape_idx):
 func set_faction_color(faction: String):
 	"""Set the node color based on faction ownership"""
 	current_faction = faction
+	# Use call_deferred to ensure sprite is ready
+	call_deferred("_apply_faction_color", faction)
+
+func _apply_faction_color(faction: String):
 	if sprite:
 		var color = FACTION_COLORS.get(faction, FACTION_COLORS[""])
 		sprite.modulate = color

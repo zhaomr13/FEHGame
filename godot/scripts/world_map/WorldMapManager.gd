@@ -98,9 +98,8 @@ func create_map_nodes():
 		node.position = config.pos
 		node.connections = config.connections
 
-		# Set faction color if applicable
-		if config.faction != "":
-			node.set_faction_color(config.faction)
+		# Set faction color
+		node.set_faction_color(config.faction)
 
 		map_nodes_container.add_child(node)
 
