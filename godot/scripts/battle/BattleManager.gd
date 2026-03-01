@@ -203,4 +203,6 @@ func end_battle(victory: bool):
 	is_combat_running = false
 	battle_finished.emit(victory)
 	visible = false
+	# Small delay to ensure cleanup before state change
+	await get_tree().create_timer(0.1).timeout
 	GameManager.end_battle(victory)
