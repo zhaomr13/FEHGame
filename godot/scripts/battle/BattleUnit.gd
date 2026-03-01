@@ -118,15 +118,15 @@ func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 			print("DEBUG: Attack complete")
 		Tactic.ActionType.DEFEND:
 			character_data.is_defending = true
-			await get_tree().create_timer(0.5).timeout
+			await get_tree().create_timer(0.3).timeout
 		Tactic.ActionType.MOVE_FORWARD:
 			if battle_position >= 3:  # Currently in back
 				battle_position -= 3
-				# Animate movement
+			await get_tree().create_timer(0.3).timeout
 		Tactic.ActionType.MOVE_BACKWARD:
 			if battle_position < 3:  # Currently in front
 				battle_position += 3
-				# Animate movement
+			await get_tree().create_timer(0.3).timeout
 	print("DEBUG: execute_action complete")
 
 func find_nearest_target(enemy_units: Array) -> BattleUnit:

@@ -60,7 +60,7 @@ func is_condition_met(self_unit, all_enemies: Array, all_allies: Array) -> bool:
 
 # Find target based on target_type - will be fully implemented when BattleUnit is created
 func find_target(self_unit, enemies: Array):
-    var valid_enemies = enemies.filter(func(e): return e.character_data.current_hp > 0)
+    var valid_enemies = enemies.filter(func(e): return not e.character_data.is_defeated())
     if valid_enemies.is_empty():
         return null
 

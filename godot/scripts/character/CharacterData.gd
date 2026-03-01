@@ -80,7 +80,7 @@ func heal(amount: int):
     current_hp = min(max_hp, current_hp + amount)
 
 func is_defeated() -> bool:
-    return current_hp <= 0 and soldiers <= 0
+    return current_hp <= 0
 
 func gain_experience(amount: int):
     experience += amount
