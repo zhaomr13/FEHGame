@@ -13,36 +13,55 @@ var grid_position: Vector2i
 func _ready():
 	if character_data:
 		setup_sprite()
-	set_state(State.IDLE)
+		set_state(State.IDLE)
 
 func setup_sprite():
 	# Load atlas using AtlasLoader
+	if character_data.sprite_frames_path.is_empty():
+		push_error("No sprite_frames_path set for character: " + character_data.character_name)
+		return
+
 	var atlas_loader = preload("res://scripts/AtlasLoader.gd")
 	var json_path = character_data.sprite_frames_path.replace(".png", ".json")
 	var png_path = character_data.sprite_frames_path
 
 	animated_sprite.sprite_frames = atlas_loader.load_atlas(json_path, png_path)
 	if animated_sprite.sprite_frames:
-		animated_sprite.play("Idle")
+		# Play first available animation if Idle doesn't exist
+		if animated_sprite.sprite_frames.has_animation("Idle"):
+			animated_sprite.play("Idle")
+		else:
+			var anims = animated_sprite.sprite_frames.get_animation_names()
+			if anims.size() > 0:
+				animated_sprite.play(anims[0])
 
 func set_state(new_state: State):
 	current_state = new_state
+	if not animated_sprite.sprite_frames:
+		return
+
 	match new_state:
 		State.IDLE:
-			animated_sprite.play("Idle")
+			if animated_sprite.sprite_frames.has_animation("Idle"):
+				animated_sprite.play("Idle")
 			selection_indicator.visible = false
 		State.SELECTED:
-			animated_sprite.play("Ready")
+			if animated_sprite.sprite_frames.has_animation("Ready"):
+				animated_sprite.play("Ready")
 			selection_indicator.visible = true
 		State.MOVING:
-			animated_sprite.play("Ready")
+			if animated_sprite.sprite_frames.has_animation("Ready"):
+				animated_sprite.play("Ready")
 		State.ATTACKING:
-			animated_sprite.play("Attack1")
+			if animated_sprite.sprite_frames.has_animation("Attack1"):
+				animated_sprite.play("Attack1")
 		State.DAMAGED:
-			animated_sprite.play("Damage")
+			if animated_sprite.sprite_frames.has_animation("Damage"):
+				animated_sprite.play("Damage")
 		State.DEFEATED:
-			animated_sprite.play("Damage")
-			animated_sprite.pause()
+			if animated_sprite.sprite_frames.has_animation("Damage"):
+				animated_sprite.play("Damage")
+				animated_sprite.pause()
 			modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 func play_attack_animation() -> String:
