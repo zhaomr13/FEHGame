@@ -45,7 +45,7 @@ const NODE_CONFIG = {
 @onready var connections_node: Node2D = $Connections
 
 func _ready():
-	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
+	# Don't change state here - Main.gd handles state changes
 	setup_background()
 	create_map_nodes()
 	draw_connections()

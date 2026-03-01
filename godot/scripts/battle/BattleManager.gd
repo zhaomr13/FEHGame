@@ -62,14 +62,14 @@ func start_deployment(player_army: Array, enemy_army: Array):
 	GameManager.change_state(GameConstants.GameState.BATTLE_DEPLOYMENT)
 	visible = true
 	await get_tree().create_timer(0.5).timeout
-	_on_deployment_confirmed(player_army, GameConstants.Formation.STANDARD)
+	_on_deployment_confirmed(player_army, enemy_army, GameConstants.Formation.STANDARD)
 
-func _on_deployment_confirmed(selected_units: Array[CharacterData], formation: int):
+func _on_deployment_confirmed(player_units_selected: Array[CharacterData], enemy_units_selected: Array[CharacterData], formation: int):
 	if deployment_ui:
 		deployment_ui.visible = false
-	start_battle_combat(selected_units, formation)
+	start_battle_combat(player_units_selected, enemy_units_selected, formation)
 
-func start_battle_combat(player_selected: Array[CharacterData], formation: int):
+func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: Array[CharacterData], formation: int):
 	if is_battle_active or is_combat_running:
 		return
 
@@ -86,23 +86,29 @@ func start_battle_combat(player_selected: Array[CharacterData], formation: int):
 	enemy_units.clear()
 	all_units.clear()
 
-	# Create player units - 3 in front row
+	# Create player units - up to 6
 	for i in range(min(player_selected.size(), 6)):
 		var unit = create_battle_unit(player_selected[i], i, true)
 		player_units.append(unit)
 		all_units.append(unit)
 
-	# Create enemy units - 3 in front row
-	for i in range(3):
-		var enemy_data = CharacterData.new()
-		enemy_data.character_name = "Enemy " + str(i + 1)
-		enemy_data.max_hp = 20 + randi() % 10
-		enemy_data.current_hp = enemy_data.max_hp
-		enemy_data.attack = 5 + randi() % 5
-		enemy_data.defense = 3 + randi() % 3
-		enemy_data.speed = 4 + randi() % 4
-		enemy_data.sprite_frames_path = "res://assets/ArmorAX.png"  # Use available atlas
-		enemy_data.setup_default_tactics()
+	# Create enemy units - use passed enemy army or generate default
+	var enemy_count = enemy_selected.size() if enemy_selected.size() > 0 else 3
+	for i in range(enemy_count):
+		var enemy_data: CharacterData
+		if enemy_selected.size() > i:
+			enemy_data = enemy_selected[i]
+		else:
+			# Generate default enemy
+			enemy_data = CharacterData.new()
+			enemy_data.character_name = "Enemy " + str(i + 1)
+			enemy_data.max_hp = 20 + randi() % 10
+			enemy_data.current_hp = enemy_data.max_hp
+			enemy_data.attack = 5 + randi() % 5
+			enemy_data.defense = 3 + randi() % 3
+			enemy_data.speed = 4 + randi() % 4
+			enemy_data.sprite_frames_path = "res://assets/ArmorAX.png"
+			enemy_data.setup_default_tactics()
 		var unit = create_battle_unit(enemy_data, i, false)
 		enemy_units.append(unit)
 		all_units.append(unit)
@@ -136,6 +142,7 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 	return unit
 
 func start_combat_round():
+	print("DEBUG: Starting combat round, units count: ", all_units.size())
 	while is_battle_active and current_turn < max_turns and is_combat_running:
 		current_turn += 1
 		turn_started.emit(current_turn)
@@ -143,16 +150,24 @@ func start_combat_round():
 
 		for unit in all_units:
 			if not is_battle_active or not is_combat_running:
+				print("DEBUG: Battle no longer active, exiting turn loop")
 				return
 
-			if not is_instance_valid(unit) or unit.character_data.is_defeated():
+			if not is_instance_valid(unit):
+				print("DEBUG: Unit invalid, skipping")
+				continue
+			if unit.character_data.is_defeated():
+				print("DEBUG: Unit ", unit.character_data.character_name, " defeated, skipping")
 				continue
 
+			print("DEBUG: Processing turn for ", unit.character_data.character_name)
 			var enemy_list = enemy_units if unit.is_player_unit else player_units
 			await unit.process_turn(enemy_list, all_units if unit.is_player_unit else enemy_units)
+			print("DEBUG: Finished turn for ", unit.character_data.character_name)
 			unit_acted.emit(unit)
 
 			if check_victory():
+				print("DEBUG: Victory checked, battle ending")
 				return
 
 			# Short delay between actions

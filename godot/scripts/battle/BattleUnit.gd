@@ -52,25 +52,31 @@ func enter_ready_state():
 
 func process_turn(all_enemy_units: Array, all_ally_units: Array):
 	"""Process a full turn for this unit"""
+	print("DEBUG BattleUnit: process_turn started for ", character_data.character_name)
 	if character_data.is_defeated():
+		print("DEBUG BattleUnit: ", character_data.character_name, " is defeated, returning")
 		return
 
 	# Fill time bar until ready (max 3 seconds for fast gameplay)
 	var wait_time = 0.0
 	var max_wait = 3.0
+	print("DEBUG BattleUnit: Waiting for time bar, is_ready=", is_ready)
 	while not is_ready and wait_time < max_wait:
 		update_time_bar(0.05)
 		wait_time += 0.05
 		await get_tree().create_timer(0.05).timeout
 
 	if character_data.is_defeated():
+		print("DEBUG BattleUnit: ", character_data.character_name, " defeated after wait")
 		return
 
 	# Force ready if timeout
 	is_ready = true
+	print("DEBUG BattleUnit: ", character_data.character_name, " is ready, executing tactics")
 
 	# Execute tactics
 	await execute_tactics(all_enemy_units, all_ally_units)
+	print("DEBUG BattleUnit: ", character_data.character_name, " finished tactics")
 
 func execute_tactics(all_enemy_units: Array, all_ally_units: Array):
 	"""Evaluate tactics in priority order and execute first matching one"""
