@@ -12,6 +12,7 @@ var enemy_units: Array[BattleUnit] = []
 var all_units: Array[BattleUnit] = []
 var current_turn: int = 0
 var is_battle_active: bool = false
+var is_combat_running: bool = false  # Guard to prevent multiple loops
 
 @onready var deployment_ui: CanvasLayer = $DeploymentUI
 @onready var battle_ui: CanvasLayer = $BattleUI
@@ -42,7 +43,6 @@ func _ready():
 	visible = false
 
 func set_background(bg_type: String):
-	"""Set battle background by type (plain, forest, inside, brave_attack, river, plain_forest)"""
 	var bg_path = BATTLE_BACKGROUNDS.get(bg_type, BATTLE_BACKGROUNDS["plain"])
 	var fg_path = BATTLE_BACKGROUNDS.get(bg_type + "_fg", BATTLE_BACKGROUNDS["plain_fg"])
 
@@ -52,19 +52,23 @@ func set_background(bg_type: String):
 		foreground_sprite.texture = load(fg_path)
 
 func _on_battle_started(player_army: Array, enemy_army: Array):
-	# Use the default background if not specified
+	if is_battle_active:
+		return
 	set_background(GameManager.current_battle_background)
 	start_deployment(player_army, enemy_army)
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
+	if is_battle_active:
+		return
 	set_background(background_type)
 	start_deployment(player_army, enemy_army)
 
 func start_deployment(player_army: Array, enemy_army: Array):
+	if is_battle_active:
+		return
 	GameManager.change_state(GameConstants.GameState.BATTLE_DEPLOYMENT)
 	visible = true
-	# TODO: Show deployment UI
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(0.5).timeout
 	_on_deployment_confirmed(player_army, GameConstants.Formation.STANDARD)
 
 func _on_deployment_confirmed(selected_units: Array[CharacterData], formation: int):
@@ -73,33 +77,49 @@ func _on_deployment_confirmed(selected_units: Array[CharacterData], formation: i
 	start_battle_combat(selected_units, formation)
 
 func start_battle_combat(player_selected: Array[CharacterData], formation: int):
+	if is_battle_active or is_combat_running:
+		return
+
 	GameManager.change_state(GameConstants.GameState.BATTLE_ACTIVE)
 
 	# Clear previous units
 	for unit in player_units:
-		unit.queue_free()
+		if is_instance_valid(unit):
+			unit.queue_free()
 	for unit in enemy_units:
-		unit.queue_free()
+		if is_instance_valid(unit):
+			unit.queue_free()
 	player_units.clear()
 	enemy_units.clear()
 	all_units.clear()
 
-	for i in range(player_selected.size()):
+	# Create player units - 3 in front row
+	for i in range(min(player_selected.size(), 6)):
 		var unit = create_battle_unit(player_selected[i], i, true)
 		player_units.append(unit)
 		all_units.append(unit)
 
+	# Create enemy units - 3 in front row
 	for i in range(3):
 		var enemy_data = CharacterData.new()
-		enemy_data.character_name = "Enemy " + str(i+1)
+		enemy_data.character_name = "Enemy " + str(i + 1)
+		enemy_data.max_hp = 20 + randi() % 10
+		enemy_data.current_hp = enemy_data.max_hp
+		enemy_data.attack = 5 + randi() % 5
+		enemy_data.defense = 3 + randi() % 3
+		enemy_data.speed = 4 + randi() % 4
+		enemy_data.setup_default_tactics()
 		var unit = create_battle_unit(enemy_data, i, false)
 		enemy_units.append(unit)
 		all_units.append(unit)
 
+	# Sort by speed (fastest first)
 	all_units.sort_custom(func(a, b): return a.character_data.speed > b.character_data.speed)
 
 	is_battle_active = true
+	is_combat_running = true
 	current_turn = 0
+
 	await start_combat_round()
 
 func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> BattleUnit:
@@ -107,38 +127,31 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 	var unit = unit_scene.instantiate()
 	unit.setup(data, position, is_player)
 
-	# Position unit based on formation
-	# Position 0-2: Front row, Position 3-5: Back row
-	var row = position / 3  # 0 or 1
-	var col = position % 3  # 0, 1, 2
-
-	# Layout: 3 columns, 2 rows
-	# x: 0, 100, 200 (left to right)
-	# y: -80 (front), 80 (back)
-	var x_pos = col * 100
-	var y_pos = -80 if row == 0 else 80
+	# Simple formation: 3 units in a row
+	# Position 0, 1, 2: front row at y = 0
+	var x_pos = (position % 3) * 120 - 120  # -120, 0, 120
 
 	if is_player:
-		unit.position = Vector2(x_pos, y_pos)
+		unit.position = Vector2(x_pos, 0)
 		player_formation.add_child(unit)
 	else:
-		unit.position = Vector2(x_pos, y_pos)
-		unit.scale.x = -1  # Flip enemy to face left
+		unit.position = Vector2(x_pos, 0)
+		unit.scale.x = -1
 		enemy_formation.add_child(unit)
 
 	return unit
 
 func start_combat_round():
-	while is_battle_active and current_turn < max_turns:
+	while is_battle_active and current_turn < max_turns and is_combat_running:
 		current_turn += 1
 		turn_started.emit(current_turn)
 		print("Battle Turn: ", current_turn)
 
 		for unit in all_units:
-			if not is_battle_active:
+			if not is_battle_active or not is_combat_running:
 				return
 
-			if unit.character_data.is_defeated():
+			if not is_instance_valid(unit) or unit.character_data.is_defeated():
 				continue
 
 			var enemy_list = enemy_units if unit.is_player_unit else player_units
@@ -148,16 +161,19 @@ func start_combat_round():
 			if check_victory():
 				return
 
-			await get_tree().create_timer(0.5).timeout
+			# Short delay between actions
+			await get_tree().create_timer(0.2).timeout
 
-		await get_tree().create_timer(1.0).timeout
+		# Short delay between turns
+		await get_tree().create_timer(0.5).timeout
 
-	print("Battle ended by turn limit")
-	end_battle(false)
+	if is_battle_active:
+		print("Battle ended by turn limit")
+		end_battle(false)
 
 func check_victory() -> bool:
-	var player_alive = player_units.any(func(u): return not u.character_data.is_defeated())
-	var enemy_alive = enemy_units.any(func(u): return not u.character_data.is_defeated())
+	var player_alive = player_units.any(func(u): return is_instance_valid(u) and not u.character_data.is_defeated())
+	var enemy_alive = enemy_units.any(func(u): return is_instance_valid(u) and not u.character_data.is_defeated())
 
 	if not enemy_alive:
 		print("Victory! All enemies defeated")
@@ -170,7 +186,10 @@ func check_victory() -> bool:
 	return false
 
 func end_battle(victory: bool):
+	if not is_battle_active:
+		return
 	is_battle_active = false
+	is_combat_running = false
 	battle_finished.emit(victory)
 	visible = false
 	GameManager.end_battle(victory)
