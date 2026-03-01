@@ -288,6 +288,7 @@ func generate_enemy_army_for_faction(faction: String) -> Array[CharacterData]:
 		enemy.attack = 5 + randi() % 5
 		enemy.defense = 3 + randi() % 3
 		enemy.speed = 4 + randi() % 4
+		enemy.sprite_frames_path = "res://assets/ArmorAX.png"
 		enemy.setup_default_tactics()
 		enemies.append(enemy)
 
