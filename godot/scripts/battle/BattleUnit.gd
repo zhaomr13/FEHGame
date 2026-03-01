@@ -103,15 +103,19 @@ func execute_tactics(all_enemy_units: Array, all_ally_units: Array):
 
 func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 	"""Execute the tactic action"""
+	print("DEBUG: execute_action finding target...")
 	var target = tactic.find_target(self, enemies)
 	if not target:
+		print("DEBUG: No target found, returning")
 		return
+	print("DEBUG: Target found: ", target.character_data.character_name)
 
+	print("DEBUG: Executing action type: ", tactic.action_type)
 	match tactic.action_type:
-		Tactic.ActionType.ATTACK:
+		Tactic.ActionType.ATTACK, Tactic.ActionType.SKILL:
+			print("DEBUG: Performing attack...")
 			await perform_attack(target, tactic.use_skill)
-		Tactic.ActionType.SKILL:
-			await perform_attack(target, true)
+			print("DEBUG: Attack complete")
 		Tactic.ActionType.DEFEND:
 			character_data.is_defending = true
 			await get_tree().create_timer(0.5).timeout
@@ -123,6 +127,7 @@ func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 			if battle_position < 3:  # Currently in front
 				battle_position += 3
 				# Animate movement
+	print("DEBUG: execute_action complete")
 
 func find_nearest_target(enemy_units: Array) -> BattleUnit:
 	"""Find nearest valid target considering formation"""
@@ -151,8 +156,10 @@ func find_nearest_target(enemy_units: Array) -> BattleUnit:
 
 func perform_attack(target: BattleUnit, use_skill: bool):
 	"""Perform attack with damage calculation"""
+	print("DEBUG perform_attack: starting for target ", target.character_data.character_name)
 	# Calculate base damage
 	var damage = calculate_damage(target, use_skill)
+	print("DEBUG perform_attack: damage calculated: ", damage)
 
 	# Check for pincer attack
 	var adjacent_allies = count_adjacent_allies(target)
@@ -171,7 +178,9 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 		# No character or no sprite_frames, wait a short delay
 		await get_tree().create_timer(0.3).timeout
 
+	print("DEBUG perform_attack: applying damage to target...")
 	await target.take_damage(damage)
+	print("DEBUG perform_attack: damage applied")
 
 	# Reset time bar
 	time_bar = 0.0
@@ -214,12 +223,18 @@ func count_adjacent_allies(target: BattleUnit) -> int:
 
 func take_damage(amount: int):
 	"""Take damage with defense bonus"""
+	print("DEBUG BattleUnit.take_damage: ", character_data.character_name, " taking ", amount, " damage")
 	if character_data.is_defending:
 		amount = int(amount * 0.5)
 		character_data.is_defending = false
 
-	if character:
+	if character and character.animated_sprite.sprite_frames:
+		print("DEBUG BattleUnit.take_damage: calling character.take_damage")
 		await character.take_damage(amount)
+		print("DEBUG BattleUnit.take_damage: character.take_damage complete")
 	else:
 		# Fallback if no character visual
+		print("DEBUG BattleUnit.take_damage: fallback, no character/sprite")
 		character_data.take_damage(amount)
+		await get_tree().create_timer(0.1).timeout
+	print("DEBUG BattleUnit.take_damage: complete")
