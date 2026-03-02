@@ -35,6 +35,8 @@ func setup(data: CharacterData, position: int, is_player: bool):
 
 	if character:
 		character.character_data = data
+		character.setup_sprite()
+		character.set_state(Character.State.IDLE)
 		# Note: scale flip is handled by parent BattleUnit
 
 	# Setup HP label
