@@ -133,12 +133,15 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 	# Position 0, 1, 2: front row at y = 0
 	var x_pos = (position % 3) * 120 - 120  # -120, 0, 120
 
+	# Scale down sprites to fit better in battle field
+	unit.scale = Vector2(0.5, 0.5)
+
 	if is_player:
 		unit.position = Vector2(x_pos, 0)
 		player_formation.add_child(unit)
 	else:
 		unit.position = Vector2(x_pos, 0)
-		unit.scale.x = -1
+		unit.scale.x = -0.5  # Negative X to flip, 0.5 for size
 		enemy_formation.add_child(unit)
 
 	return unit
