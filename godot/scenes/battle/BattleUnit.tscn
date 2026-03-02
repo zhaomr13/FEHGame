@@ -9,6 +9,7 @@ script = ExtResource("2_script")
 [node name="Character" parent="." instance=ExtResource("1_character")]
 
 [node name="HPBar" type="ProgressBar" parent="."]
+z_index = 20
 offset_left = -25.0
 offset_top = -70.0
 offset_right = 25.0
