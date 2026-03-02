@@ -12,17 +12,17 @@ var max_time_bar: float = 100.0
 var is_ready: bool = false
 
 var character: Character = null
-@onready var hp_bar: ProgressBar = $HPBar
+var hp_label: Label = null
 
 func _ready():
 	max_time_bar = 100.0
 	character = $Character
-	hp_bar = $HPBar
-	if hp_bar:
-		hp_bar.visible = false
-		print("DEBUG HPBar found in _ready")
+	hp_label = $HPLabel
+	if hp_label:
+		hp_label.visible = false
+		print("DEBUG HPLabel found in _ready")
 	else:
-		print("DEBUG HPBar NOT found in _ready")
+		print("DEBUG HPLabel NOT found in _ready")
 
 func setup(data: CharacterData, position: int, is_player: bool):
 	# Ensure character node is ready
@@ -37,14 +37,13 @@ func setup(data: CharacterData, position: int, is_player: bool):
 		character.character_data = data
 		# Note: scale flip is handled by parent BattleUnit
 
-	# Setup HP bar
-	if hp_bar:
-		hp_bar.max_value = character_data.max_hp
-		hp_bar.value = character_data.current_hp
-		hp_bar.visible = true
-		print("DEBUG HPBar setup for ", character_data.character_name, ": max=", character_data.max_hp, ", current=", character_data.current_hp)
+	# Setup HP label
+	if hp_label:
+		hp_label.text = "HP: " + str(character_data.current_hp) + "/" + str(character_data.max_hp)
+		hp_label.visible = true
+		print("DEBUG HPLabel setup for ", character_data.character_name, ": max=", character_data.max_hp, ", current=", character_data.current_hp)
 	else:
-		print("DEBUG HPBar NOT FOUND for ", character_data.character_name)
+		print("DEBUG HPLabel NOT FOUND for ", character_data.character_name)
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""
@@ -260,8 +259,8 @@ func take_damage(amount: int):
 		character_data.take_damage(amount)
 		await get_tree().create_timer(0.1).timeout
 
-	# Update HP bar
-	if hp_bar:
-		hp_bar.value = character_data.current_hp
+	# Update HP label
+	if hp_label:
+		hp_label.text = "HP: " + str(character_data.current_hp) + "/" + str(character_data.max_hp)
 
 	print("DEBUG BattleUnit.take_damage: complete")
