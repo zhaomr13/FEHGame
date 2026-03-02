@@ -51,7 +51,7 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 	# Only loop idle animations, not attacks or one-shots
 	var should_loop = anim_name in ["Idle", "Attack1_Loop", "Attack2_Loop"]
 	sprite_frames.set_animation_loop(anim_name, should_loop)
-	sprite_frames.set_animation_speed(anim_name, 12.0)
+	sprite_frames.set_animation_speed(anim_name, 60.0)
 
 	# Add frames to animation
 	for i in range(frames.size()):
@@ -112,7 +112,7 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 		# Only loop idle animations, not attacks or one-shots
 		var should_loop = anim_name in ["Idle", "Attack1_Loop", "Attack2_Loop"]
 		sprite_frames.set_animation_loop(anim_name, should_loop)
-		sprite_frames.set_animation_speed(anim_name, 30.0)
+		sprite_frames.set_animation_speed(anim_name, 60.0)
 
 		# Add frames to animation
 		for i in range(from_frame, to_frame + 1):
