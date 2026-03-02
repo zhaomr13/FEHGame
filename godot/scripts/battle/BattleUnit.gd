@@ -17,8 +17,12 @@ var character: Character = null
 func _ready():
 	max_time_bar = 100.0
 	character = $Character
+	hp_bar = $HPBar
 	if hp_bar:
 		hp_bar.visible = false
+		print("DEBUG HPBar found in _ready")
+	else:
+		print("DEBUG HPBar NOT found in _ready")
 
 func setup(data: CharacterData, position: int, is_player: bool):
 	# Ensure character node is ready
@@ -38,6 +42,9 @@ func setup(data: CharacterData, position: int, is_player: bool):
 		hp_bar.max_value = character_data.max_hp
 		hp_bar.value = character_data.current_hp
 		hp_bar.visible = true
+		print("DEBUG HPBar setup for ", character_data.character_name, ": max=", character_data.max_hp, ", current=", character_data.current_hp)
+	else:
+		print("DEBUG HPBar NOT FOUND for ", character_data.character_name)
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""
