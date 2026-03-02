@@ -12,10 +12,13 @@ var max_time_bar: float = 100.0
 var is_ready: bool = false
 
 var character: Character = null
+@onready var hp_bar: ProgressBar = $HPBar
 
 func _ready():
 	max_time_bar = 100.0
 	character = $Character
+	if hp_bar:
+		hp_bar.visible = false
 
 func setup(data: CharacterData, position: int, is_player: bool):
 	# Ensure character node is ready
@@ -29,6 +32,12 @@ func setup(data: CharacterData, position: int, is_player: bool):
 	if character:
 		character.character_data = data
 		# Note: scale flip is handled by parent BattleUnit
+
+	# Setup HP bar
+	if hp_bar:
+		hp_bar.max_value = character_data.max_hp
+		hp_bar.value = character_data.current_hp
+		hp_bar.visible = true
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""
@@ -243,4 +252,9 @@ func take_damage(amount: int):
 		print("DEBUG BattleUnit.take_damage: fallback, no character/sprite")
 		character_data.take_damage(amount)
 		await get_tree().create_timer(0.1).timeout
+
+	# Update HP bar
+	if hp_bar:
+		hp_bar.value = character_data.current_hp
+
 	print("DEBUG BattleUnit.take_damage: complete")
