@@ -127,8 +127,8 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> BattleUnit:
 	var unit_scene = preload("res://scenes/battle/BattleUnit.tscn")
 	var unit = unit_scene.instantiate()
-	unit.setup(data, position, is_player)
 
+	# Add to scene first so _ready() is called
 	# Simple formation: 3 units in a row
 	# Position 0, 1, 2: front row at y = 0
 	var x_pos = (position % 3) * 120 - 120  # -120, 0, 120
@@ -143,6 +143,9 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 		unit.position = Vector2(x_pos, 0)
 		unit.scale.x = -0.5  # Negative X to flip, 0.5 for size
 		enemy_formation.add_child(unit)
+
+	# Setup after adding to scene so _ready() has been called
+	unit.setup(data, position, is_player)
 
 	return unit
 
