@@ -28,8 +28,7 @@ func setup(data: CharacterData, position: int, is_player: bool):
 
 	if character:
 		character.character_data = data
-		if not is_player:
-			character.scale.x = -1
+		# Note: scale flip is handled by parent BattleUnit
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""
