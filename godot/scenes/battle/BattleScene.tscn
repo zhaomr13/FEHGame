@@ -31,3 +31,15 @@ position = Vector2(930, 360)
 [node name="DeploymentUI" type="CanvasLayer" parent="."]
 
 [node name="BattleUI" type="CanvasLayer" parent="."]
+
+[node name="PlayerStatusPanel" type="VBoxContainer" parent="BattleUI"]
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 200.0
+offset_bottom = 400.0
+
+[node name="EnemyStatusPanel" type="VBoxContainer" parent="BattleUI"]
+offset_left = 1080.0
+offset_top = 100.0
+offset_right = 1260.0
+offset_bottom = 400.0

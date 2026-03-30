@@ -77,7 +77,7 @@ func _on_recruit():
 
 func _on_formation():
 	open_formation.emit()
-	info_label.text = "Formation editor would open here..."
+	visible = false  # Hide city menu while squad menu is open
 
 func _on_deploy():
 	deploy_army.emit()

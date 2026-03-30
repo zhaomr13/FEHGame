@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://unitstatus_entry"]
+
+[node name="UnitStatusEntry" type="HBoxContainer"]
+offset_right = 180.0
+offset_bottom = 50.0
+
+[node name="FaceTexture" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VSeparator" type="VSeparator" parent="."]
+layout_mode = 2
+
+[node name="InfoContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLabel" type="Label" parent="InfoContainer"]
+layout_mode = 2
+text = "Name"
+horizontal_alignment = 1
+
+[node name="HPLabel" type="Label" parent="InfoContainer"]
+layout_mode = 2
+text = "HP: 20/20"
+horizontal_alignment = 1

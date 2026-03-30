@@ -12,17 +12,10 @@ var max_time_bar: float = 100.0
 var is_ready: bool = false
 
 var character: Character = null
-var hp_label: Label = null
 
 func _ready():
 	max_time_bar = 100.0
 	character = $Character
-	hp_label = $HPLabel
-	if hp_label:
-		hp_label.visible = false
-		print("DEBUG HPLabel found in _ready")
-	else:
-		print("DEBUG HPLabel NOT found in _ready")
 
 func setup(data: CharacterData, position: int, is_player: bool):
 	# Ensure character node is ready
@@ -38,14 +31,6 @@ func setup(data: CharacterData, position: int, is_player: bool):
 		character.setup_sprite()
 		character.set_state(Character.State.IDLE)
 		# Note: scale flip is handled by parent BattleUnit
-
-	# Setup HP label
-	if hp_label:
-		hp_label.text = "HP: " + str(character_data.current_hp) + "/" + str(character_data.max_hp)
-		hp_label.visible = true
-		print("DEBUG HPLabel setup for ", character_data.character_name, ": max=", character_data.max_hp, ", current=", character_data.current_hp)
-	else:
-		print("DEBUG HPLabel NOT FOUND for ", character_data.character_name)
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""
@@ -73,12 +58,12 @@ func process_turn(all_enemy_units: Array, all_ally_units: Array):
 		print("DEBUG BattleUnit: ", character_data.character_name, " is defeated, returning")
 		return
 
-	# Fill time bar until ready (max 1 second for very fast gameplay)
+	# Fill time bar until ready (slower for better visibility)
 	var wait_time = 0.0
-	var max_wait = 1.0
+	var max_wait = 2.0
 	print("DEBUG BattleUnit: Waiting for time bar, is_ready=", is_ready)
 	while not is_ready and wait_time < max_wait:
-		update_time_bar(0.05)
+		update_time_bar(0.016)  # ~60fps delta
 		wait_time += 0.05
 		await get_tree().create_timer(0.05).timeout
 
@@ -183,26 +168,33 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 		damage = int(damage * (1.5 + 0.3 * adjacent_allies))  # Pincer bonus
 
 	print("DEBUG perform_attack: checking character...")
-	# Play animation
+
+	# Check if melee (non-ranged) attacker
+	var ranged_weapons = ["bow", "magic"]
+	var is_melee = not (character_data.weapon_type in ranged_weapons)
+	print("DEBUG: ", character_data.character_name, " weapon_type=", character_data.weapon_type, " is_melee=", is_melee)
+	var original_position = position
+
 	if character and character.animated_sprite.sprite_frames:
 		print("DEBUG perform_attack: character valid, playing animation...")
-		var anim_name = character.play_attack_animation()
-		print("DEBUG perform_attack: animation name: ", anim_name)
-		if anim_name != "" and character.animated_sprite.sprite_frames.has_animation(anim_name):
-			print("DEBUG perform_attack: awaiting animation_finished...")
-			await character.animated_sprite.animation_finished
-			print("DEBUG perform_attack: animation_finished received")
+
+		# Melee: Jump to target, attack, then return
+		if is_melee:
+			await _perform_melee_attack_sequence(target, damage)
 		else:
-			# No valid animation, just wait a short delay
-			print("DEBUG perform_attack: no valid anim, waiting 0.1s")
-			await get_tree().create_timer(0.1).timeout
+			# Ranged: Stay in place and attack
+			var anim_name = character.play_attack_animation()
+			if anim_name != "" and character.animated_sprite.sprite_frames.has_animation(anim_name):
+				await character.animated_sprite.animation_finished
+			else:
+				await get_tree().create_timer(0.3).timeout
+			await target.take_damage(damage)
 	else:
-		# No character or no sprite_frames, wait a short delay
+		# No character or no sprite_frames, just apply damage
 		print("DEBUG perform_attack: no character/sprite_frames, waiting 0.1s")
 		await get_tree().create_timer(0.1).timeout
+		await target.take_damage(damage)
 
-	print("DEBUG perform_attack: applying damage to target...")
-	await target.take_damage(damage)
 	print("DEBUG perform_attack: damage applied")
 
 	# Reset time bar
@@ -210,6 +202,55 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 	is_ready = false
 	if character:
 		character.set_state(Character.State.IDLE)
+
+func _perform_melee_attack_sequence(target: BattleUnit, damage: int):
+	"""Melee attack: Jump to target, attack, then return to original position"""
+	var original_global_pos = global_position
+
+	# Get target's global position to handle different parent nodes
+	var target_global_pos = target.global_position
+
+	# Determine which side to approach from based on relative positions
+	# Player units (facing right) should stop to the left of enemy
+	# Enemy units (facing left) should stop to the right of player
+	var stop_distance = 90.0  # Stop 90 pixels in front of target (further for melee)
+
+	# Calculate approach direction: if target is to the right, approach from left
+	var approach_direction = 1.0 if target_global_pos.x > original_global_pos.x else -1.0
+	var jump_target_global = Vector2(target_global_pos.x - stop_distance * approach_direction, target_global_pos.y)
+
+	# Play Jump animation if available
+	if character.animated_sprite.sprite_frames.has_animation("Jump"):
+		character.animated_sprite.play("Jump")
+	else:
+		character.set_state(Character.State.MOVING)
+
+	# Jump toward target using global_position (handles different parents correctly)
+	var jump_tween = create_tween()
+	jump_tween.set_trans(Tween.TRANS_QUAD)
+	jump_tween.set_ease(Tween.EASE_OUT)
+	jump_tween.tween_property(self, "global_position", jump_target_global, 0.3)
+	await jump_tween.finished
+
+	# Play attack animation
+	var anim_name = character.play_attack_animation()
+	if anim_name != "" and character.animated_sprite.sprite_frames.has_animation(anim_name):
+		await character.animated_sprite.animation_finished
+	else:
+		await get_tree().create_timer(0.3).timeout
+
+	# Apply damage while at target position
+	await target.take_damage(damage)
+
+	# Small pause before returning
+	await get_tree().create_timer(0.1).timeout
+
+	# Return to original position using tween (not jump animation)
+	var return_tween = create_tween()
+	return_tween.set_trans(Tween.TRANS_LINEAR)
+	return_tween.set_ease(Tween.EASE_IN_OUT)
+	return_tween.tween_property(self, "global_position", original_global_pos, 0.3)
+	await return_tween.finished
 
 func calculate_damage(target: BattleUnit, use_skill: bool) -> int:
 	"""Calculate damage with weapon triangle"""
@@ -261,8 +302,9 @@ func take_damage(amount: int):
 		character_data.take_damage(amount)
 		await get_tree().create_timer(0.1).timeout
 
-	# Update HP label
-	if hp_label:
-		hp_label.text = "HP: " + str(character_data.current_hp) + "/" + str(character_data.max_hp)
+	# Update status in BattleManager's side panel
+	var battle_manager = get_parent().get_parent() as BattleManager
+	if battle_manager:
+		battle_manager.update_unit_status(self)
 
 	print("DEBUG BattleUnit.take_damage: complete")

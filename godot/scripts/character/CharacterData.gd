@@ -29,6 +29,9 @@ var is_defending: bool = false
 # Visual
 @export var sprite_frames_path: String = ""
 
+# Faction affiliation (askr, embla, nifl, muspell, etc.)
+@export var faction: String = ""
+
 # Default tactics for new characters
 func setup_default_tactics():
     """Create default 4-slot tactics for new characters"""

@@ -54,6 +54,9 @@ func _on_faction_selected(faction: String):
 	var start_city = FACTION_START_POSITIONS.get(faction, "city_3")
 	world_map.current_node_id = start_city
 
+	# Initialize squads (all unassigned initially)
+	GameManager.initialize_squads()
+
 	faction_select.visible = false
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	world_map.visible = true
@@ -62,57 +65,30 @@ func _on_faction_selected(faction: String):
 	world_map.setup_faction_start(faction, start_city)
 
 func initialize_player_army(faction: String):
-	"""Create starting characters based on faction choice"""
+	"""Assign characters to player based on faction choice"""
+	GameManager.current_faction = faction
 	GameManager.player_army.clear()
 
-	var starter_characters = []
+	# Get all characters belonging to the chosen faction
+	var faction_characters = GameManager.get_characters_by_faction(faction)
 
-	match faction:
-		"askr":
-			starter_characters = [
-				{"name": "Sharena", "class": GameConstants.CharacterClass.KNIGHT, "weapon": "lance"},
-				{"name": "Alfonse", "class": GameConstants.CharacterClass.LORD, "weapon": "sword"},
-				{"name": "Anna", "class": GameConstants.CharacterClass.FIGHTER, "weapon": "axe"}
-			]
-		"embla":
-			starter_characters = [
-				{"name": "Marth", "class": GameConstants.CharacterClass.LORD, "weapon": "sword"},
-				{"name": "Cain", "class": GameConstants.CharacterClass.KNIGHT, "weapon": "lance"},
-				{"name": "Abel", "class": GameConstants.CharacterClass.KNIGHT, "weapon": "lance"}
-			]
-		"nifl":
-			starter_characters = [
-				{"name": "Klein", "class": GameConstants.CharacterClass.ARCHER, "weapon": "bow"},
-				{"name": "Rebecca", "class": GameConstants.CharacterClass.ARCHER, "weapon": "bow"},
-				{"name": "Lyn", "class": GameConstants.CharacterClass.LORD, "weapon": "sword"}
-			]
+	# If faction has no characters (e.g., player chooses a neutral start), give them some neutrals
+	if faction_characters.is_empty():
+		faction_characters = GameManager.get_characters_by_faction("")
 
-	for char_data in starter_characters:
-		var character = CharacterData.new()
-		character.character_name = char_data.name
-		character.character_class = char_data.class
-		character.weapon_type = char_data.weapon
-		character.setup_default_tactics()
-
-		# Set sprite path (use characters folder structure)
-		var sprite_name = _get_sprite_name(char_data.name)
-		character.sprite_frames_path = "res://assets/characters/" + sprite_name + "/Idle.png"
-
+	# Assign up to 3 characters to player
+	for i in range(min(3, faction_characters.size())):
+		var character = faction_characters[i]
+		character.faction = faction  # Ensure faction is set correctly
 		GameManager.player_army.append(character)
+		print("Assigned ", character.character_name, " to player faction ", faction)
 
-func _get_sprite_name(char_name: String) -> String:
-	"""Map character name to character folder"""
-	match char_name:
-		"Sharena": return "char_02_lilina"
-		"Alfonse": return "char_01_alm"
-		"Anna": return "char_08_robin"
-		"Marth": return "char_01_alm"
-		"Cain": return "char_04_abel"
-		"Abel": return "char_04_abel"
-		"Klein": return "char_05_klein"
-		"Rebecca": return "char_09_rebecca"
-		"Lyn": return "char_07_lyn"
-		_: return "char_01_alm"
+	# Set up available recruits (characters from other factions that can be recruited later)
+	GameManager.available_recruits.clear()
+	var other_factions = GameManager.get_characters_not_in_faction(faction)
+	for char in other_factions:
+		if char.faction != "":  # Only faction characters can be recruited, not neutrals
+			GameManager.available_recruits.append(char)
 
 func _on_state_changed(new_state: GameConstants.GameState):
 	match new_state:
