@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Godot 4+ specific ignores
+.godot/
+*.tmp
+*.import
+
+# Godot UID files (auto-generated)
+*.uid
+
+# Mono/C# (if using C#)
+.mono/
+data_*/
+
+# Build outputs
+bin/
+obj/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# Screenshots/exports from ssbp_viewer
+*_Screenshots/
+
+# WebP conversion temp files
+*.png~
