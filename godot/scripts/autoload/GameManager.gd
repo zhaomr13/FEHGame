@@ -23,6 +23,7 @@ var available_recruits: Array[CharacterData] = []  # Characters that can be recr
 
 func _ready():
     print("GameManager initialized")
+    _initialize_all_characters()
 
 func _initialize_all_characters():
     """Initialize all characters in the game world with their faction affiliations"""
