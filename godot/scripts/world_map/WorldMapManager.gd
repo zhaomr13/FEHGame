@@ -203,7 +203,7 @@ func _create_enemy_armies(player_faction: String):
 			if map_data.NODE_CONFIG[city_id].faction == faction:
 				var army = _create_army(faction_chars, city_id)
 				army.army_id = "enemy_%s" % faction
-				army.army_name = faction.capitalize()
+				army.army_name = "Enemy: " + faction.capitalize()
 				army.army_type = Army.ArmyType.ENEMY
 				army.army_clicked.connect(_on_army_clicked)
 				enemy_armies.append(army)

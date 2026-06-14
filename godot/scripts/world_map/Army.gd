@@ -49,6 +49,7 @@ func _ready():
 	setup_visual()
 
 func setup_visual():
+	# Main circle with faction color
 	var circle = Panel.new()
 	circle.custom_minimum_size = Vector2(32, 32)
 	circle.size = Vector2(32, 32)
@@ -63,7 +64,23 @@ func setup_visual():
 	circle.add_theme_stylebox_override("panel", style)
 	add_child(circle)
 
-	# Plan line (shows planned route during planning phase)
+	# Border ring to make armies more visible
+	var border = Panel.new()
+	border.custom_minimum_size = Vector2(36, 36)
+	border.size = Vector2(36, 36)
+	border.position = Vector2(-18, -18)
+	border.z_index = -1
+	border.name = "BorderPanel"
+	var border_style = StyleBoxFlat.new()
+	border_style.bg_color = Color(0, 0, 0, 0.5)
+	border_style.corner_radius_top_left = 18
+	border_style.corner_radius_top_right = 18
+	border_style.corner_radius_bottom_left = 18
+	border_style.corner_radius_bottom_right = 18
+	border.add_theme_stylebox_override("panel", border_style)
+	add_child(border)
+
+	# Plan line (shows planned route during planning phase, player only)
 	plan_line = Line2D.new()
 	plan_line.width = 3.0
 	plan_line.default_color = Color(0.2, 0.8, 1, 0.8)
@@ -71,11 +88,16 @@ func setup_visual():
 	plan_line.z_index = 49
 	add_child(plan_line)
 
+	# Label with army-type-specific color
 	label = Label.new()
 	label.text = army_name
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.position = Vector2(-50, -40)
 	label.custom_minimum_size = Vector2(100, 20)
+	if army_type == Army.ArmyType.ENEMY:
+		label.modulate = Color.RED
+	else:
+		label.modulate = Color(0.2, 0.7, 0.2)
 	add_child(label)
 
 	selection_indicator = Panel.new()
@@ -143,6 +165,8 @@ func set_route(waypoints: Array[Vector2], cities: Array[String]):
 	_update_plan_line()
 
 func _update_plan_line():
+	if army_type == Army.ArmyType.ENEMY:
+		return
 	plan_line.clear_points()
 	plan_line.add_point(Vector2.ZERO)
 	if planned_route.size() > 0:
