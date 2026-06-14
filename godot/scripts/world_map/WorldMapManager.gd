@@ -58,7 +58,6 @@ func _ready():
 	planning_ctrl.city_opened.connect(open_city_menu)
 	planning_ctrl.formation_opened.connect(_on_open_formation)
 	execution_ctrl.battle_started.connect(_start_battle)
-	execution_ctrl.execution_ended.connect(_on_execution_ended)
 
 func _input(event):
 	if current_phase == GamePhase.PLANNING:
@@ -75,6 +74,9 @@ func _on_army_clicked(army: Army):
 	planning_ctrl.on_army_clicked(army)
 
 func _on_planning_ended():
+	# Plan AI moves before execution
+	if execution_ctrl:
+		execution_ctrl.plan_ai_moves()
 	start_execution_phase()
 
 func setup_faction_start(faction: String, start_city: String):
@@ -124,6 +126,9 @@ func setup_squad_menu():
 func start_planning_phase():
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
+	# Plan AI moves so the player can see enemy intentions
+	if execution_ctrl:
+		execution_ctrl.plan_ai_moves()
 	if planning_ctrl:
 		planning_ctrl.start_planning_phase()
 
@@ -139,10 +144,6 @@ func _start_battle(attacker: Army, defender: Army):
 
 	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
-
-func _on_execution_ended():
-	if execution_ctrl:
-		await execution_ctrl.process_enemy_turn()
 
 func _on_army_move_completed(army: Army):
 	army_mgr._update_army_position(army)
