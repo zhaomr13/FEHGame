@@ -72,8 +72,35 @@ func can_move_to(from_id: String, to_id: String) -> bool:
 	return false
 
 func find_path(from_id: String, to_id: String) -> Array[String]:
-	if can_move_to(from_id, to_id):
+	# BFS pathfinding (like sanguoqunying2)
+	if from_id == to_id:
 		return [to_id]
+
+	var visited: Dictionary = {}
+	var parent: Dictionary = {}
+	var queue: Array[String] = [from_id]
+	visited[from_id] = true
+
+	while not queue.is_empty():
+		var current = queue.pop_front()
+		if current == to_id:
+			# Reconstruct path
+			var path: Array[String] = []
+			var node = to_id
+			while node != from_id:
+				path.push_front(node)
+				node = parent[node]
+			return path
+
+		if not NODE_CONFIG.has(current):
+			continue
+
+		for neighbor in NODE_CONFIG[current].connections:
+			if not visited.has(neighbor):
+				visited[neighbor] = true
+				parent[neighbor] = current
+				queue.append(neighbor)
+
 	return []
 
 func select_battle_background(node: MapNode) -> String:

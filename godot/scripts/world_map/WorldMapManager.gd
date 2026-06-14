@@ -1,12 +1,10 @@
 class_name WorldMapManager
 extends Node2D
 
-signal turn_ended
 signal phase_changed(new_phase: int)
 
 enum GamePhase {
-	PLANNING,
-	EXECUTION,
+	WORLD_MAP,
 	BATTLE
 }
 
@@ -14,84 +12,218 @@ enum GamePhase {
 @export var player_morale: int = 100
 @export var turn_count: int = 1
 
-var current_phase: GamePhase = GamePhase.PLANNING
-var is_player_turn: bool = true
+var current_phase: GamePhase = GamePhase.WORLD_MAP
 var current_faction: String = ""
 
 var city_menu: Control = null
 var squad_menu: Control = null
+var selected_army: Army = null
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
 @onready var map_data: MapDataManager = $MapDataManager
-@onready var army_mgr: WorldMapArmyManager = $WorldMapArmyManager
-@onready var planning_ctrl: PlanningPhaseController = $PlanningPhaseController
-@onready var execution_ctrl: ExecutionPhaseController = $ExecutionPhaseController
+@onready var army_mgr_node: Node2D = $Armies
+
+# All armies (player + enemy) stored here for encounter detection
+var all_armies: Array[Army] = []
+var player_armies: Array[Army] = []
+var enemy_armies: Array[Army] = []
+
+const ENCOUNTER_DISTANCE: float = 30.0
 
 func _ready():
 	setup_background()
-
-	# Validate child nodes exist
 	if not map_data:
-		print("ERROR: WorldMapManager - MapDataManager child node missing!")
+		print("ERROR: WorldMapManager - MapDataManager missing!")
 		return
-	if not army_mgr:
-		print("ERROR: WorldMapManager - WorldMapArmyManager child node missing!")
-		return
-	if not planning_ctrl:
-		print("ERROR: WorldMapManager - PlanningPhaseController child node missing!")
-		return
-	if not execution_ctrl:
-		print("ERROR: WorldMapManager - ExecutionPhaseController child node missing!")
-		return
-
 	map_data.create_map_nodes()
 	map_data.draw_connections()
 	setup_ui()
 	setup_battle_result_handler()
-
-	# Wire child signals
 	map_data.node_clicked.connect(_on_node_clicked)
-	army_mgr.army_selected.connect(_on_army_clicked)
-	army_mgr.move_completed.connect(_on_army_move_completed)
-	planning_ctrl.planning_ended.connect(_on_planning_ended)
-	planning_ctrl.city_opened.connect(open_city_menu)
-	planning_ctrl.formation_opened.connect(_on_open_formation)
-	execution_ctrl.battle_started.connect(_start_battle)
 
-func _input(event):
-	if current_phase == GamePhase.PLANNING:
-		planning_ctrl.handle_input(event)
+func _process(_delta):
+	if current_phase != GamePhase.WORLD_MAP:
+		return
+	_check_encounters()
+
+func _check_encounters():
+	# Proximity-based encounter detection (like sanguoqunying2)
+	for i in range(player_armies.size()):
+		var p_army = player_armies[i]
+		if not is_instance_valid(p_army) or p_army.state != Army.ArmyState.MOVING:
+			continue
+		for j in range(enemy_armies.size()):
+			var e_army = enemy_armies[j]
+			if not is_instance_valid(e_army):
+				continue
+			if p_army.position.distance_to(e_army.position) < ENCOUNTER_DISTANCE:
+				_start_battle(p_army, e_army)
+				return
 
 func _on_node_clicked(node: MapNode):
-	if current_phase != GamePhase.PLANNING:
+	if current_phase != GamePhase.WORLD_MAP:
 		return
-	planning_ctrl.on_node_clicked(node)
+
+	if selected_army == null:
+		if map_data.NODE_CONFIG[node.node_id].faction == current_faction:
+			open_city_menu(node)
+		return
+
+	# Set destination for selected army
+	if selected_army.current_city_id != node.node_id:
+		if map_data.can_move_to(selected_army.current_city_id, node.node_id):
+			var path = map_data.find_path(selected_army.current_city_id, node.node_id)
+			if not path.is_empty():
+				# Build route waypoints
+				var waypoints: Array[Vector2] = []
+				var cities: Array[String] = []
+				for city_id in path:
+					if map_data.map_nodes.has(city_id):
+						var pos = map_data.map_nodes[city_id].position
+						waypoints.append(pos + Vector2(20, -20))
+						cities.append(city_id)
+				selected_army.set_route(waypoints, cities)
+
+func _input(event):
+	if current_phase != GamePhase.WORLD_MAP:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# Check for army clicks
+		var clicked_army = _get_army_at_position(get_global_mouse_position())
+		if clicked_army:
+			_on_army_clicked(clicked_army)
+		elif event.double_click:
+			pass  # double-click: could open city menu
 
 func _on_army_clicked(army: Army):
-	if current_phase != GamePhase.PLANNING:
+	if army.army_type == Army.ArmyType.ENEMY:
+		# Click enemy to attack with selected army
+		if selected_army and selected_army.army_type != Army.ArmyType.ENEMY:
+			_set_destination_to(selected_army, army.current_city_id)
 		return
-	planning_ctrl.on_army_clicked(army)
 
-func _on_planning_ended():
-	# Plan AI moves before execution
-	if execution_ctrl:
-		execution_ctrl.plan_ai_moves()
-	start_execution_phase()
+	# Select friendly army
+	if selected_army and is_instance_valid(selected_army):
+		selected_army.set_selected(false)
+	selected_army = army
+	army.set_selected(true)
+
+func _set_destination_to(army: Army, target_city: String):
+	if army.current_city_id == target_city:
+		return
+	if map_data.can_move_to(army.current_city_id, target_city):
+		var path = map_data.find_path(army.current_city_id, target_city)
+		if not path.is_empty():
+			var waypoints: Array[Vector2] = []
+			var cities: Array[String] = []
+			for city_id in path:
+				if map_data.map_nodes.has(city_id):
+					var pos = map_data.map_nodes[city_id].position
+					waypoints.append(pos + Vector2(20, -20))
+					cities.append(city_id)
+			army.set_route(waypoints, cities)
+
+func _get_army_at_position(pos: Vector2) -> Army:
+	for army in all_armies:
+		if is_instance_valid(army) and army.position.distance_to(pos) < 30:
+			return army
+	return null
 
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
 	current_node_id = start_city
 
-	army_mgr.clear_armies()
+	_clear_armies()
 	map_data.map_nodes.clear()
 	map_data.create_map_nodes()
 
-	army_mgr.create_player_armies_from_squads(start_city)
-	army_mgr.create_enemy_armies(faction)
-	army_mgr.initialize_squads()
+	_create_player_armies_from_squads(start_city)
+	_create_enemy_armies(faction)
 
-	start_planning_phase()
+func _clear_armies():
+	for army in all_armies:
+		if is_instance_valid(army):
+			army.queue_free()
+	all_armies.clear()
+	player_armies.clear()
+	enemy_armies.clear()
+
+func _create_player_armies_from_squads(start_city: String):
+	var squad_index = 0
+	for squad_data in GameManager.squad_data:
+		if squad_data.is_empty():
+			squad_index += 1
+			continue
+
+		var army = _create_army(squad_data, start_city)
+		army.army_id = "player_squad_%d" % squad_index
+		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
+		army.army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
+		army.army_clicked.connect(_on_army_clicked)
+		player_armies.append(army)
+		all_armies.append(army)
+		squad_index += 1
+
+	if player_armies.is_empty():
+		# Default army from GameManager.player_army
+		var chars = GameManager.player_army.duplicate()
+		var army = _create_army(chars, start_city)
+		army.army_id = "player_main"
+		army.army_name = "Main Army"
+		army.army_type = Army.ArmyType.PLAYER_MAIN
+		army.army_clicked.connect(_on_army_clicked)
+		player_armies.append(army)
+		all_armies.append(army)
+
+func _create_army(chars: Array, start_city: String) -> Army:
+	var army = Army.new()
+	army.current_city_id = start_city
+	army.squad_data = _convert_squad_data(chars)
+	army_mgr_node.add_child(army)
+	if map_data.map_nodes.has(start_city):
+		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
+	return army
+
+func _convert_squad_data(data: Array) -> Array[CharacterData]:
+	var result: Array[CharacterData] = []
+	for char in data:
+		if char is CharacterData:
+			result.append(char)
+	return result
+
+func _create_enemy_armies(player_faction: String):
+	var all_factions = ["askr", "embla", "nifl", "muspell"]
+	for faction in all_factions:
+		if faction == player_faction:
+			continue
+		var faction_chars = GameManager.get_characters_by_faction(faction)
+		if faction_chars.is_empty():
+			continue
+		for city_id in map_data.NODE_CONFIG.keys():
+			if map_data.NODE_CONFIG[city_id].faction == faction:
+				var army = _create_army(faction_chars, city_id)
+				army.army_id = "enemy_%s" % faction
+				army.army_name = faction.capitalize()
+				army.army_type = Army.ArmyType.ENEMY
+				army.army_clicked.connect(_on_army_clicked)
+				enemy_armies.append(army)
+				all_armies.append(army)
+				break
+
+	# AI armies: plan moves toward adjacent players
+	_plan_ai_moves()
+
+func _plan_ai_moves():
+	for enemy in enemy_armies:
+		if not is_instance_valid(enemy):
+			continue
+		var connections = map_data.NODE_CONFIG[enemy.current_city_id].connections
+		for connected_id in connections:
+			for player in player_armies:
+				if is_instance_valid(player) and player.current_city_id == connected_id:
+					_set_destination_to(enemy, connected_id)
+					break
 
 func setup_background():
 	if background_sprite and background_sprite.texture:
@@ -105,13 +237,10 @@ func setup_background():
 func setup_ui():
 	setup_city_menu()
 	setup_squad_menu()
-	if planning_ctrl:
-		planning_ctrl.setup_planning_ui()
 
 func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
 	ui.add_child(city_menu)
-	city_menu.deploy_army.connect(_on_deploy_army)
 	city_menu.open_formation.connect(_on_open_formation)
 	city_menu.visible = false
 
@@ -122,31 +251,6 @@ func setup_squad_menu():
 	ui.add_child(squad_menu)
 	squad_menu.menu_closed.connect(_on_squad_menu_closed)
 	squad_menu.visible = false
-
-func start_planning_phase():
-	current_phase = GamePhase.PLANNING
-	phase_changed.emit(current_phase)
-	# Plan AI moves so the player can see enemy intentions
-	if execution_ctrl:
-		execution_ctrl.plan_ai_moves()
-	if planning_ctrl:
-		planning_ctrl.start_planning_phase()
-
-func start_execution_phase():
-	current_phase = GamePhase.EXECUTION
-	phase_changed.emit(current_phase)
-	if execution_ctrl:
-		execution_ctrl.start_execution_phase()
-
-func _start_battle(attacker: Army, defender: Army):
-	current_phase = GamePhase.BATTLE
-	phase_changed.emit(current_phase)
-
-	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
-	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
-
-func _on_army_move_completed(army: Army):
-	army_mgr._update_army_position(army)
 
 func open_city_menu(node: MapNode):
 	if city_menu:
@@ -159,30 +263,38 @@ func _on_open_formation():
 func _on_squad_menu_closed(saved: bool):
 	if city_menu:
 		city_menu.visible = true
+	if saved and squad_menu:
+		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
 
-	if saved:
-		if squad_menu:
-			GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
-		army_mgr.refresh_player_armies(current_node_id, current_faction)
+func _start_battle(attacker: Army, defender: Army):
+	current_phase = GamePhase.BATTLE
+	phase_changed.emit(current_phase)
+	attacker.state = Army.ArmyState.IN_BATTLE
+	defender.state = Army.ArmyState.IN_BATTLE
 
-func _on_deploy_army():
-	city_menu.visible = false
-	if army_mgr.selected_army:
-		army_mgr.create_squad_from_main(army_mgr.selected_army)
+	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
+	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 
 func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
 
 func _on_battle_ended(victory: bool):
-	current_phase = GamePhase.PLANNING
+	current_phase = GamePhase.WORLD_MAP
 	phase_changed.emit(current_phase)
 
-	if victory and army_mgr.selected_army:
-		var city_id = army_mgr.selected_army.current_city_id
+	if victory and selected_army:
+		var city_id = selected_army.current_city_id
 		map_data.NODE_CONFIG[city_id].faction = current_faction
 		if map_data.map_nodes.has(city_id):
 			map_data.map_nodes[city_id].set_faction_color(current_faction)
 
+	# Clean up defeated armies
+	var i = all_armies.size() - 1
+	while i >= 0:
+		if not is_instance_valid(all_armies[i]):
+			all_armies.remove_at(i)
+		i -= 1
+	_plan_ai_moves()
+
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
-	start_planning_phase()
