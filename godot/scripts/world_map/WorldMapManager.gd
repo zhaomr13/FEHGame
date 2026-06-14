@@ -131,8 +131,6 @@ func _on_execution_ended():
 
 func _on_army_move_completed(army: Army):
 	army_mgr._update_army_position(army)
-	if current_phase == GamePhase.EXECUTION:
-		execution_ctrl._execute_next_move()
 
 func open_city_menu(node: MapNode):
 	if city_menu:
