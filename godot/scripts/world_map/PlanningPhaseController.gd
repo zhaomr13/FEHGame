@@ -81,6 +81,15 @@ func _end_drag_selection():
 	var target = army_mgr.get_army_at_position(get_global_mouse_position())
 	if target and target.army_type == Army.ArmyType.ENEMY:
 		if army_mgr.selected_army:
+			# Auto-calculate move path to reach the enemy's city
+			var target_city = target.current_city_id
+			var from_city = army_mgr.selected_army.current_city_id
+			if target_city != from_city:
+				var can_move = map_data.can_move_to(from_city, target_city)
+				if can_move:
+					var path = map_data.find_path(from_city, target_city)
+					if not path.is_empty():
+						army_mgr.selected_army.set_planning_move(target_city, path, target.position)
 			army_mgr.selected_army.set_attack_plan(target)
 	elif target and target.army_type != Army.ArmyType.ENEMY:
 		army_mgr.set_selected_army(target)
@@ -88,6 +97,15 @@ func _end_drag_selection():
 func on_army_clicked(army: Army):
 	if army.army_type != Army.ArmyType.PLAYER_MAIN and army.army_type != Army.ArmyType.PLAYER_SQUAD:
 		if army_mgr.selected_army:
+			# Set attack plan AND auto-calculate move path to reach the target
+			var target_city = army.current_city_id
+			var from_city = army_mgr.selected_army.current_city_id
+			if target_city != from_city:
+				var can_move = map_data.can_move_to(from_city, target_city)
+				if can_move:
+					var path = map_data.find_path(from_city, target_city)
+					if not path.is_empty():
+						army_mgr.selected_army.set_planning_move(target_city, path, army.position)
 			army_mgr.selected_army.set_attack_plan(army)
 		return
 
