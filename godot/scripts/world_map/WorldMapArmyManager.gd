@@ -74,6 +74,14 @@ func _create_default_player_army(start_city: String):
 	_update_army_position(main_army)
 
 func create_enemy_armies(player_faction: String):
+	print("WorldMapArmyManager: create_enemy_armies for player faction: ", player_faction)
+	if not map_data:
+		print("ERROR: WorldMapArmyManager - map_data is null!")
+		return
+	if not armies_container:
+		print("ERROR: WorldMapArmyManager - armies_container is null!")
+		return
+
 	var all_factions = ["askr", "embla", "nifl", "muspell"]
 
 	for faction in all_factions:
@@ -81,11 +89,13 @@ func create_enemy_armies(player_faction: String):
 			continue
 
 		var faction_chars = GameManager.get_characters_by_faction(faction)
+		print("WorldMapArmyManager: faction ", faction, " has ", faction_chars.size(), " characters")
 		if faction_chars.is_empty():
 			continue
 
 		for city_id in map_data.NODE_CONFIG.keys():
 			if map_data.NODE_CONFIG[city_id].faction == faction:
+				print("WorldMapArmyManager: creating enemy army for ", faction, " at ", city_id)
 				var enemy_army = Army.new()
 				enemy_army.army_id = "enemy_%s" % faction
 				enemy_army.army_name = faction.capitalize()
