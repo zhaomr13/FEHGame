@@ -19,7 +19,7 @@ var current_faction: String = ""
 var city_menu: Control = null
 var squad_menu: Control = null
 var selected_army: Army = null
-var execute_button: Button = null
+var planning_ui: Control = null
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
@@ -43,15 +43,12 @@ func _ready():
 	setup_ui()
 	setup_battle_result_handler()
 	map_data.node_clicked.connect(_on_node_clicked)
-	if clock:
-		clock.month_passed.connect(_on_month_passed)
 
 func _process(_delta):
 	if current_phase == GamePhase.EXECUTING:
 		_check_encounters()
 
 func _check_encounters():
-	# Proximity-based encounter detection (like sanguoqunying2 TestEncounterArmy)
 	for i in range(all_armies.size()):
 		var a1 = all_armies[i]
 		if not is_instance_valid(a1):
@@ -61,7 +58,7 @@ func _check_encounters():
 			if not is_instance_valid(a2):
 				continue
 			if a1.army_type == a2.army_type:
-				continue  # Same side, no encounter
+				continue
 			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
 				_start_battle(a1, a2)
 				return
@@ -75,12 +72,10 @@ func _on_node_clicked(node: MapNode):
 			open_city_menu(node)
 		return
 
-	# Set destination for selected army
 	if selected_army.current_city_id != node.node_id:
 		if map_data.can_move_to(selected_army.current_city_id, node.node_id):
 			var path = map_data.find_path(selected_army.current_city_id, node.node_id)
 			if not path.is_empty():
-				# Build route waypoints
 				var waypoints: Array[Vector2] = []
 				var cities: Array[String] = []
 				for city_id in path:
@@ -100,12 +95,10 @@ func _input(event):
 
 func _on_army_clicked(army: Army):
 	if army.army_type == Army.ArmyType.ENEMY:
-		# Click enemy to attack with selected army
 		if selected_army and selected_army.army_type != Army.ArmyType.ENEMY:
 			_set_destination_to(selected_army, army.current_city_id)
 		return
 
-	# Select friendly army
 	if selected_army and is_instance_valid(selected_army):
 		selected_army.set_selected(false)
 	selected_army = army
@@ -168,7 +161,6 @@ func _create_player_armies_from_squads(start_city: String):
 		squad_index += 1
 
 	if player_armies.is_empty():
-		# Default army from GameManager.player_army
 		var chars = GameManager.player_army.duplicate()
 		var army = _create_army(chars, start_city)
 		army.army_id = "player_main"
@@ -236,15 +228,40 @@ func setup_background():
 func setup_ui():
 	setup_city_menu()
 	setup_squad_menu()
-	setup_execute_button()
+	setup_planning_ui()
 
-func setup_execute_button():
-	execute_button = Button.new()
-	execute_button.text = "Execute"
-	execute_button.custom_minimum_size = Vector2(120, 40)
-	execute_button.position = Vector2(1100, 10)
-	execute_button.pressed.connect(_on_execute_pressed)
-	ui.add_child(execute_button)
+func setup_planning_ui():
+	planning_ui = Control.new()
+	planning_ui.name = "PlanningUI"
+
+	var panel = Panel.new()
+	panel.name = "Panel"
+	panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	panel.custom_minimum_size = Vector2(0, 80)
+
+	var hbox = HBoxContainer.new()
+	hbox.name = "ButtonContainer"
+	hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var end_planning_btn = Button.new()
+	end_planning_btn.name = "EndPlanningButton"
+	end_planning_btn.text = "End Planning Phase"
+	end_planning_btn.custom_minimum_size = Vector2(200, 50)
+	end_planning_btn.pressed.connect(_on_end_planning_pressed)
+
+	var cancel_plan_btn = Button.new()
+	cancel_plan_btn.name = "CancelPlanButton"
+	cancel_plan_btn.text = "Clear All Plans"
+	cancel_plan_btn.custom_minimum_size = Vector2(150, 50)
+	cancel_plan_btn.pressed.connect(_on_clear_plans_pressed)
+
+	hbox.add_child(end_planning_btn)
+	hbox.add_child(cancel_plan_btn)
+	panel.add_child(hbox)
+	planning_ui.add_child(panel)
+
+	ui.add_child(planning_ui)
 
 func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
@@ -260,16 +277,24 @@ func setup_squad_menu():
 	squad_menu.menu_closed.connect(_on_squad_menu_closed)
 	squad_menu.visible = false
 
-func _on_execute_pressed():
+func _on_end_planning_pressed():
 	if current_phase != GamePhase.PLANNING:
 		return
 	_start_execution()
 
+func _on_clear_plans_pressed():
+	for army in player_armies:
+		if is_instance_valid(army):
+			army.route.clear()
+			army.route_cities.clear()
+			army.state = Army.ArmyState.IDLE
+			army.label.text = army.army_name
+
 func _start_execution():
 	current_phase = GamePhase.EXECUTING
-	# Plan AI moves now that player has finished planning
+	if planning_ui:
+		planning_ui.visible = false
 	_plan_ai_moves()
-	# Unpause the game clock
 	if clock:
 		clock.is_running = true
 
@@ -300,7 +325,6 @@ func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
 
 func _on_battle_ended(victory: bool):
-	# Return to planning phase, pause game clock
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 	if clock:
@@ -312,31 +336,13 @@ func _on_battle_ended(victory: bool):
 		if map_data.map_nodes.has(city_id):
 			map_data.map_nodes[city_id].set_faction_color(current_faction)
 
-	# Clean up defeated armies
 	var i = all_armies.size() - 1
 	while i >= 0:
 		if not is_instance_valid(all_armies[i]):
 			all_armies.remove_at(i)
 		i -= 1
 
+	if planning_ui:
+		planning_ui.visible = true
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
-
-# ── AI / Game Clock ──
-
-func _on_month_passed():
-	if current_phase != GamePhase.EXECUTING:
-		return
-	_ai_month_act()
-
-func _ai_month_act():
-	# AI cities send armies toward adjacent player cities
-	for enemy in enemy_armies:
-		if not is_instance_valid(enemy) or enemy.state != Army.ArmyState.IDLE:
-			continue
-		var connections = map_data.NODE_CONFIG[enemy.current_city_id].connections
-		for connected_id in connections:
-			for player in player_armies:
-				if is_instance_valid(player) and player.current_city_id == connected_id:
-					_set_destination_to(enemy, connected_id)
-					return  # one action per month
