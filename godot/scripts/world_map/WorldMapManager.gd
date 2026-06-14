@@ -16,11 +16,6 @@ enum GamePhase {
 @export var player_morale: int = 100
 @export var turn_count: int = 1
 
-# 军队系统
-var player_armies: Array[Army] = []
-var enemy_armies: Array[Army] = []
-var selected_army: Army = null
-
 # 拖拽攻击线
 var is_dragging_plan: bool = false
 var drag_start_army: Army = null
@@ -44,15 +39,18 @@ const WORLD_BACKGROUNDS = {
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
-@onready var armies_container: Node2D = $Armies
+@onready var army_mgr: WorldMapArmyManager = $WorldMapArmyManager
+@onready var map_data: MapDataManager = $MapDataManager
 
 func _ready():
 	setup_background()
-	$MapDataManager.create_map_nodes()
-	$MapDataManager.draw_connections()
+	map_data.create_map_nodes()
+	map_data.draw_connections()
 	setup_ui()
 	setup_battle_result_handler()
-	$MapDataManager.node_clicked.connect(_on_node_clicked)
+	map_data.node_clicked.connect(_on_node_clicked)
+	army_mgr.army_selected.connect(_on_army_selected_by_mgr)
+	army_mgr.move_completed.connect(_on_army_move_completed)
 
 
 func _input(event):
@@ -67,168 +65,37 @@ func _end_drag_selection():
 	is_dragging_plan = false
 
 	# 检查是否释放在敌军上
-	var target = _get_army_at_position(get_global_mouse_position())
+	var target = army_mgr.get_army_at_position(get_global_mouse_position())
 	if target and target.army_type == Army.ArmyType.ENEMY:
 		# 设置攻击计划
-		if selected_army:
-			selected_army.set_attack_plan(target)
-			print("DEBUG: Set attack plan: ", selected_army.army_name, " -> ", target.army_name)
+		if army_mgr.selected_army:
+			army_mgr.selected_army.set_attack_plan(target)
+			print("DEBUG: Set attack plan: ", army_mgr.selected_army.army_name, " -> ", target.army_name)
 	elif target and target.army_type != Army.ArmyType.ENEMY:
 		# 点击友军，切换选择
-		_set_selected_army(target)
+		army_mgr.set_selected_army(target)
 	# 注意：释放在空白处不做任何操作，保持当前选择
-
-func _get_army_at_position(pos: Vector2) -> Army:
-	# 检查位置下的军队
-	for army in player_armies:
-		if army.position.distance_to(pos) < 30:
-			return army
-	for army in enemy_armies:
-		if army.position.distance_to(pos) < 30:
-			return army
-	return null
 
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
 	current_node_id = start_city
 
 	# 清除旧数据
-	_clear_armies()
-	$MapDataManager.map_nodes.clear()
-	$MapDataManager.create_map_nodes()
+	army_mgr.clear_armies()
+	map_data.map_nodes.clear()
+	map_data.create_map_nodes()
 
 	# 创建玩家军队 - 根据小队数据
-	_create_player_armies_from_squads(start_city)
+	army_mgr.create_player_armies_from_squads(start_city)
 
 	# 创建敌方军队
-	_create_enemy_armies(faction)
+	army_mgr.create_enemy_armies(faction)
 
 	# 初始化小队数据（如果为空）
-	_initialize_squads()
+	army_mgr.initialize_squads()
 
 	# 开始计划阶段
 	_start_planning_phase()
-
-func _clear_armies():
-	for army in player_armies:
-		if is_instance_valid(army):
-			army.queue_free()
-	player_armies.clear()
-
-	for army in enemy_armies:
-		if is_instance_valid(army):
-			army.queue_free()
-	enemy_armies.clear()
-
-func _create_player_armies_from_squads(start_city: String):
-	"""根据 GameManager 的小队数据创建军队"""
-	var squad_index = 0
-
-	for squad_data in GameManager.squad_data:
-		if squad_data.is_empty():
-			squad_index += 1
-			continue
-
-		var army = Army.new()
-		army.army_id = "player_squad_%d" % squad_index
-		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
-		army.army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
-		army.current_city_id = start_city
-		army.squad_data = _convert_squad_data(squad_data)
-		army.army_clicked.connect(_on_army_clicked)
-		army.move_completed.connect(_on_army_move_completed)
-
-		armies_container.add_child(army)
-		player_armies.append(army)
-		_update_army_position(army)
-
-		squad_index += 1
-
-	# 如果没有创建任何军队，创建一个默认的
-	if player_armies.is_empty():
-		_create_default_player_army(start_city)
-
-func _convert_squad_data(squad_data: Array) -> Array[CharacterData]:
-	"""将小队数据转换为 CharacterData 数组"""
-	var result: Array[CharacterData] = []
-	for char in squad_data:
-		if char is CharacterData:
-			result.append(char)
-	return result
-
-func _create_default_player_army(start_city: String):
-	"""创建默认玩家军队（如果没有小队数据）"""
-	var main_army = Army.new()
-	main_army.army_id = "player_main"
-	main_army.army_name = "Main Army"
-	main_army.army_type = Army.ArmyType.PLAYER_MAIN
-	main_army.current_city_id = start_city
-	main_army.squad_data = _get_squad_characters(0)
-	main_army.army_clicked.connect(_on_army_clicked)
-	main_army.move_completed.connect(_on_army_move_completed)
-
-	armies_container.add_child(main_army)
-	player_armies.append(main_army)
-	_update_army_position(main_army)
-
-func _create_enemy_armies(player_faction: String):
-	# Create armies for each faction that isn't the player
-	var all_factions = ["askr", "embla", "nifl", "muspell"]
-
-	for faction in all_factions:
-		if faction == player_faction:
-			continue
-
-		# Get characters belonging to this faction
-		var faction_chars = CharacterDatabase.get_characters_by_faction(faction)
-		if faction_chars.is_empty():
-			continue
-
-		# Find a city owned by this faction
-		for city_id in $MapDataManager.NODE_CONFIG.keys():
-			if $MapDataManager.NODE_CONFIG[city_id].faction == faction:
-				var enemy_army = Army.new()
-				enemy_army.army_id = "enemy_%s" % faction
-				enemy_army.army_name = faction.capitalize()
-				enemy_army.army_type = Army.ArmyType.ENEMY
-				enemy_army.current_city_id = city_id
-				# Use real characters from this faction
-				enemy_army.squad_data = _get_faction_squad(faction, faction_chars)
-				enemy_army.army_clicked.connect(_on_army_clicked)
-
-				armies_container.add_child(enemy_army)
-				enemy_armies.append(enemy_army)
-				_update_army_position(enemy_army)
-				break
-
-func _get_faction_squad(faction: String, faction_chars: Array[CharacterData]) -> Array[CharacterData]:
-	"""Get up to 3 characters from a faction for their army"""
-	var squad: Array[CharacterData] = []
-	# Take up to 3 characters from the faction
-	for i in range(min(3, faction_chars.size())):
-		squad.append(faction_chars[i])
-	return squad
-
-func _get_squad_characters(squad_index: int) -> Array[CharacterData]:
-	if squad_index < GameManager.squad_data.size():
-		var squad: Array[CharacterData] = []
-		for char in GameManager.squad_data[squad_index]:
-			if char is CharacterData:
-				squad.append(char)
-		return squad
-	return []
-
-func _initialize_squads():
-	var total_in_squads = 0
-	for squad in GameManager.squad_data:
-		total_in_squads += squad.size()
-	if total_in_squads == 0 and GameManager.unassigned_units.size() == 0:
-		GameManager.initialize_squads()
-
-func _update_army_position(army: Army):
-	if $MapDataManager.map_nodes.has(army.current_city_id):
-		var city_pos = $MapDataManager.map_nodes[army.current_city_id].position
-		army.set_position_at_city(city_pos)
 
 func setup_background():
 	if background_sprite and background_sprite.texture:
@@ -298,7 +165,7 @@ func _start_planning_phase():
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 
-	for army in player_armies:
+	for army in army_mgr.player_armies:
 		army.clear_plan()
 
 	if planning_ui:
@@ -308,7 +175,7 @@ func _on_end_planning_pressed():
 	_start_execution_phase()
 
 func _on_clear_plans_pressed():
-	for army in player_armies:
+	for army in army_mgr.player_armies:
 		army.clear_plan()
 
 func _start_execution_phase():
@@ -319,10 +186,10 @@ func _start_execution_phase():
 		planning_ui.visible = false
 
 	execution_queue.clear()
-	for army in player_armies:
+	for army in army_mgr.player_armies:
 		if army.is_planned:
 			execution_queue.append(army)
-	for army in enemy_armies:
+	for army in army_mgr.enemy_armies:
 		if army.is_planned:
 			execution_queue.append(army)
 
@@ -351,7 +218,7 @@ func _execute_next_move():
 	army.current_city_id = next_city
 
 	# 启动移动动画
-	var city_pos = $MapDataManager.map_nodes[next_city].position
+	var city_pos = map_data.map_nodes[next_city].position
 	army.start_move_animation(city_pos + Vector2(20, -20))
 
 	# 等待动画完成
@@ -380,11 +247,11 @@ func _wait_for_move_complete(army: Army):
 
 func _check_encounter(army: Army) -> Army:
 	if army.army_type == Army.ArmyType.PLAYER_MAIN or army.army_type == Army.ArmyType.PLAYER_SQUAD:
-		for enemy in enemy_armies:
+		for enemy in army_mgr.enemy_armies:
 			if enemy.current_city_id == army.current_city_id:
 				return enemy
 	else:
-		for player in player_armies:
+		for player in army_mgr.player_armies:
 			if player.current_city_id == army.current_city_id:
 				return player
 	return null
@@ -393,39 +260,39 @@ func _start_battle(attacker: Army, defender: Army):
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 
-	var battle_bg = $MapDataManager.select_battle_background($MapDataManager.map_nodes[attacker.current_city_id])
+	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 
 func _end_execution_phase():
 	_process_enemy_turn()
 
 func _process_enemy_turn():
-	for enemy in enemy_armies:
+	for enemy in army_mgr.enemy_armies:
 		var current_city = enemy.current_city_id
-		var connections = $MapDataManager.NODE_CONFIG[current_city].connections
+		var connections = map_data.NODE_CONFIG[current_city].connections
 
 		for connected_id in connections:
-			for player in player_armies:
+			for player in army_mgr.player_armies:
 				if player.current_city_id == connected_id:
 					enemy.set_planning_move(connected_id, [connected_id])
 					break
 
 	execution_queue.clear()
-	for enemy in enemy_armies:
+	for enemy in army_mgr.enemy_armies:
 		if enemy.is_planned:
 			execution_queue.append(enemy)
 
 	_execute_next_move()
 
-func _on_army_clicked(army: Army):
+func _on_army_selected_by_mgr(army: Army):
 	if current_phase != GamePhase.PLANNING:
 		return
 
 	# 只有玩家方军队可以被选中进行计划
 	if army.army_type != Army.ArmyType.PLAYER_MAIN and army.army_type != Army.ArmyType.PLAYER_SQUAD:
 		# 点击敌军 - 如果是已选中的玩家军队的目标，设置攻击
-		if selected_army:
-			selected_army.set_attack_plan(army)
+		if army_mgr.selected_army:
+			army_mgr.selected_army.set_attack_plan(army)
 			print("DEBUG: Set attack plan on enemy: ", army.army_name)
 		return
 
@@ -433,19 +300,10 @@ func _on_army_clicked(army: Army):
 	_start_drag_plan(army)
 
 func _start_drag_plan(army: Army):
-	_set_selected_army(army)
+	army_mgr.set_selected_army(army)
 	is_dragging_plan = true
 	drag_start_army = army
 	print("DEBUG: Started drag plan for ", army.army_name)
-
-func _set_selected_army(army: Army):
-	if selected_army and is_instance_valid(selected_army):
-		selected_army.set_selected(false)
-
-	selected_army = army
-	if selected_army:
-		selected_army.set_selected(true)
-		army_selected.emit(selected_army)
 
 func _on_node_clicked(node: MapNode):
 	if current_phase != GamePhase.PLANNING:
@@ -455,30 +313,30 @@ func _on_node_clicked(node: MapNode):
 	if is_dragging_plan:
 		is_dragging_plan = false
 		# 检查是否点击了城池，设置移动计划
-		if selected_army and selected_army.current_city_id != node.node_id:
-			var can_move = $MapDataManager.can_move_to(selected_army.current_city_id, node.node_id)
+		if army_mgr.selected_army and army_mgr.selected_army.current_city_id != node.node_id:
+			var can_move = map_data.can_move_to(army_mgr.selected_army.current_city_id, node.node_id)
 			if can_move:
-				var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
+				var path = map_data.find_path(army_mgr.selected_army.current_city_id, node.node_id)
 				if not path.is_empty():
 					var target_pos = node.position + Vector2(20, -20)
-					selected_army.set_planning_move(node.node_id, path, target_pos)
+					army_mgr.selected_army.set_planning_move(node.node_id, path, target_pos)
 					print("DEBUG: Planned move to ", node.node_name)
 		return
 
-	if not selected_army:
+	if not army_mgr.selected_army:
 		# 只有己方城池可以打开菜单
-		if $MapDataManager.NODE_CONFIG[node.node_id].faction == current_faction:
+		if map_data.NODE_CONFIG[node.node_id].faction == current_faction:
 			open_city_menu(node)
 		else:
 			print("DEBUG: Cannot interact with enemy/neutral city: ", node.node_name)
 		return
 
-	var can_move = $MapDataManager.can_move_to(selected_army.current_city_id, node.node_id)
+	var can_move = map_data.can_move_to(army_mgr.selected_army.current_city_id, node.node_id)
 	if can_move:
-		var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
+		var path = map_data.find_path(army_mgr.selected_army.current_city_id, node.node_id)
 		if not path.is_empty():
 			var target_pos = node.position + Vector2(20, -20)
-			selected_army.set_planning_move(node.node_id, path, target_pos)
+			army_mgr.selected_army.set_planning_move(node.node_id, path, target_pos)
 			print("DEBUG: Planned move to ", node.node_name)
 	else:
 		print("DEBUG: Cannot move to ", node.node_name)
@@ -502,43 +360,12 @@ func _on_squad_menu_closed(saved: bool):
 		if squad_menu:
 			GameManager.update_squad_data(squad_menu.squads, squad_menu.unassigned)
 		# 重新创建军队以反映小队变化
-		_refresh_player_armies()
-
-func _refresh_player_armies():
-	"""重新创建玩家军队以反映小队变化"""
-	var current_city = current_node_id
-	if selected_army:
-		current_city = selected_army.current_city_id
-
-	_clear_armies()
-	_create_player_armies_from_squads(current_city)
+		army_mgr.refresh_player_armies(current_node_id)
 
 func _on_deploy_army():
 	city_menu.visible = false
-	if selected_army:
-		_create_squad_from_main(selected_army)
-
-func _create_squad_from_main(main_army: Army):
-	if GameManager.squad_data.size() < 2:
-		return
-
-	var squad_index = 1
-	var squad_chars = _get_squad_characters(squad_index)
-	if squad_chars.is_empty():
-		return
-
-	var new_army = Army.new()
-	new_army.army_id = "player_squad_%d" % player_armies.size()
-	new_army.army_name = "Squad %d" % (squad_index + 1)
-	new_army.army_type = Army.ArmyType.PLAYER_SQUAD
-	new_army.current_city_id = main_army.current_city_id
-	new_army.squad_data = squad_chars
-	new_army.army_clicked.connect(_on_army_clicked)
-	new_army.move_completed.connect(_on_army_move_completed)
-
-	armies_container.add_child(new_army)
-	player_armies.append(new_army)
-	_update_army_position(new_army)
+	if army_mgr.selected_army:
+		army_mgr.create_squad_from_main(army_mgr.selected_army)
 
 func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
@@ -547,11 +374,11 @@ func _on_battle_ended(victory: bool):
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 
-	if victory and selected_army:
-		var city_id = selected_army.current_city_id
-		$MapDataManager.NODE_CONFIG[city_id].faction = current_faction
-		if $MapDataManager.map_nodes.has(city_id):
-			$MapDataManager.map_nodes[city_id].set_faction_color(current_faction)
+	if victory and army_mgr.selected_army:
+		var city_id = army_mgr.selected_army.current_city_id
+		map_data.NODE_CONFIG[city_id].faction = current_faction
+		if map_data.map_nodes.has(city_id):
+			map_data.map_nodes[city_id].set_faction_color(current_faction)
 
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
@@ -560,7 +387,7 @@ func _on_battle_ended(victory: bool):
 func _on_army_move_completed(army: Army):
 	"""处理军队移动完成"""
 	print("DEBUG: Army move completed: ", army.army_name)
-	_update_army_position(army)
+	army_mgr._update_army_position(army)
 	# 检查是否需要继续执行下一个移动（在执行阶段）
 	if current_phase == GamePhase.EXECUTION:
 		_execute_next_move()
