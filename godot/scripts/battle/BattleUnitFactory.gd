@@ -44,8 +44,6 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 
 	unit.setup(data, position, is_player)
 
-	battle_mgr.status_panel.create_unit_status_entry(unit, data, is_player)
-
 	return unit
 
 func create_default_enemy(index: int) -> CharacterData:

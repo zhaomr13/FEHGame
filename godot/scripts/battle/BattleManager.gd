@@ -55,9 +55,7 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 
 	GameManager.change_state(GameConstants.GameState.BATTLE_ACTIVE)
 
-	status_panel.cleanup_status_entries()
-
-	# If units weren't created in preparation, create them now
+	# Create units
 	if player_units.is_empty():
 		for i in range(min(player_selected.size(), 6)):
 			var unit = unit_factory.create_battle_unit(player_selected[i], i, true)
@@ -74,24 +72,6 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 			var unit = unit_factory.create_battle_unit(enemy_data, i, false)
 			enemy_units.append(unit)
 			all_units.append(unit)
-
-	# Clear status panel containers
-	for entry in status_panel.player_status_entries.values():
-		if is_instance_valid(entry):
-			entry.queue_free()
-	for entry in status_panel.enemy_status_entries.values():
-		if is_instance_valid(entry):
-			entry.queue_free()
-	status_panel.player_status_entries.clear()
-	status_panel.enemy_status_entries.clear()
-
-	# Create status entries for existing units
-	for unit in player_units:
-		if is_instance_valid(unit):
-			status_panel.create_unit_status_entry(unit, unit.character_data, true)
-	for unit in enemy_units:
-		if is_instance_valid(unit):
-			status_panel.create_unit_status_entry(unit, unit.character_data, false)
 
 	all_units.sort_custom(func(a, b): return a.character_data.speed > b.character_data.speed)
 
