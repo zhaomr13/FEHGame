@@ -131,6 +131,7 @@ func start_battle_with_background(player_units: Array, enemy_units: Array, backg
     battle_started_with_background.emit(player_units, enemy_units, background_type)
 
 func end_battle(victory: bool):
+    print("[TIME] GameManager.end_battle victory=", victory, " ", Time.get_ticks_msec())
     battle_ended.emit(victory)
     change_state(GameConstants.GameState.WORLD_MAP)
 

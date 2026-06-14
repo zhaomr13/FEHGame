@@ -333,6 +333,7 @@ func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
 
 func _on_battle_ended(victory: bool):
+	print("[TIME] _on_battle_ended ", Time.get_ticks_msec())
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 	if clock:

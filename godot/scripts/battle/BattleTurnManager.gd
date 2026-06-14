@@ -48,6 +48,7 @@ func check_victory() -> bool:
 	return false
 
 func end_battle(victory: bool):
+	print("[TIME] BattleTurnManager.end_battle ", Time.get_ticks_msec())
 	if not battle_mgr.is_battle_active:
 		return
 	battle_mgr.is_battle_active = false
