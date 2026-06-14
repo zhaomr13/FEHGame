@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 
 GameManager="*res://scripts/autoload/GameManager.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
+CharacterDatabase="*res://scripts/autoload/CharacterDatabase.gd"
 
 [display]
 
