@@ -456,7 +456,7 @@ func _on_node_clicked(node: MapNode):
 		is_dragging_plan = false
 		# 检查是否点击了城池，设置移动计划
 		if selected_army and selected_army.current_city_id != node.node_id:
-			var can_move = $MapDataManager.can_move_to(selected_army, node.node_id)
+			var can_move = $MapDataManager.can_move_to(selected_army.current_city_id, node.node_id)
 			if can_move:
 				var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
 				if not path.is_empty():
@@ -473,7 +473,7 @@ func _on_node_clicked(node: MapNode):
 			print("DEBUG: Cannot interact with enemy/neutral city: ", node.node_name)
 		return
 
-	var can_move = $MapDataManager.can_move_to(selected_army, node.node_id)
+	var can_move = $MapDataManager.can_move_to(selected_army.current_city_id, node.node_id)
 	if can_move:
 		var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
 		if not path.is_empty():
