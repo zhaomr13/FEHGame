@@ -19,13 +19,13 @@ func plan_ai_moves():
 					break
 
 func start_execution_phase():
-	# Clear all plan lines when execution starts
+	# Clear all plan lines
 	for army in army_mgr.player_armies:
 		army.clear_plan_lines()
 	for army in army_mgr.enemy_armies:
 		army.clear_plan_lines()
 
-	# Gather ALL planned armies (player + enemy)
+	# Gather ALL planned armies
 	var all_planned: Array[Army] = []
 	for army in army_mgr.player_armies:
 		if army.is_planned and not army.target_city_id.is_empty():
@@ -42,45 +42,61 @@ func start_execution_phase():
 	for army in all_planned:
 		start_positions[army] = army.current_city_id
 
-	# Step 1: Resolve midpoint encounters FIRST (before any movement)
+	# Find midpoint crossing pairs
 	var crossing_pairs = _find_midpoint_crossings(all_planned, start_positions)
 	var crossing_armies: Array[Army] = []
+
+	# Resolve midpoint encounters: move armies to midpoint, then battle
 	for pair in crossing_pairs:
 		crossing_armies.append(pair.a)
 		crossing_armies.append(pair.b)
-		battle_started.emit(pair.a, pair.b)
-		await get_tree().create_timer(0.3).timeout
 
-	# Step 2: Non-crossing armies move to their destinations
+		var mid_pos = _get_midpoint(pair.a.target_city_id, pair.b.target_city_id)
+		# Move both armies toward the midpoint simultaneously
+		pair.a.start_move_animation(mid_pos)
+		pair.b.start_move_animation(mid_pos)
+
+		# Wait until both armies reach the midpoint
+		while is_instance_valid(pair.a) and is_instance_valid(pair.b) and \
+			  (pair.a.is_moving_animation or pair.b.is_moving_animation):
+			await get_tree().create_timer(0.05).timeout
+
+		# Both reached midpoint — trigger battle
+		if is_instance_valid(pair.a) and is_instance_valid(pair.b):
+			battle_started.emit(pair.a, pair.b)
+			await get_tree().create_timer(0.3).timeout
+
+	# Non-crossing armies move to their destination cities
 	var moving_armies: Array[Army] = []
 	for army in all_planned:
 		if not army in crossing_armies and is_instance_valid(army):
 			moving_armies.append(army)
 
-	# Consume path and start movement
 	for army in moving_armies:
-		if not army.planned_path.is_empty():
-			army.planned_path.pop_front()
 		var dest = army.target_city_id
 		if dest != "" and map_data.map_nodes.has(dest):
+			if not army.planned_path.is_empty():
+				army.planned_path.pop_front()
 			army.current_city_id = dest
 			var city_pos = map_data.map_nodes[dest].position
 			army.start_move_animation(city_pos + Vector2(20, -20))
 
-	if moving_armies.is_empty():
-		return
+	if not moving_armies.is_empty():
+		await _wait_for_all_moves(moving_armies)
 
-	# Wait for all movements to finish
-	await _wait_for_all_moves(moving_armies)
+		# City encounters after movement
+		for army in moving_armies:
+			if not is_instance_valid(army):
+				continue
+			var encounter = _check_encounter(army)
+			if encounter:
+				battle_started.emit(army, encounter)
+				await get_tree().create_timer(0.2).timeout
 
-	# Step 3: Check city encounters after movement
-	for army in moving_armies:
-		if not is_instance_valid(army):
-			continue
-		var encounter = _check_encounter(army)
-		if encounter:
-			battle_started.emit(army, encounter)
-			await get_tree().create_timer(0.2).timeout
+func _get_midpoint(city_a: String, city_b: String) -> Vector2:
+	var pos_a = map_data.map_nodes[city_a].position if map_data.map_nodes.has(city_a) else Vector2.ZERO
+	var pos_b = map_data.map_nodes[city_b].position if map_data.map_nodes.has(city_b) else Vector2.ZERO
+	return (pos_a + pos_b) / 2.0
 
 func _find_midpoint_crossings(armies: Array[Army], start_positions: Dictionary) -> Array:
 	var pairs: Array = []
@@ -107,7 +123,6 @@ func _find_midpoint_crossings(armies: Array[Army], start_positions: Dictionary) 
 				continue
 
 			# Crossing: a1 goes from1→to1, a2 goes from2→to2
-			# They meet at midpoint if from1 == to2 AND from2 == to1
 			if from1 == to2 and from2 == to1:
 				pairs.append({"a": a1, "b": a2})
 
