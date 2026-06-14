@@ -38,6 +38,7 @@ func _ready():
 	visible = false
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
+	print("[TIME] BattleManager._on_battle_started ", Time.get_ticks_msec())
 	if is_battle_active:
 		return
 	bg_mgr.set_background(background_type)
@@ -48,6 +49,7 @@ func _on_deployment_confirmed(player_selected: Array[CharacterData], enemy_selec
 	start_battle_combat(player_selected, enemy_selected, formation)
 
 func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: Array[CharacterData], formation: int):
+	print("[TIME] BattleManager.start_battle_combat ", Time.get_ticks_msec())
 	if is_battle_active or is_combat_running:
 		return
 

@@ -91,6 +91,7 @@ func initialize_player_army(faction: String):
 			GameManager.available_recruits.append(char)
 
 func _on_state_changed(new_state: GameConstants.GameState):
+	print("[TIME] Main._on_state_changed ", GameConstants.GameState.keys()[new_state], " ", Time.get_ticks_msec())
 	match new_state:
 		GameConstants.GameState.WORLD_MAP:
 			world_map.visible = true

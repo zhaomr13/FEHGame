@@ -60,6 +60,7 @@ func _check_encounters():
 			if a1.army_type == a2.army_type:
 				continue
 			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
+				print("[TIME] encounter ", Time.get_ticks_msec())
 				_start_battle(a1, a2)
 				return
 
@@ -319,6 +320,7 @@ func _on_squad_menu_closed(saved: bool):
 		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
 
 func _start_battle(attacker: Army, defender: Army):
+	print("[TIME] _start_battle ", Time.get_ticks_msec())
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 	attacker.state = Army.ArmyState.IN_BATTLE
