@@ -146,8 +146,8 @@ func _on_squad_menu_closed(saved: bool):
 
 	if saved:
 		if squad_menu:
-			GameManager.update_squad_data(squad_menu.squads, squad_menu.unassigned)
-		army_mgr.refresh_player_armies(current_node_id)
+			GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
+		army_mgr.refresh_player_armies(current_node_id, current_faction)
 
 func _on_deploy_army():
 	city_menu.visible = false

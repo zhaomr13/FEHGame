@@ -63,6 +63,9 @@ func _create_default_player_army(start_city: String):
 	main_army.army_type = Army.ArmyType.PLAYER_MAIN
 	main_army.current_city_id = start_city
 	main_army.squad_data = _get_squad_characters(0)
+	# Fall back to player_army if squads are empty (no squad assignment yet)
+	if main_army.squad_data.is_empty():
+		main_army.squad_data = GameManager.player_army.duplicate()
 	main_army.army_clicked.connect(_on_army_clicked)
 	main_army.move_completed.connect(_on_move_completed)
 
@@ -141,12 +144,14 @@ func set_selected_army(army: Army):
 		selected_army.set_selected(true)
 		army_selected.emit(selected_army)
 
-func refresh_player_armies(fallback_city: String):
+func refresh_player_armies(fallback_city: String, faction: String = ""):
 	if selected_army:
 		fallback_city = selected_army.current_city_id
 
 	clear_armies()
 	create_player_armies_from_squads(fallback_city)
+	if faction != "":
+		create_enemy_armies(faction)
 
 func create_squad_from_main(main_army: Army):
 	if GameManager.squad_data.size() < 2:
