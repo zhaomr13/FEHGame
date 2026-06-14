@@ -31,12 +31,8 @@ func setup(data: CharacterData, position: int, is_player: bool):
 
 	if character:
 		character.character_data = data
-		character.set_state(Character.State.IDLE)
-		call_deferred("_load_sprite_deferred")
-
-func _load_sprite_deferred():
-	if character and character_data:
 		character.setup_sprite()
+		character.set_state(Character.State.IDLE)
 
 func update_time_bar(delta: float):
 	"""Called every frame to fill time bar based on speed"""

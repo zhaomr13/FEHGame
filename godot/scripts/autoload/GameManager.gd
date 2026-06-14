@@ -24,6 +24,16 @@ var available_recruits: Array[CharacterData] = []  # Characters that can be recr
 func _ready():
     print("GameManager initialized")
     _initialize_all_characters()
+    var t = Time.get_ticks_msec()
+    var count = 0
+    var done = {}
+    for cd in all_characters:
+        var folder = cd.sprite_frames_path.get_base_dir()
+        if not done.has(folder):
+            done[folder] = true
+            preload("res://scripts/AtlasLoader.gd").load_character_atlas(folder)
+            count += 1
+    print("Preloaded ", count, " sprite atlases in ", Time.get_ticks_msec() - t, "ms")
 
 func _initialize_all_characters():
     """Initialize all characters in the game world with their faction affiliations"""
@@ -131,7 +141,6 @@ func start_battle_with_background(player_units: Array, enemy_units: Array, backg
     battle_started_with_background.emit(player_units, enemy_units, background_type)
 
 func end_battle(victory: bool):
-    print("[TIME] GameManager.end_battle victory=", victory, " ", Time.get_ticks_msec())
     battle_ended.emit(victory)
     change_state(GameConstants.GameState.WORLD_MAP)
 
