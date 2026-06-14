@@ -41,7 +41,8 @@ func _on_battle_started_with_background(player_army: Array, enemy_army: Array, b
 	if is_battle_active:
 		return
 	bg_mgr.set_background(background_type)
-	deployment_mgr.start_deployment(player_army, enemy_army)
+	# Skip deployment animation, go straight to combat
+	start_battle_combat(player_army, enemy_army, GameConstants.Formation.STANDARD)
 
 func _on_deployment_confirmed(player_selected: Array[CharacterData], enemy_selected: Array[CharacterData], formation: int):
 	start_battle_combat(player_selected, enemy_selected, formation)
