@@ -5,7 +5,7 @@ signal battle_started(attacker: Army, defender: Army)
 signal execution_ended
 
 var execution_queue: Array[Army] = []
-var _turn_phase: int = 0  # 0 = player, 1 = enemy, 2 = done
+var _turn_phase: int = 0  # 0 = player, 1 = enemy
 var _active: bool = false
 
 @onready var map_data: MapDataManager = $"../MapDataManager"
@@ -25,18 +25,14 @@ func start_execution_phase():
 	_execute_next_move()
 
 func _execute_next_move():
-	# Guard against re-entrant calls while a move sequence is in progress
 	if not _active:
 		return
 
 	if execution_queue.is_empty():
 		_active = false
 		if _turn_phase == 0:
-			# Player turn done - signal to start enemy turn
 			_turn_phase = 1
 			execution_ended.emit()
-		else:
-		# Enemy turn done (_turn_phase == 1) - just stop, no more recursion
 		return
 
 	var army = execution_queue[0]
