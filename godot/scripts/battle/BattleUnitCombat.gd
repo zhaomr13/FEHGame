@@ -22,10 +22,10 @@ func perform_attack(target: BattleUnit, use_skill: bool):
 			if anim_name != "" and battle_unit.character.animated_sprite.sprite_frames.has_animation(anim_name):
 				await battle_unit.character.animated_sprite.animation_finished
 			else:
-				await get_tree().create_timer(0.3).timeout
+				await get_tree().create_timer(0.15).timeout
 			await target.take_damage(damage)
 	else:
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.05).timeout
 		await target.take_damage(damage)
 
 	battle_unit.time_bar = 0.0
@@ -67,7 +67,7 @@ func take_damage(amount: int):
 		await battle_unit.character.take_damage(amount)
 	else:
 		battle_unit.character_data.take_damage(amount)
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.05).timeout
 
 	# Update status in BattleManager's side panel
 	var battle_manager = get_parent().get_parent().get_parent() as BattleManager

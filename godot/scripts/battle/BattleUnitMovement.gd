@@ -26,11 +26,11 @@ func perform_melee_attack_sequence(target: BattleUnit, damage: int):
 	if anim_name != "" and battle_unit.character.animated_sprite.sprite_frames.has_animation(anim_name):
 		await battle_unit.character.animated_sprite.animation_finished
 	else:
-		await get_tree().create_timer(0.3).timeout
+		await get_tree().create_timer(0.15).timeout
 
 	await target.take_damage(damage)
 
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.05).timeout
 
 	var return_tween = battle_unit.create_tween()
 	return_tween.set_trans(Tween.TRANS_LINEAR)

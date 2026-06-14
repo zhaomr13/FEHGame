@@ -28,9 +28,9 @@ func start_combat_round():
 			if check_victory():
 				return
 
-			await get_tree().create_timer(0.5).timeout
+			await get_tree().create_timer(0.15).timeout
 
-		await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(0.15).timeout
 
 	if battle_mgr.is_battle_active:
 		end_battle(false)

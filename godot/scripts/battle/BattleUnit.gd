@@ -64,7 +64,7 @@ func process_turn(all_enemy_units: Array, all_ally_units: Array):
 	while not is_ready and wait_time < max_wait:
 		update_time_bar(0.016)  # ~60fps delta
 		wait_time += 0.05
-		await get_tree().create_timer(0.05).timeout
+		await get_tree().create_timer(0.02).timeout
 
 	if character_data.is_defeated():
 		return

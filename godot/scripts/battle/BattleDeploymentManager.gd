@@ -18,7 +18,6 @@ func start_deployment(player_army: Array, enemy_army: Array):
 
 	await _play_preparation_animation(player_army, enemy_army)
 
-	await get_tree().create_timer(0.5).timeout
 	deployment_confirmed.emit(player_army, enemy_army, GameConstants.Formation.STANDARD)
 
 func _play_preparation_animation(player_army: Array, enemy_army: Array):
@@ -54,15 +53,14 @@ func _play_preparation_animation(player_army: Array, enemy_army: Array):
 		if unit:
 			created_units.append(unit)
 
-	# Animate all units simultaneously
+	# Quick deployment animation
 	var tween = create_tween()
 	tween.set_parallel(true)
 
 	for unit in created_units:
 		var final_pos = Vector2(unit.position.x, final_y_offset)
-		tween.tween_property(unit, "position", final_pos, 0.8) \
-			.set_trans(Tween.TRANS_BACK) \
+		tween.tween_property(unit, "position", final_pos, 0.25) \
+			.set_trans(Tween.TRANS_QUAD) \
 			.set_ease(Tween.EASE_OUT)
 
 	await tween.finished
-	await get_tree().create_timer(0.5).timeout
