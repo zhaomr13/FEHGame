@@ -94,7 +94,13 @@ func on_army_clicked(army: Army):
 	_start_drag_plan(army)
 
 func _start_drag_plan(army: Army):
-	army_mgr.set_selected_army(army)
+	# Set selection directly to avoid signal loop:
+	# set_selected_army → army_selected → _on_army_clicked → on_army_clicked → _start_drag_plan → ...
+	if army_mgr.selected_army and is_instance_valid(army_mgr.selected_army):
+		army_mgr.selected_army.set_selected(false)
+	army_mgr.selected_army = army
+	if army:
+		army.set_selected(true)
 	is_dragging_plan = true
 	drag_start_army = army
 
