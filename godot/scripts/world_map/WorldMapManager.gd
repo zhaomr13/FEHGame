@@ -23,8 +23,8 @@ var selected_army: Army = null
 @onready var background_sprite: Sprite2D = $Background
 @onready var map_data: MapDataManager = $MapDataManager
 @onready var army_mgr_node: Node2D = $Armies
+@onready var clock: GameClock = $GameClock
 
-# All armies (player + enemy) stored here for encounter detection
 var all_armies: Array[Army] = []
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
@@ -41,6 +41,8 @@ func _ready():
 	setup_ui()
 	setup_battle_result_handler()
 	map_data.node_clicked.connect(_on_node_clicked)
+	if clock:
+		clock.month_passed.connect(_on_month_passed)
 
 func _process(_delta):
 	if current_phase != GamePhase.WORLD_MAP:
@@ -48,17 +50,19 @@ func _process(_delta):
 	_check_encounters()
 
 func _check_encounters():
-	# Proximity-based encounter detection (like sanguoqunying2)
-	for i in range(player_armies.size()):
-		var p_army = player_armies[i]
-		if not is_instance_valid(p_army) or p_army.state != Army.ArmyState.MOVING:
+	# Proximity-based encounter detection (like sanguoqunying2 TestEncounterArmy)
+	for i in range(all_armies.size()):
+		var a1 = all_armies[i]
+		if not is_instance_valid(a1):
 			continue
-		for j in range(enemy_armies.size()):
-			var e_army = enemy_armies[j]
-			if not is_instance_valid(e_army):
+		for j in range(i + 1, all_armies.size()):
+			var a2 = all_armies[j]
+			if not is_instance_valid(a2):
 				continue
-			if p_army.position.distance_to(e_army.position) < ENCOUNTER_DISTANCE:
-				_start_battle(p_army, e_army)
+			if a1.army_type == a2.army_type:
+				continue  # Same side, no encounter
+			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
+				_start_battle(a1, a2)
 				return
 
 func _on_node_clicked(node: MapNode):
@@ -298,3 +302,23 @@ func _on_battle_ended(victory: bool):
 
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
+
+# ── AI / Game Clock ──
+
+func _on_month_passed():
+	# AI monthly maintenance (like sanguoqunying2 MonthAct)
+	# AI cities replenish reservists, heal generals, plan attacks
+	_ai_month_act()
+
+func _ai_month_act():
+	# AI cities send armies toward adjacent player cities
+	for enemy in enemy_armies:
+		if not is_instance_valid(enemy) or enemy.state != Army.ArmyState.IDLE:
+			continue
+		var connections = map_data.NODE_CONFIG[enemy.current_city_id].connections
+		for connected_id in connections:
+			for player in player_armies:
+				if is_instance_valid(player) and player.current_city_id == connected_id:
+					_set_destination_to(enemy, connected_id)
+					return  # one action per month
+

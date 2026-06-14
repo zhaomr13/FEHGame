@@ -1,18 +1,16 @@
-[gd_scene load_steps=8 format=3 uid="uid://worldmap_scene"]
+[gd_scene load_steps=6 format=3 uid="uid://worldmap_scene"]
 
 [ext_resource type="Script" path="res://scripts/world_map/WorldMapManager.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/world_map/MapDataManager.gd" id="2_mapdata"]
-[ext_resource type="Script" path="res://scripts/world_map/WorldMapArmyManager.gd" id="3_armymgr"]
-[ext_resource type="Script" path="res://scripts/world_map/PlanningPhaseController.gd" id="4_planning"]
-[ext_resource type="Script" path="res://scripts/world_map/ExecutionPhaseController.gd" id="5_execution"]
-[ext_resource type="Texture2D" path="res://assets/world_map/backgrounds/world_map.png" id="6_bg"]
+[ext_resource type="Script" path="res://scripts/world_map/GameClock.gd" id="3_clock"]
+[ext_resource type="Texture2D" path="res://assets/world_map/backgrounds/world_map.png" id="4_bg"]
 
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_script")
 
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -1
-texture = ExtResource("6_bg")
+texture = ExtResource("4_bg")
 centered = true
 position = Vector2(640, 360)
 
@@ -29,11 +27,5 @@ z_index = 10
 [node name="MapDataManager" type="Node2D" parent="."]
 script = ExtResource("2_mapdata")
 
-[node name="WorldMapArmyManager" type="Node2D" parent="."]
-script = ExtResource("3_armymgr")
-
-[node name="PlanningPhaseController" type="Node2D" parent="."]
-script = ExtResource("4_planning")
-
-[node name="ExecutionPhaseController" type="Node2D" parent="."]
-script = ExtResource("5_execution")
+[node name="GameClock" type="Node" parent="."]
+script = ExtResource("3_clock")
