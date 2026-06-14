@@ -4,7 +4,8 @@ extends Node2D
 signal phase_changed(new_phase: int)
 
 enum GamePhase {
-	WORLD_MAP,
+	PLANNING,
+	EXECUTING,
 	BATTLE
 }
 
@@ -12,12 +13,13 @@ enum GamePhase {
 @export var player_morale: int = 100
 @export var turn_count: int = 1
 
-var current_phase: GamePhase = GamePhase.WORLD_MAP
+var current_phase: GamePhase = GamePhase.PLANNING
 var current_faction: String = ""
 
 var city_menu: Control = null
 var squad_menu: Control = null
 var selected_army: Army = null
+var execute_button: Button = null
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
@@ -45,9 +47,8 @@ func _ready():
 		clock.month_passed.connect(_on_month_passed)
 
 func _process(_delta):
-	if current_phase != GamePhase.WORLD_MAP:
-		return
-	_check_encounters()
+	if current_phase == GamePhase.EXECUTING:
+		_check_encounters()
 
 func _check_encounters():
 	# Proximity-based encounter detection (like sanguoqunying2 TestEncounterArmy)
@@ -66,7 +67,7 @@ func _check_encounters():
 				return
 
 func _on_node_clicked(node: MapNode):
-	if current_phase != GamePhase.WORLD_MAP:
+	if current_phase != GamePhase.PLANNING:
 		return
 
 	if selected_army == null:
@@ -90,15 +91,12 @@ func _on_node_clicked(node: MapNode):
 				selected_army.set_route(waypoints, cities)
 
 func _input(event):
-	if current_phase != GamePhase.WORLD_MAP:
+	if current_phase != GamePhase.PLANNING:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		# Check for army clicks
 		var clicked_army = _get_army_at_position(get_global_mouse_position())
 		if clicked_army:
 			_on_army_clicked(clicked_army)
-		elif event.double_click:
-			pass  # double-click: could open city menu
 
 func _on_army_clicked(army: Army):
 	if army.army_type == Army.ArmyType.ENEMY:
@@ -215,9 +213,6 @@ func _create_enemy_armies(player_faction: String):
 				all_armies.append(army)
 				break
 
-	# AI armies: plan moves toward adjacent players
-	_plan_ai_moves()
-
 func _plan_ai_moves():
 	for enemy in enemy_armies:
 		if not is_instance_valid(enemy):
@@ -241,6 +236,15 @@ func setup_background():
 func setup_ui():
 	setup_city_menu()
 	setup_squad_menu()
+	setup_execute_button()
+
+func setup_execute_button():
+	execute_button = Button.new()
+	execute_button.text = "Execute"
+	execute_button.custom_minimum_size = Vector2(120, 40)
+	execute_button.position = Vector2(1100, 10)
+	execute_button.pressed.connect(_on_execute_pressed)
+	ui.add_child(execute_button)
 
 func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
@@ -255,6 +259,19 @@ func setup_squad_menu():
 	ui.add_child(squad_menu)
 	squad_menu.menu_closed.connect(_on_squad_menu_closed)
 	squad_menu.visible = false
+
+func _on_execute_pressed():
+	if current_phase != GamePhase.PLANNING:
+		return
+	_start_execution()
+
+func _start_execution():
+	current_phase = GamePhase.EXECUTING
+	# Plan AI moves now that player has finished planning
+	_plan_ai_moves()
+	# Unpause the game clock
+	if clock:
+		clock.is_running = true
 
 func open_city_menu(node: MapNode):
 	if city_menu:
@@ -283,8 +300,11 @@ func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
 
 func _on_battle_ended(victory: bool):
-	current_phase = GamePhase.WORLD_MAP
+	# Return to planning phase, pause game clock
+	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
+	if clock:
+		clock.is_running = false
 
 	if victory and selected_army:
 		var city_id = selected_army.current_city_id
@@ -298,7 +318,6 @@ func _on_battle_ended(victory: bool):
 		if not is_instance_valid(all_armies[i]):
 			all_armies.remove_at(i)
 		i -= 1
-	_plan_ai_moves()
 
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
@@ -306,8 +325,8 @@ func _on_battle_ended(victory: bool):
 # ── AI / Game Clock ──
 
 func _on_month_passed():
-	# AI monthly maintenance (like sanguoqunying2 MonthAct)
-	# AI cities replenish reservists, heal generals, plan attacks
+	if current_phase != GamePhase.EXECUTING:
+		return
 	_ai_month_act()
 
 func _ai_month_act():
@@ -321,4 +340,3 @@ func _ai_month_act():
 				if is_instance_valid(player) and player.current_city_id == connected_id:
 					_set_destination_to(enemy, connected_id)
 					return  # one action per month
-

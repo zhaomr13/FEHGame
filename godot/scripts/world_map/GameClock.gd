@@ -13,7 +13,7 @@ const TICK_INTERVAL: float = 0.5
 const TICKS_PER_MONTH: int = 10
 const MONTHS_PER_YEAR: int = 12
 
-var is_running: bool = true
+var is_running: bool = false
 
 func _process(delta):
 	if not is_running:
