@@ -23,9 +23,11 @@ func create_preview_unit(data: CharacterData, position: int, is_player: bool, y_
 
 	battle_mgr.all_units.append(unit)
 	unit.setup(data, position, is_player)
+	print("[TIME] create_battle_unit done ", data.character_name, " ", Time.get_ticks_msec())
 	return unit
 
 func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> BattleUnit:
+	print("[TIME] create_battle_unit start ", data.character_name, " ", Time.get_ticks_msec())
 	var unit_scene = preload("res://scenes/battle/BattleUnit.tscn")
 	var unit = unit_scene.instantiate()
 
@@ -44,6 +46,7 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 
 	unit.setup(data, position, is_player)
 
+	print("[TIME] create_battle_unit done ", data.character_name, " ", Time.get_ticks_msec())
 	return unit
 
 func create_default_enemy(index: int) -> CharacterData:

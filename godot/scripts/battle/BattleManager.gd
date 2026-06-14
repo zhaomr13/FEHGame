@@ -56,12 +56,15 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 	GameManager.change_state(GameConstants.GameState.BATTLE_ACTIVE)
 
 	# Create units
+	print("[TIME] Creating player units ", Time.get_ticks_msec())
 	if player_units.is_empty():
 		for i in range(min(player_selected.size(), 6)):
 			var unit = unit_factory.create_battle_unit(player_selected[i], i, true)
 			player_units.append(unit)
 			all_units.append(unit)
+	print("[TIME] Created player units ", Time.get_ticks_msec())
 
+	print("[TIME] Creating enemy units ", Time.get_ticks_msec())
 	if enemy_units.is_empty():
 		for i in range(min(enemy_selected.size(), 6)):
 			var enemy_data: CharacterData
@@ -72,6 +75,7 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 			var unit = unit_factory.create_battle_unit(enemy_data, i, false)
 			enemy_units.append(unit)
 			all_units.append(unit)
+	print("[TIME] Created enemy units ", Time.get_ticks_msec())
 
 	all_units.sort_custom(func(a, b): return a.character_data.speed > b.character_data.speed)
 
