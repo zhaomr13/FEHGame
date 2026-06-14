@@ -70,11 +70,11 @@ func initialize_player_army(faction: String):
 	GameManager.player_army.clear()
 
 	# Get all characters belonging to the chosen faction
-	var faction_characters = GameManager.get_characters_by_faction(faction)
+	var faction_characters = CharacterDatabase.get_characters_by_faction(faction)
 
 	# If faction has no characters (e.g., player chooses a neutral start), give them some neutrals
 	if faction_characters.is_empty():
-		faction_characters = GameManager.get_characters_by_faction("")
+		faction_characters = CharacterDatabase.get_characters_by_faction("")
 
 	# Assign up to 3 characters to player
 	for i in range(min(3, faction_characters.size())):
@@ -85,7 +85,7 @@ func initialize_player_army(faction: String):
 
 	# Set up available recruits (characters from other factions that can be recruited later)
 	GameManager.available_recruits.clear()
-	var other_factions = GameManager.get_characters_not_in_faction(faction)
+	var other_factions = CharacterDatabase.get_characters_not_in_faction(faction)
 	for char in other_factions:
 		if char.faction != "":  # Only faction characters can be recruited, not neutrals
 			GameManager.available_recruits.append(char)
