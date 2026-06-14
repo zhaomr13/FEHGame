@@ -134,8 +134,6 @@ func start_execution_phase():
 		execution_ctrl.start_execution_phase()
 
 func _start_battle(attacker: Army, defender: Army):
-	print("WorldMapManager: starting battle - attacker at ", attacker.current_city_id, " squad: ", attacker.squad_data.size(), " chars")
-	print("WorldMapManager: defender at ", defender.current_city_id, " squad: ", defender.squad_data.size(), " chars")
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 

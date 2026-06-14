@@ -38,7 +38,6 @@ func _ready():
 	visible = false
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
-	print("BattleManager: battle start request - player units: ", player_army.size(), " enemy units: ", enemy_army.size())
 	if is_battle_active:
 		return
 	bg_mgr.set_background(background_type)
