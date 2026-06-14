@@ -156,10 +156,10 @@ func _create_player_armies_from_squads(start_city: String):
 			squad_index += 1
 			continue
 
-		var army = _create_army(squad_data, start_city)
+		var army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
+		var army = _create_army(squad_data, start_city, army_type)
 		army.army_id = "player_squad_%d" % squad_index
 		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
-		army.army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
 		all_armies.append(army)
@@ -167,18 +167,18 @@ func _create_player_armies_from_squads(start_city: String):
 
 	if player_armies.is_empty():
 		var chars = GameManager.player_army.duplicate()
-		var army = _create_army(chars, start_city)
+		var army = _create_army(chars, start_city, Army.ArmyType.PLAYER_MAIN)
 		army.army_id = "player_main"
 		army.army_name = "Main Army"
-		army.army_type = Army.ArmyType.PLAYER_MAIN
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
 		all_armies.append(army)
 
-func _create_army(chars: Array, start_city: String) -> Army:
+func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.ArmyType.PLAYER_SQUAD) -> Army:
 	var army = Army.new()
 	army.current_city_id = start_city
 	army.squad_data = _convert_squad_data(chars)
+	army.army_type = type  # Set BEFORE add_child so setup_visual uses correct color
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
 		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
@@ -201,10 +201,9 @@ func _create_enemy_armies(player_faction: String):
 			continue
 		for city_id in map_data.NODE_CONFIG.keys():
 			if map_data.NODE_CONFIG[city_id].faction == faction:
-				var army = _create_army(faction_chars, city_id)
+				var army = _create_army(faction_chars, city_id, Army.ArmyType.ENEMY)
 				army.army_id = "enemy_%s" % faction
 				army.army_name = "Enemy: " + faction.capitalize()
-				army.army_type = Army.ArmyType.ENEMY
 				army.army_clicked.connect(_on_army_clicked)
 				enemy_armies.append(army)
 				all_armies.append(army)
