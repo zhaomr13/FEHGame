@@ -285,16 +285,17 @@ func _on_end_planning_pressed():
 func _on_clear_plans_pressed():
 	for army in player_armies:
 		if is_instance_valid(army):
-			army.route.clear()
-			army.route_cities.clear()
-			army.state = Army.ArmyState.IDLE
-			army.label.text = army.army_name
+			army.clear_plan()
 
 func _start_execution():
 	current_phase = GamePhase.EXECUTING
 	if planning_ui:
 		planning_ui.visible = false
+	# Plan AI moves, then execute all plans
 	_plan_ai_moves()
+	for army in all_armies:
+		if is_instance_valid(army) and army.has_plan():
+			army.execute_plan()
 	if clock:
 		clock.is_running = true
 

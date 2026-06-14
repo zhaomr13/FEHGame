@@ -11,6 +11,7 @@ enum ArmyType {
 
 enum ArmyState {
 	IDLE,
+	PLANNED,
 	MOVING,
 	IN_BATTLE
 }
@@ -24,7 +25,11 @@ var current_city_id: String = ""
 var target_city_id: String = ""
 var squad_data: Array[CharacterData] = []
 
-# Route following (like sanguoqunying2)
+# Planned route (set during planning, executed on End Planning)
+var planned_route: Array[Vector2] = []
+var planned_cities: Array[String] = []
+
+# Active route (followed during execution)
 var route: Array[Vector2] = []
 var route_cities: Array[String] = []
 const MOVE_SPEED: float = 80.0
@@ -32,6 +37,7 @@ const MOVE_SPEED: float = 80.0
 # Visual
 var label: Label
 var selection_indicator: Panel
+var plan_line: Line2D
 
 const ARMY_COLORS = {
 	ArmyType.PLAYER_MAIN: Color(0.2, 0.8, 0.2),
@@ -56,6 +62,14 @@ func setup_visual():
 	style.corner_radius_bottom_right = 16
 	circle.add_theme_stylebox_override("panel", style)
 	add_child(circle)
+
+	# Plan line (shows planned route during planning phase)
+	plan_line = Line2D.new()
+	plan_line.width = 3.0
+	plan_line.default_color = Color(0.2, 0.8, 1, 0.8)
+	plan_line.visible = false
+	plan_line.z_index = 49
+	add_child(plan_line)
 
 	label = Label.new()
 	label.text = army_name
@@ -98,6 +112,9 @@ func set_selected(selected: bool):
 func _process(delta):
 	if state == ArmyState.MOVING and not route.is_empty():
 		_move_along_route(delta)
+	# Update plan line position (relative)
+	if plan_line.visible and not planned_route.is_empty():
+		_update_plan_line()
 
 func _move_along_route(delta):
 	var target = route[0]
@@ -108,7 +125,6 @@ func _move_along_route(delta):
 		route.pop_front()
 		if not route_cities.is_empty():
 			current_city_id = route_cities.pop_front()
-
 		if route.is_empty():
 			state = ArmyState.IDLE
 			label.text = army_name
@@ -118,11 +134,42 @@ func _move_along_route(delta):
 		z_index = int(position.y)
 
 func set_route(waypoints: Array[Vector2], cities: Array[String]):
-	route = waypoints.duplicate()
-	route_cities = cities.duplicate()
+	# Store as planned - don't move yet
+	planned_route = waypoints.duplicate()
+	planned_cities = cities.duplicate()
 	target_city_id = cities.back() if not cities.is_empty() else ""
-	state = ArmyState.MOVING
+	state = ArmyState.PLANNED
 	label.text = army_name + " →"
+	_update_plan_line()
+
+func _update_plan_line():
+	plan_line.clear_points()
+	plan_line.add_point(Vector2.ZERO)
+	if planned_route.size() > 0:
+		plan_line.add_point(planned_route.back() - position)
+	plan_line.visible = true
+
+func execute_plan():
+	# Move planned route to active route
+	if planned_route.is_empty():
+		return
+	route = planned_route.duplicate()
+	route_cities = planned_cities.duplicate()
+	planned_route.clear()
+	planned_cities.clear()
+	plan_line.visible = false
+	state = ArmyState.MOVING
+
+func clear_plan():
+	planned_route.clear()
+	planned_cities.clear()
+	plan_line.visible = false
+	target_city_id = ""
+	state = ArmyState.IDLE
+	label.text = army_name
+
+func has_plan() -> bool:
+	return state == ArmyState.PLANNED
 
 func set_position_at_city(city_position: Vector2):
 	position = city_position + Vector2(20, -20)
