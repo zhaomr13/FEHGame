@@ -77,7 +77,7 @@ func create_enemy_armies(player_faction: String):
 		if faction == player_faction:
 			continue
 
-		var faction_chars = CharacterDatabase.get_characters_by_faction(faction)
+		var faction_chars = GameManager.get_characters_by_faction(faction)
 		if faction_chars.is_empty():
 			continue
 
