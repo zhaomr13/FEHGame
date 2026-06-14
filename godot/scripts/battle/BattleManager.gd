@@ -19,6 +19,17 @@ var is_combat_running: bool = false
 @onready var turn_mgr: BattleTurnManager = $BattleTurnManager
 
 func _ready():
+	if not bg_mgr:
+		print("ERROR: BattleManager - BattleBackgroundManager missing!")
+	if not deployment_mgr:
+		print("ERROR: BattleManager - BattleDeploymentManager missing!")
+	if not unit_factory:
+		print("ERROR: BattleManager - BattleUnitFactory missing!")
+	if not status_panel:
+		print("ERROR: BattleManager - BattleStatusPanel missing!")
+	if not turn_mgr:
+		print("ERROR: BattleManager - BattleTurnManager missing!")
+
 	GameManager.battle_started_with_background.connect(_on_battle_started_with_background)
 	deployment_mgr.deployment_confirmed.connect(_on_deployment_confirmed)
 	turn_mgr.turn_started.connect(_on_turn_started)
@@ -27,6 +38,7 @@ func _ready():
 	visible = false
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
+	print("BattleManager: battle start request - player units: ", player_army.size(), " enemy units: ", enemy_army.size())
 	if is_battle_active:
 		return
 	bg_mgr.set_background(background_type)

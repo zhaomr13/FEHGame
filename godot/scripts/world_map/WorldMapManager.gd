@@ -30,6 +30,21 @@ var squad_menu: Control = null
 
 func _ready():
 	setup_background()
+
+	# Validate child nodes exist
+	if not map_data:
+		print("ERROR: WorldMapManager - MapDataManager child node missing!")
+		return
+	if not army_mgr:
+		print("ERROR: WorldMapManager - WorldMapArmyManager child node missing!")
+		return
+	if not planning_ctrl:
+		print("ERROR: WorldMapManager - PlanningPhaseController child node missing!")
+		return
+	if not execution_ctrl:
+		print("ERROR: WorldMapManager - ExecutionPhaseController child node missing!")
+		return
+
 	map_data.create_map_nodes()
 	map_data.draw_connections()
 	setup_ui()
@@ -119,6 +134,8 @@ func start_execution_phase():
 		execution_ctrl.start_execution_phase()
 
 func _start_battle(attacker: Army, defender: Army):
+	print("WorldMapManager: starting battle - attacker at ", attacker.current_city_id, " squad: ", attacker.squad_data.size(), " chars")
+	print("WorldMapManager: defender at ", defender.current_city_id, " squad: ", defender.squad_data.size(), " chars")
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 

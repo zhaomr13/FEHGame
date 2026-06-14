@@ -22,6 +22,7 @@ func start_execution_phase():
 		if army.is_planned:
 			execution_queue.append(army)
 
+	print("ExecutionPhase: starting - player armies: ", army_mgr.player_armies.size(), " enemy: ", army_mgr.enemy_armies.size(), " queue: ", execution_queue.size())
 	_execute_next_move()
 
 func _execute_next_move():
@@ -33,8 +34,11 @@ func _execute_next_move():
 		_active = false
 		if _turn_phase == 0:
 			# Player turn done - signal to start enemy turn
+			print("ExecutionPhase: player turn done, starting enemy turn")
 			_turn_phase = 1
 			execution_ended.emit()
+		else:
+			print("ExecutionPhase: enemy turn done")
 		# Enemy turn done (_turn_phase == 1) - just stop, no more recursion
 		return
 
@@ -81,11 +85,14 @@ func _check_encounter(army: Army) -> Army:
 	if army.army_type == Army.ArmyType.PLAYER_MAIN or army.army_type == Army.ArmyType.PLAYER_SQUAD:
 		for enemy in army_mgr.enemy_armies:
 			if enemy.current_city_id == army.current_city_id:
+				print("ExecutionPhase: encounter! ", army.army_name, " meets ", enemy.army_name, " at ", army.current_city_id)
 				return enemy
 	else:
 		for player in army_mgr.player_armies:
 			if player.current_city_id == army.current_city_id:
+				print("ExecutionPhase: encounter! ", army.army_name, " meets ", player.army_name, " at ", army.current_city_id)
 				return player
+	print("ExecutionPhase: no encounter for ", army.army_name, " at ", army.current_city_id)
 	return null
 
 func process_enemy_turn():
