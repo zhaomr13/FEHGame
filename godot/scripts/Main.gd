@@ -84,11 +84,11 @@ func initialize_player_army(faction: String):
 		print("Assigned ", character.character_name, " to player faction ", faction)
 
 	# Set up available recruits (characters from other factions that can be recruited later)
-	GameManager.available_recruits.clear()
+	CharacterDatabase.available_recruits.clear()
 	var other_factions = CharacterDatabase.get_characters_not_in_faction(faction)
 	for char in other_factions:
 		if char.faction != "":  # Only faction characters can be recruited, not neutrals
-			GameManager.available_recruits.append(char)
+			CharacterDatabase.available_recruits.append(char)
 
 func _on_state_changed(new_state: GameConstants.GameState):
 	match new_state:

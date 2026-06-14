@@ -19,7 +19,6 @@ var unassigned_units: Array[CharacterData] = []
 
 func _ready():
 	print("GameManager initialized")
-	CharacterDatabase._initialize_all_characters()
 
 func recruit_character(character: CharacterData):
 	"""Recruit a character to player's army"""
