@@ -1,4 +1,3 @@
-class_name CharacterDatabase
 extends Node
 
 var all_characters: Array[CharacterData] = []
