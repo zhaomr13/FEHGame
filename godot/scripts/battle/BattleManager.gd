@@ -98,6 +98,7 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 	is_battle_active = true
 	is_combat_running = true
 	current_turn = 0
+	print("[TIME] Starting combat, units=", all_units.size(), " ", Time.get_ticks_msec())
 
 	await turn_mgr.start_combat_round()
 

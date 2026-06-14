@@ -8,6 +8,7 @@ signal battle_finished(victory: bool)
 @onready var battle_mgr: BattleManager = $".."
 
 func start_combat_round():
+	print("[TIME] start_combat_round entry ", Time.get_ticks_msec(), " active=", battle_mgr.is_battle_active, " combat=", battle_mgr.is_combat_running, " units=", battle_mgr.all_units.size())
 	while battle_mgr.is_battle_active and battle_mgr.current_turn < battle_mgr.max_turns and battle_mgr.is_combat_running:
 		battle_mgr.current_turn += 1
 		turn_started.emit(battle_mgr.current_turn)
