@@ -128,6 +128,11 @@ func _get_army_at_position(pos: Vector2) -> Army:
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
 	current_node_id = start_city
+	current_phase = GamePhase.PLANNING
+
+	# Show planning UI when entering world map
+	if planning_ui:
+		planning_ui.visible = true
 
 	_clear_armies()
 	map_data.map_nodes.clear()
@@ -260,6 +265,7 @@ func setup_planning_ui():
 	hbox.add_child(cancel_plan_btn)
 	panel.add_child(hbox)
 	planning_ui.add_child(panel)
+	planning_ui.visible = false
 
 	ui.add_child(planning_ui)
 
