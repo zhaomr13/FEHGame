@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://squad_menu"]
+[gd_scene load_steps=5 format=3 uid="uid://squad_menu"]
 
 [ext_resource type="Script" path="res://scripts/ui/SquadMenu.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuData.gd" id="2_data"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuLists.gd" id="3_lists"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuActions.gd" id="4_actions"]
 
 [node name="SquadMenu" type="Control"]
 layout_mode = 3
@@ -10,6 +13,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
+
+[node name="SquadMenuData" type="Node" parent="."]
+script = ExtResource("2_data")
+
+[node name="SquadMenuLists" type="Node" parent="."]
+script = ExtResource("3_lists")
+
+[node name="SquadMenuActions" type="Node" parent="."]
+script = ExtResource("4_actions")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
