@@ -16,10 +16,6 @@ enum GamePhase {
 @export var player_morale: int = 100
 @export var turn_count: int = 1
 
-# 地图数据
-var map_nodes: Dictionary = {}
-var connections: Dictionary = {}
-
 # 军队系统
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
@@ -46,32 +42,17 @@ const WORLD_BACKGROUNDS = {
 	"occupation": "res://assets/world_map/backgrounds/occupation_map.png",
 }
 
-# 城池配置
-var NODE_CONFIG = {
-	"city_1": {"name": "北方要塞", "type": GameConstants.NodeType.FORT, "pos": Vector2(400, 150), "connections": ["city_3"], "faction": "embla"},
-	"city_2": {"name": "西风村", "type": GameConstants.NodeType.VILLAGE, "pos": Vector2(200, 280), "connections": ["city_3", "city_5"], "faction": ""},
-	"city_3": {"name": "中央城", "type": GameConstants.NodeType.CITY, "pos": Vector2(450, 280), "connections": ["city_1", "city_2", "city_4", "city_8"], "faction": "askr"},
-	"city_4": {"name": "东影城", "type": GameConstants.NodeType.CITY, "pos": Vector2(700, 280), "connections": ["city_3", "city_6"], "faction": ""},
-	"city_5": {"name": "南海村", "type": GameConstants.NodeType.VILLAGE, "pos": Vector2(150, 450), "connections": ["city_2", "city_7"], "faction": ""},
-	"city_6": {"name": "东北要塞", "type": GameConstants.NodeType.FORT, "pos": Vector2(850, 200), "connections": ["city_4"], "faction": ""},
-	"city_7": {"name": "河湾村", "type": GameConstants.NodeType.VILLAGE, "pos": Vector2(300, 500), "connections": ["city_5", "city_8"], "faction": ""},
-	"city_8": {"name": "南方城", "type": GameConstants.NodeType.CITY, "pos": Vector2(500, 480), "connections": ["city_3", "city_7", "city_9", "city_10"], "faction": "nifl"},
-	"city_9": {"name": "东岛村", "type": GameConstants.NodeType.VILLAGE, "pos": Vector2(750, 500), "connections": ["city_8"], "faction": ""},
-	"city_10": {"name": "帝都", "type": GameConstants.NodeType.CITY, "pos": Vector2(550, 600), "connections": ["city_8"], "faction": ""}
-}
-
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
-@onready var map_nodes_container: Node2D = $MapNodes
-@onready var connections_node: Node2D = $Connections
 @onready var armies_container: Node2D = $Armies
 
 func _ready():
 	setup_background()
-	create_map_nodes()
-	draw_connections()
+	$MapDataManager.create_map_nodes()
+	$MapDataManager.draw_connections()
 	setup_ui()
 	setup_battle_result_handler()
+	$MapDataManager.node_clicked.connect(_on_node_clicked)
 
 
 func _input(event):
@@ -113,8 +94,8 @@ func setup_faction_start(faction: String, start_city: String):
 
 	# 清除旧数据
 	_clear_armies()
-	map_nodes.clear()
-	create_map_nodes()
+	$MapDataManager.map_nodes.clear()
+	$MapDataManager.create_map_nodes()
 
 	# 创建玩家军队 - 根据小队数据
 	_create_player_armies_from_squads(start_city)
@@ -204,8 +185,8 @@ func _create_enemy_armies(player_faction: String):
 			continue
 
 		# Find a city owned by this faction
-		for city_id in NODE_CONFIG.keys():
-			if NODE_CONFIG[city_id].faction == faction:
+		for city_id in $MapDataManager.NODE_CONFIG.keys():
+			if $MapDataManager.NODE_CONFIG[city_id].faction == faction:
 				var enemy_army = Army.new()
 				enemy_army.army_id = "enemy_%s" % faction
 				enemy_army.army_name = faction.capitalize()
@@ -245,8 +226,8 @@ func _initialize_squads():
 		GameManager.initialize_squads()
 
 func _update_army_position(army: Army):
-	if map_nodes.has(army.current_city_id):
-		var city_pos = map_nodes[army.current_city_id].position
+	if $MapDataManager.map_nodes.has(army.current_city_id):
+		var city_pos = $MapDataManager.map_nodes[army.current_city_id].position
 		army.set_position_at_city(city_pos)
 
 func setup_background():
@@ -257,41 +238,6 @@ func setup_background():
 		var scale_factor = max(screen_size.x / bg_size.x, screen_size.y / bg_size.y)
 		if scale_factor > 1:
 			background_sprite.scale = Vector2(scale_factor, scale_factor)
-
-func create_map_nodes():
-	for node_id in NODE_CONFIG.keys():
-		var config = NODE_CONFIG[node_id]
-		var node = preload("res://scenes/world_map/MapNode.tscn").instantiate()
-		node.node_id = node_id
-		node.node_name = config.name
-		node.node_type = config.type
-		node.position = config.pos
-		node.connections = config.connections
-		node.set_faction_color(config.faction)
-		node.node_clicked.connect(_on_node_clicked)
-		map_nodes_container.add_child(node)
-		map_nodes[node_id] = node
-
-func draw_connections():
-	var line_color = Color(0.8, 0.7, 0.4, 0.6)
-	var line_width = 3.0
-
-	for node_id in NODE_CONFIG.keys():
-		var config = NODE_CONFIG[node_id]
-		var start_pos = config.pos
-
-		for connected_id in config.connections:
-			if node_id < connected_id:
-				var connected_config = NODE_CONFIG[connected_id]
-				var end_pos = connected_config.pos
-
-				var line = Line2D.new()
-				line.add_point(start_pos)
-				line.add_point(end_pos)
-				line.default_color = line_color
-				line.width = line_width
-				line.antialiased = true
-				connections_node.add_child(line)
 
 func setup_ui():
 	setup_city_menu()
@@ -405,7 +351,7 @@ func _execute_next_move():
 	army.current_city_id = next_city
 
 	# 启动移动动画
-	var city_pos = map_nodes[next_city].position
+	var city_pos = $MapDataManager.map_nodes[next_city].position
 	army.start_move_animation(city_pos + Vector2(20, -20))
 
 	# 等待动画完成
@@ -447,7 +393,7 @@ func _start_battle(attacker: Army, defender: Army):
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 
-	var battle_bg = select_battle_background(map_nodes[attacker.current_city_id])
+	var battle_bg = $MapDataManager.select_battle_background($MapDataManager.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 
 func _end_execution_phase():
@@ -456,7 +402,7 @@ func _end_execution_phase():
 func _process_enemy_turn():
 	for enemy in enemy_armies:
 		var current_city = enemy.current_city_id
-		var connections = NODE_CONFIG[current_city].connections
+		var connections = $MapDataManager.NODE_CONFIG[current_city].connections
 
 		for connected_id in connections:
 			for player in player_armies:
@@ -510,45 +456,32 @@ func _on_node_clicked(node: MapNode):
 		is_dragging_plan = false
 		# 检查是否点击了城池，设置移动计划
 		if selected_army and selected_army.current_city_id != node.node_id:
-			var can_move = _can_move_to(selected_army, node.node_id)
+			var can_move = $MapDataManager.can_move_to(selected_army, node.node_id)
 			if can_move:
-				var path = _find_path(selected_army.current_city_id, node.node_id)
+				var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
 				if not path.is_empty():
 					var target_pos = node.position + Vector2(20, -20)
 					selected_army.set_planning_move(node.node_id, path, target_pos)
 					print("DEBUG: Planned move to ", node.node_name)
-			return
+		return
 
 	if not selected_army:
 		# 只有己方城池可以打开菜单
-		if NODE_CONFIG[node.node_id].faction == current_faction:
+		if $MapDataManager.NODE_CONFIG[node.node_id].faction == current_faction:
 			open_city_menu(node)
 		else:
 			print("DEBUG: Cannot interact with enemy/neutral city: ", node.node_name)
 		return
 
-	var can_move = _can_move_to(selected_army, node.node_id)
+	var can_move = $MapDataManager.can_move_to(selected_army, node.node_id)
 	if can_move:
-		var path = _find_path(selected_army.current_city_id, node.node_id)
+		var path = $MapDataManager.find_path(selected_army.current_city_id, node.node_id)
 		if not path.is_empty():
 			var target_pos = node.position + Vector2(20, -20)
 			selected_army.set_planning_move(node.node_id, path, target_pos)
 			print("DEBUG: Planned move to ", node.node_name)
 	else:
 		print("DEBUG: Cannot move to ", node.node_name)
-
-func _can_move_to(army: Army, target_city_id: String) -> bool:
-	var current_id = army.current_city_id
-	if current_id == target_city_id:
-		return false
-	if NODE_CONFIG[current_id].connections.has(target_city_id):
-		return true
-	return false
-
-func _find_path(from_id: String, to_id: String) -> Array[String]:
-	if NODE_CONFIG[from_id].connections.has(to_id):
-		return [to_id]
-	return []
 
 func open_city_menu(node: MapNode):
 	if city_menu:
@@ -616,25 +549,13 @@ func _on_battle_ended(victory: bool):
 
 	if victory and selected_army:
 		var city_id = selected_army.current_city_id
-		NODE_CONFIG[city_id].faction = current_faction
-		if map_nodes.has(city_id):
-			map_nodes[city_id].set_faction_color(current_faction)
+		$MapDataManager.NODE_CONFIG[city_id].faction = current_faction
+		if $MapDataManager.map_nodes.has(city_id):
+			$MapDataManager.map_nodes[city_id].set_faction_color(current_faction)
 
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
 	_start_planning_phase()
-
-func select_battle_background(node: MapNode) -> String:
-	match node.node_type:
-		GameConstants.NodeType.CITY:
-			return "inside"
-		GameConstants.NodeType.FORT:
-			return "brave_attack"
-		GameConstants.NodeType.VILLAGE:
-			return "plain_forest"
-		_:
-			var outdoor_bgs = ["plain", "forest", "river", "plain_forest"]
-			return outdoor_bgs[randi() % outdoor_bgs.size()]
 
 func _on_army_move_completed(army: Army):
 	"""处理军队移动完成"""
