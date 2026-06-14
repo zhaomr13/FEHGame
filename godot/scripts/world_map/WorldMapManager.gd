@@ -142,7 +142,7 @@ func _start_battle(attacker: Army, defender: Army):
 
 func _on_execution_ended():
 	if execution_ctrl:
-		execution_ctrl.process_enemy_turn()
+		await execution_ctrl.process_enemy_turn()
 
 func _on_army_move_completed(army: Army):
 	army_mgr._update_army_position(army)

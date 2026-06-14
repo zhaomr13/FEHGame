@@ -173,16 +173,19 @@ func _update_lines():
 		# 需要重新计算移动线，但我们需要目标位置
 		pass
 
+func clear_plan_lines():
+	if attack_line:
+		attack_line.visible = false
+	if move_line:
+		move_line.visible = false
+
 func clear_plan():
+	clear_plan_lines()
 	target_city_id = ""
 	planned_path.clear()
 	target_army = null
 	is_planned = false
 	state = ArmyState.IDLE
-	if attack_line:
-		attack_line.visible = false
-	if move_line:
-		move_line.visible = false
 	update_appearance()
 
 func set_attack_plan(target: Army):
