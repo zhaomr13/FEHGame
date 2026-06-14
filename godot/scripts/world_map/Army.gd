@@ -30,57 +30,61 @@ var route_cities: Array[String] = []
 const MOVE_SPEED: float = 80.0
 
 # Visual
-var sprite: Sprite2D
 var label: Label
-var selection_indicator: Sprite2D
+var selection_indicator: Panel
 
-static var army_texture: Texture2D = null
+const ARMY_COLORS = {
+	ArmyType.PLAYER_MAIN: Color(0.2, 0.8, 0.2),
+	ArmyType.PLAYER_SQUAD: Color(0.3, 0.7, 0.3),
+	ArmyType.ENEMY: Color(0.9, 0.2, 0.2)
+}
 
 func _ready():
 	setup_visual()
 
 func setup_visual():
-	if army_texture == null:
-		army_texture = load("res://assets/sanguo/army.png")
-
-	sprite = Sprite2D.new()
-	sprite.texture = army_texture
-	sprite.region_enabled = true
-	sprite.region_rect = Rect2(0, 0, 32, 32)
-	sprite.scale = Vector2(1.5, 1.5)
-	sprite.position = Vector2(-24, -48)
-	sprite.z_index = 5
-	add_child(sprite)
-
-	if army_type == Army.ArmyType.ENEMY:
-		sprite.modulate = Color(1.0, 0.5, 0.5)
+	var circle = Panel.new()
+	circle.custom_minimum_size = Vector2(32, 32)
+	circle.size = Vector2(32, 32)
+	circle.position = Vector2(-16, -16)
+	circle.name = "CirclePanel"
+	var style = StyleBoxFlat.new()
+	style.bg_color = ARMY_COLORS[army_type]
+	style.corner_radius_top_left = 16
+	style.corner_radius_top_right = 16
+	style.corner_radius_bottom_left = 16
+	style.corner_radius_bottom_right = 16
+	circle.add_theme_stylebox_override("panel", style)
+	add_child(circle)
 
 	label = Label.new()
 	label.text = army_name
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.position = Vector2(-50, -55)
+	label.position = Vector2(-50, -40)
 	label.custom_minimum_size = Vector2(100, 20)
-	label.z_index = 10
 	add_child(label)
 
-	selection_indicator = Sprite2D.new()
-	selection_indicator.texture = army_texture
-	selection_indicator.region_enabled = true
-	selection_indicator.region_rect = Rect2(0, 0, 32, 32)
-	selection_indicator.scale = Vector2(1.8, 1.8)
-	selection_indicator.position = Vector2(-28, -52)
-	selection_indicator.modulate = Color.YELLOW
+	selection_indicator = Panel.new()
+	selection_indicator.custom_minimum_size = Vector2(40, 40)
+	selection_indicator.size = Vector2(40, 40)
+	selection_indicator.position = Vector2(-20, -20)
 	selection_indicator.visible = false
-	selection_indicator.z_index = 4
+	selection_indicator.z_index = -1
+	var select_style = StyleBoxFlat.new()
+	select_style.bg_color = Color.YELLOW
+	select_style.corner_radius_top_left = 20
+	select_style.corner_radius_top_right = 20
+	select_style.corner_radius_bottom_left = 20
+	select_style.corner_radius_bottom_right = 20
+	selection_indicator.add_theme_stylebox_override("panel", select_style)
 	add_child(selection_indicator)
 
 	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(48, 48)
-	btn.size = Vector2(48, 48)
-	btn.position = Vector2(-24, -48)
+	btn.custom_minimum_size = Vector2(40, 40)
+	btn.size = Vector2(40, 40)
+	btn.position = Vector2(-20, -20)
 	btn.flat = true
 	btn.modulate = Color(1, 1, 1, 0.01)
-	btn.z_index = 100
 	btn.pressed.connect(_on_button_pressed)
 	add_child(btn)
 
