@@ -71,16 +71,10 @@ func _process(_delta):
 func _check_encounters():
 	for i in range(all_armies.size()):
 		var a1 = all_armies[i]
-		if not (a1 is Army):
-			push_warning("_check_encounters: all_armies[%d] is not Army, got %s: %s" % [i, typeof(a1), a1])
-			continue
 		if not is_instance_valid(a1):
 			continue
 		for j in range(i + 1, all_armies.size()):
 			var a2 = all_armies[j]
-			if not (a2 is Army):
-				push_warning("_check_encounters: all_armies[%d] is not Army, got %s: %s" % [j, typeof(a2), a2])
-				continue
 			if not is_instance_valid(a2):
 				continue
 			if a1.army_type == a2.army_type:
@@ -488,7 +482,6 @@ func _on_squad_menu_closed(saved: bool):
 		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
 
 func _start_battle(attacker: Army, defender: Army):
-	print("_start_battle: attacker type=", typeof(attacker), ", current_city_id='", attacker.current_city_id, "', map_data type=", typeof(map_data), ", map_nodes type=", typeof(map_data.map_nodes))
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 	_executing_armies.erase(attacker)
@@ -499,8 +492,6 @@ func _start_battle(attacker: Army, defender: Army):
 	var battle_bg = "plain"
 	if attacker.current_city_id != "" and map_data.map_nodes.has(attacker.current_city_id):
 		battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
-	else:
-		push_warning("_start_battle: attacker has no valid current_city_id ('%s'), falling back to 'plain'" % attacker.current_city_id)
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 	_update_planning_ui()
 
@@ -514,9 +505,10 @@ func _on_battle_ended(victory: bool):
 		clock.is_running = false
 	if victory and selected_army:
 		var city_id = selected_army.current_city_id
-		map_data.NODE_CONFIG[city_id].faction = current_faction
-		if map_data.map_nodes.has(city_id):
-			map_data.map_nodes[city_id].set_faction_color(current_faction)
+		if city_id != "" and map_data.NODE_CONFIG.has(city_id):
+			map_data.NODE_CONFIG[city_id]["faction"] = current_faction
+			if map_data.map_nodes.has(city_id):
+				map_data.map_nodes[city_id].set_faction_color(current_faction)
 	var i = all_armies.size() - 1
 	while i >= 0:
 		if not is_instance_valid(all_armies[i]):
@@ -527,10 +519,10 @@ func _on_battle_ended(victory: bool):
 	for army in battling_armies:
 		if is_instance_valid(army) and army.from_city_id != "" and army.to_city_id != "":
 			var nearest = map_data.get_nearest_city(army.position)
-			var nearest_pos = map_data.NODE_CONFIG[nearest].pos if nearest != "" else Vector2.ZERO
+			var nearest_pos = map_data.NODE_CONFIG[nearest]["pos"] if nearest != "" and map_data.NODE_CONFIG.has(nearest) else Vector2.ZERO
 			if army.position.distance_to(nearest_pos) > 15:
 				# Not at a city — retreat toward origin
-				var origin_pos = map_data.NODE_CONFIG[army.from_city_id].pos if map_data.NODE_CONFIG.has(army.from_city_id) else null
+				var origin_pos = map_data.NODE_CONFIG[army.from_city_id]["pos"] if map_data.NODE_CONFIG.has(army.from_city_id) else null
 				if origin_pos != null:
 					var dir = (origin_pos - army.position).normalized()
 					army.position += dir * 40
