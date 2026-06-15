@@ -249,7 +249,7 @@ func _plan_ai_moves():
 	for enemy in enemy_armies:
 		if not is_instance_valid(enemy):
 			continue
-		var connections = map_data.NODE_CONFIG[enemy.current_city_id].connections
+		var connections = map_data.NODE_CONFIG[(enemy.current_city_id if enemy.current_city_id != "" else map_data.get_nearest_city(enemy.position))].connections
 		for connected_id in connections:
 			for player in player_armies:
 				if is_instance_valid(player) and player.current_city_id == connected_id:
