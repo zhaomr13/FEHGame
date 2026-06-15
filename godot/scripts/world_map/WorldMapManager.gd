@@ -38,6 +38,7 @@ const DRAG_THRESHOLD: float = 5.0
 const MIN_ZOOM: float = 0.25
 const MAX_ZOOM: float = 1.5
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
+const ENCOUNTER_DISTANCE: float = 30.0
 
 @onready var camera: Camera2D = $Camera2D
 
