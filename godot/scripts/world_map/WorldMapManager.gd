@@ -106,6 +106,8 @@ func _on_node_clicked(node: MapNode):
 		selected_army.set_route(waypoints, cities)
 
 func _find_route(army: Army, target_city: String) -> Array[String]:
+	if not is_instance_valid(army):
+		return []
 	var from_cities: Array[String] = []
 	if army.current_city_id != "":
 		from_cities.append(army.current_city_id)
@@ -139,7 +141,7 @@ func _input(event):
 				if current_phase != GamePhase.PLANNING:
 					return
 				if event.pressed:
-					_drag_start = get_viewport().get_mouse_position()
+					_drag_start = get_global_mouse_position()
 					_is_dragging = false
 				else:
 					if not _is_dragging:
@@ -210,6 +212,8 @@ func setup_faction_start(faction: String, start_city: String):
 		planning_ui.visible = true
 
 	_clear_armies()
+	for child in map_data.map_nodes_container.get_children():
+		child.queue_free()
 	map_data.map_nodes.clear()
 	map_data.create_map_nodes()
 
@@ -288,7 +292,10 @@ func _plan_ai_moves():
 	for enemy in enemy_armies:
 		if not is_instance_valid(enemy):
 			continue
-		var connections = map_data.NODE_CONFIG[(enemy.current_city_id if enemy.current_city_id != "" else map_data.get_nearest_city(enemy.position))].connections
+		var enemy_city = enemy.current_city_id if enemy.current_city_id != "" else map_data.get_nearest_city(enemy.position)
+		if enemy_city == "" or not map_data.NODE_CONFIG.has(enemy_city):
+			continue
+		var connections = map_data.NODE_CONFIG[enemy_city].connections
 		for connected_id in connections:
 			for player in player_armies:
 				if is_instance_valid(player) and player.current_city_id == connected_id:
@@ -418,6 +425,7 @@ func _on_battle_ended(victory: bool):
 			all_armies.remove_at(i)
 		i -= 1
 	# Midpoint retreat: armies not at a city step back toward origin
+	battling_armies = battling_armies.filter(func(a): return is_instance_valid(a))
 	for army in battling_armies:
 		if is_instance_valid(army) and army.from_city_id != "" and army.to_city_id != "":
 			var nearest = map_data.get_nearest_city(army.position)
