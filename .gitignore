@@ -3,6 +3,9 @@
 .AppleDouble
 .LSOverride
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # Godot 4+ specific ignores
 .godot/
 *.tmp
