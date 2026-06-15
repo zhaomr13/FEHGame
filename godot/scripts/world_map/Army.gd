@@ -23,6 +23,9 @@ var state: ArmyState = ArmyState.IDLE
 
 var current_city_id: String = ""
 var target_city_id: String = ""
+# Between-cities tracking: when army leaves a city for another
+var from_city_id: String = ""
+var to_city_id: String = ""
 var squad_data: Array[CharacterData] = []
 
 # Planned route (set during planning, executed on End Planning)
@@ -156,11 +159,12 @@ func _move_along_route(delta):
 		z_index = int(position.y)
 
 func set_route(waypoints: Array[Vector2], cities: Array[String]):
-	print("[DEBUG] set_route waypoints=", waypoints.size(), " cities=", cities)
 	# Store as planned - don't move yet
 	planned_route = waypoints.duplicate()
 	planned_cities = cities.duplicate()
 	target_city_id = cities.back() if not cities.is_empty() else ""
+	from_city_id = current_city_id
+	to_city_id = target_city_id
 	state = ArmyState.PLANNED
 	label.text = army_name + " →"
 	_update_plan_line()
