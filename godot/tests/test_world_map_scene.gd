@@ -1,0 +1,57 @@
+extends SceneTree
+
+func _initialize():
+    # Test 1: Verify WorldMap.tscn structure by parsing the scene file
+    var tscn_path = "res://scenes/world_map/WorldMap.tscn"
+    var tscn_text = FileAccess.get_file_as_string(tscn_path)
+    assert(not tscn_text.is_empty(), "Failed to read WorldMap.tscn")
+
+    # Check key nodes exist in the scene file
+    assert(tscn_text.contains("[node name=\"WorldMap\" type=\"Node2D\"]"), "Root WorldMap node not found")
+    assert(tscn_text.contains("[node name=\"Camera2D\" type=\"Camera2D\" parent=\".\"]"), "Camera2D not found")
+    assert(tscn_text.contains("[node name=\"Background\" type=\"Sprite2D\" parent=\".\"]"), "Background not found")
+    assert(tscn_text.contains("[node name=\"MapDataManager\" type=\"Node2D\" parent=\".\"]"), "MapDataManager not found")
+    assert(tscn_text.contains("[node name=\"MapNodes\" type=\"Node2D\" parent=\".\"]"), "MapNodes container not found")
+    assert(tscn_text.contains("[node name=\"Connections\" type=\"Node2D\" parent=\".\"]"), "Connections container not found")
+    assert(tscn_text.contains("[node name=\"Armies\" type=\"Node2D\" parent=\".\"]"), "Armies container not found")
+    assert(tscn_text.contains("[node name=\"WorldMapUI\" type=\"CanvasLayer\" parent=\".\"]"), "WorldMapUI not found")
+
+    # Check background texture reference
+    assert(tscn_text.contains("res://assets/world_map/backgrounds/three_kingdoms_map.png"), "Background texture path mismatch")
+
+    # Check WorldMapManager script reference
+    assert(tscn_text.contains("WorldMapManager.gd"), "WorldMapManager script not assigned")
+
+    # Check MapDataManager script reference
+    assert(tscn_text.contains("MapDataManager.gd"), "MapDataManager script not assigned")
+
+    # Test 2: Verify MapDataManager loads 80 nodes (same as test_map_data.gd)
+    var mgr_script = load("res://scripts/world_map/MapDataManager.gd")
+    assert(mgr_script != null, "Failed to load MapDataManager script")
+
+    var mgr = mgr_script.new()
+    mgr.map_data_loaded.connect(_on_map_data_loaded.bind(mgr))
+    root.add_child(mgr)
+
+func _on_map_data_loaded(success: bool, mgr):
+    assert(success, "Map data failed to load")
+
+    var config = mgr.NODE_CONFIG
+    assert(config != null and not config.is_empty(), "NODE_CONFIG should not be empty")
+    assert(config.size() == 80, "Expected 80 nodes, got %d" % config.size())
+
+    assert(mgr.validate_map_data(), "Map data validation failed")
+
+    # Test 3: Verify world_map.json has 80 nodes
+    var json_text = FileAccess.get_file_as_string("res://data/world_map.json")
+    var parsed = JSON.parse_string(json_text)
+    assert(parsed is Dictionary, "Failed to parse world_map.json")
+    var node_count = parsed["nodes"].size()
+    assert(node_count == 80, "Expected 80 nodes in JSON, got %d" % node_count)
+
+    # Test 4: Verify background texture exists
+    var bg_exists = FileAccess.file_exists("res://assets/world_map/backgrounds/three_kingdoms_map.png")
+    assert(bg_exists, "Background texture file not found")
+
+    print("WorldMap scene integration test PASSED")
+    quit(0)
