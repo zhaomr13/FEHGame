@@ -156,6 +156,7 @@ func _move_along_route(delta):
 		z_index = int(position.y)
 
 func set_route(waypoints: Array[Vector2], cities: Array[String]):
+	print("[DEBUG] set_route waypoints=", waypoints.size(), " cities=", cities)
 	# Store as planned - don't move yet
 	planned_route = waypoints.duplicate()
 	planned_cities = cities.duplicate()

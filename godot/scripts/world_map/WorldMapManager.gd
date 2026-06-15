@@ -64,7 +64,6 @@ func _check_encounters():
 				return
 
 func _on_node_clicked(node: MapNode):
-	print("[DEBUG] node clicked: ", node.node_id, " selected=", selected_army != null)
 	if current_phase != GamePhase.PLANNING:
 		return
 
@@ -91,14 +90,22 @@ func _on_node_clicked(node: MapNode):
 		selected_army.set_route(waypoints, cities)
 
 func _find_route(army: Army, target_city: String) -> Array[String]:
-	print("[DEBUG] _find_route from=", army.current_city_id, " to=", target_city)
-	var from_city = army.current_city_id
-	if from_city == "":
-		from_city = map_data.get_nearest_city(army.position)
-	if from_city == target_city:
-		return []
-	if map_data.can_move_to(from_city, target_city):
-		return map_data.find_path(from_city, target_city)
+	var from_cities: Array[String] = []
+	if army.current_city_id != "":
+		from_cities.append(army.current_city_id)
+	# Also try the nearest city (might differ if army is between cities)
+	var nearest = map_data.get_nearest_city(army.position)
+	if nearest != "" and not from_cities.has(nearest):
+		from_cities.append(nearest)
+	# Also try target_city_id if army was heading somewhere
+	if army.target_city_id != "" and not from_cities.has(army.target_city_id):
+		from_cities.append(army.target_city_id)
+
+	for from_city in from_cities:
+		if from_city == target_city:
+			continue
+		if map_data.can_move_to(from_city, target_city):
+			return map_data.find_path(from_city, target_city)
 	return []
 
 func _input(event):
