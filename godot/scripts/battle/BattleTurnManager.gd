@@ -1,6 +1,8 @@
 class_name BattleTurnManager
 extends Node2D
 
+const BATTLE_SPEED: float = 4.0
+
 signal turn_started(turn_number: int)
 signal unit_acted(unit: BattleUnit)
 signal battle_finished(victory: bool)
@@ -8,7 +10,6 @@ signal battle_finished(victory: bool)
 @onready var battle_mgr: BattleManager = $".."
 
 func start_combat_round():
-	print("[TIME] start_combat_round entry ", Time.get_ticks_msec(), " active=", battle_mgr.is_battle_active, " combat=", battle_mgr.is_combat_running, " units=", battle_mgr.all_units.size())
 	while battle_mgr.is_battle_active and battle_mgr.current_turn < battle_mgr.max_turns and battle_mgr.is_combat_running:
 		battle_mgr.current_turn += 1
 		turn_started.emit(battle_mgr.current_turn)
@@ -16,7 +17,6 @@ func start_combat_round():
 		for unit in battle_mgr.all_units:
 			if not battle_mgr.is_battle_active or not battle_mgr.is_combat_running:
 				return
-
 			if not is_instance_valid(unit):
 				continue
 			if unit.character_data.is_defeated():
@@ -29,9 +29,9 @@ func start_combat_round():
 			if check_victory():
 				return
 
-			await get_tree().create_timer(0.15).timeout
+			await get_tree().create_timer(0.5 / BATTLE_SPEED).timeout
 
-		await get_tree().create_timer(0.15).timeout
+		await get_tree().create_timer(0.5 / BATTLE_SPEED).timeout
 
 	if battle_mgr.is_battle_active:
 		end_battle(false)
@@ -49,7 +49,6 @@ func check_victory() -> bool:
 	return false
 
 func end_battle(victory: bool):
-	print("[TIME] BattleTurnManager.end_battle ", Time.get_ticks_msec())
 	if not battle_mgr.is_battle_active:
 		return
 	battle_mgr.is_battle_active = false
@@ -59,5 +58,5 @@ func end_battle(victory: bool):
 
 	battle_mgr.status_panel.cleanup_status_entries()
 
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.1 / BATTLE_SPEED).timeout
 	GameManager.end_battle(victory)
