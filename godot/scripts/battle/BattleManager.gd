@@ -38,7 +38,6 @@ func _ready():
 	visible = false
 
 func _on_battle_started_with_background(player_army: Array, enemy_army: Array, background_type: String):
-	print("[TIME] BattleManager._on_battle_started ", Time.get_ticks_msec())
 	if is_battle_active:
 		return
 	bg_mgr.set_background(background_type)
@@ -49,22 +48,18 @@ func _on_deployment_confirmed(player_selected: Array[CharacterData], enemy_selec
 	start_battle_combat(player_selected, enemy_selected, formation)
 
 func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: Array[CharacterData], formation: int):
-	print("[TIME] BattleManager.start_battle_combat ", Time.get_ticks_msec())
 	if is_battle_active or is_combat_running:
 		return
 
 	GameManager.change_state(GameConstants.GameState.BATTLE_ACTIVE)
 
 	# Create units
-	print("[TIME] Creating player units ", Time.get_ticks_msec())
 	if player_units.is_empty():
 		for i in range(min(player_selected.size(), 6)):
 			var unit = unit_factory.create_battle_unit(player_selected[i], i, true)
 			player_units.append(unit)
 			all_units.append(unit)
-	print("[TIME] Created player units ", Time.get_ticks_msec())
 
-	print("[TIME] Creating enemy units ", Time.get_ticks_msec())
 	if enemy_units.is_empty():
 		for i in range(min(enemy_selected.size(), 6)):
 			var enemy_data: CharacterData
@@ -75,14 +70,20 @@ func start_battle_combat(player_selected: Array[CharacterData], enemy_selected: 
 			var unit = unit_factory.create_battle_unit(enemy_data, i, false)
 			enemy_units.append(unit)
 			all_units.append(unit)
-	print("[TIME] Created enemy units ", Time.get_ticks_msec())
+
+	# Status panel
+	for unit in player_units:
+		if is_instance_valid(unit):
+			status_panel.create_unit_status_entry(unit, unit.character_data, true)
+	for unit in enemy_units:
+		if is_instance_valid(unit):
+			status_panel.create_unit_status_entry(unit, unit.character_data, false)
 
 	all_units.sort_custom(func(a, b): return a.character_data.speed > b.character_data.speed)
 
 	is_battle_active = true
 	is_combat_running = true
 	current_turn = 0
-	print("[TIME] Starting combat, units=", all_units.size(), " ", Time.get_ticks_msec())
 
 	await turn_mgr.start_combat_round()
 

@@ -40,7 +40,7 @@ func update_time_bar(delta: float):
 		return
 
 	# Speed determines fill rate (increased for faster battles)
-	var fill_rate = character_data.speed * 50.0  # 5x faster
+	var fill_rate = character_data.speed * 200.0  # 5x faster
 	time_bar += fill_rate * delta
 
 	if time_bar >= max_time_bar:
@@ -64,7 +64,7 @@ func process_turn(all_enemy_units: Array, all_ally_units: Array):
 	while not is_ready and wait_time < max_wait:
 		update_time_bar(0.016)  # ~60fps delta
 		wait_time += 0.05
-		await get_tree().create_timer(0.02).timeout
+		await get_tree().create_timer(0.02 / 4.0).timeout
 
 	if character_data.is_defeated():
 		return

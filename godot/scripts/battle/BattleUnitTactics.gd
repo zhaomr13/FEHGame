@@ -26,15 +26,15 @@ func execute_action(tactic: Tactic, enemies: Array, allies: Array):
 			await combat.perform_attack(target, tactic.use_skill)
 		Tactic.ActionType.DEFEND:
 			battle_unit.character_data.is_defending = true
-			await get_tree().create_timer(0.05).timeout
+			await get_tree().create_timer(0.05 / 4.0).timeout
 		Tactic.ActionType.MOVE_FORWARD:
 			if battle_unit.battle_position >= 3:
 				battle_unit.battle_position -= 3
-			await get_tree().create_timer(0.05).timeout
+			await get_tree().create_timer(0.05 / 4.0).timeout
 		Tactic.ActionType.MOVE_BACKWARD:
 			if battle_unit.battle_position < 3:
 				battle_unit.battle_position += 3
-			await get_tree().create_timer(0.05).timeout
+			await get_tree().create_timer(0.05 / 4.0).timeout
 
 func find_nearest_target(enemy_units: Array) -> BattleUnit:
 	var valid_targets = enemy_units.filter(func(u): return not u.character_data.is_defeated())
