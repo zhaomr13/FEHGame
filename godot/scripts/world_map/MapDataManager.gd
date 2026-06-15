@@ -269,22 +269,22 @@ func can_move_to(from_id: String, to_id: String) -> bool:
         return true
     return false
 
-func find_path(from_id: String, to_id: String) -> Array:
+func find_path(from_id: String, to_id: String) -> Array[String]:
     # BFS pathfinding (like sanguoqunying2)
     if from_id == to_id:
         return [to_id]
 
     var visited: Dictionary = {}
     var parent: Dictionary = {}
-    var queue: Array = [from_id]
+    var queue: Array[String] = [from_id]
     visited[from_id] = true
 
     while not queue.is_empty():
         var current = queue.pop_front()
         if current == to_id:
             # Reconstruct path
-            var path: Array = []
-            var node = to_id
+            var path: Array[String] = []
+            var node: String = to_id
             while node != from_id:
                 path.push_front(node)
                 node = parent[node]
