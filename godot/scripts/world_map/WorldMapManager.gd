@@ -64,6 +64,7 @@ func _check_encounters():
 				return
 
 func _on_node_clicked(node: MapNode):
+	print("[DEBUG] node clicked: ", node.node_id, " selected=", selected_army != null)
 	if current_phase != GamePhase.PLANNING:
 		return
 
