@@ -227,7 +227,7 @@ func draw_connections():
     if not map_nodes_container or not connections_node:
         return
     var line_color = Color(0.8, 0.7, 0.4, 0.6)
-    var line_width = 3.0
+    var line_width = 2.0
 
     for node_id in NODE_CONFIG.keys():
         var config = NODE_CONFIG[node_id]

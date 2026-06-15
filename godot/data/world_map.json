@@ -725,7 +725,7 @@
         "x": 2984,
         "y": 1933
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -737,7 +737,7 @@
         "x": 2708,
         "y": 1705
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -749,7 +749,7 @@
         "x": 2134,
         "y": 1882
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -761,7 +761,7 @@
         "x": 2619,
         "y": 1962
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -773,7 +773,7 @@
         "x": 1420,
         "y": 1565
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -785,7 +785,7 @@
         "x": 2909,
         "y": 1735
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -797,7 +797,7 @@
         "x": 529,
         "y": 1572
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -809,7 +809,7 @@
         "x": 741,
         "y": 1734
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -821,7 +821,7 @@
         "x": 628,
         "y": 1838
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -833,7 +833,7 @@
         "x": 1474,
         "y": 1785
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -845,7 +845,7 @@
         "x": 1377,
         "y": 2052
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -857,7 +857,7 @@
         "x": 2838,
         "y": 1984
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -869,7 +869,7 @@
         "x": 2037,
         "y": 1753
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -881,7 +881,7 @@
         "x": 486,
         "y": 298
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -893,7 +893,7 @@
         "x": 1551,
         "y": 967
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -905,7 +905,7 @@
         "x": 3638,
         "y": 1593
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -917,7 +917,7 @@
         "x": 503,
         "y": 224
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -929,7 +929,7 @@
         "x": 3629,
         "y": 323
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -941,7 +941,7 @@
         "x": 1828,
         "y": 475
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -953,7 +953,7 @@
         "x": 1123,
         "y": 1890
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     },
@@ -965,7 +965,7 @@
         "x": 1915,
         "y": 1754
       },
-      "faction": null,
+      "faction": "",
       "force_connections": [],
       "blocked_neighbors": []
     }

@@ -82,7 +82,7 @@ def generate_nodes():
                 "name": name,
                 "type": ntype,
                 "pos": {"x": x, "y": y},
-                "faction": faction,
+                "faction": faction if faction else "",
                 "force_connections": [],
                 "blocked_neighbors": [],
             })
