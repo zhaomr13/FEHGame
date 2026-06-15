@@ -375,9 +375,10 @@ func setup_planning_ui():
 	status_label.name = "ExecutionStatusLabel"
 	status_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	status_label.position = Vector2(0, 90)
+	status_label.custom_minimum_size = Vector2(400, 30)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.visible = false
-	planning_ui.add_child(status_label)
+	ui.add_child(status_label)
 
 	ui.add_child(planning_ui)
 
@@ -386,7 +387,7 @@ func _update_planning_ui():
 		return
 	var end_btn = planning_ui.get_node_or_null("Panel/ButtonContainer/EndPlanningButton")
 	var clear_btn = planning_ui.get_node_or_null("Panel/ButtonContainer/ClearPlansButton")
-	var status = planning_ui.get_node_or_null("ExecutionStatusLabel")
+	var status = ui.get_node_or_null("ExecutionStatusLabel")
 
 	var is_planning = current_phase == GamePhase.PLANNING
 	if end_btn:
