@@ -27,7 +27,7 @@ func load_map_data(path: String) -> bool:
         return false
 
     NODE_CONFIG = _build_node_config(parsed)
-    _validate_map_data()
+    validate_map_data()
     return true
 
 func _node_type_from_string(type_str: String) -> int:
@@ -74,10 +74,7 @@ func _generate_connections(config: Dictionary, data: Dictionary):
             continue
         for forced in node.get("force_connections", []):
             if config.has(forced):
-                if not config[id].connections.has(forced):
-                    config[id].connections.append(forced)
-                if not config[forced].connections.has(id):
-                    config[forced].connections.append(id)
+                _add_bidirectional_connection(config, id, forced)
 
     # 2. Auto-connect by distance
     for node in nodes:
@@ -126,23 +123,23 @@ func _generate_connections(config: Dictionary, data: Dictionary):
                     nearest_dist = dist
                     nearest_id = other_id
             if nearest_id != "":
-                if not config[id].connections.has(nearest_id):
-                    config[id].connections.append(nearest_id)
-                if not config[nearest_id].connections.has(id):
-                    config[nearest_id].connections.append(id)
+                _add_bidirectional_connection(config, id, nearest_id)
 
     # 3. Apply manual connections
     for link in data.get("manual_connections", []):
         var from_id = link.get("from", "")
         var to_id = link.get("to", "")
         if config.has(from_id) and config.has(to_id):
-            if not config[from_id].connections.has(to_id):
-                config[from_id].connections.append(to_id)
-            if not config[to_id].connections.has(from_id):
-                config[to_id].connections.append(from_id)
+            _add_bidirectional_connection(config, from_id, to_id)
 
     # 4. Final fallback: ensure graph is fully connected by linking components
     _connect_components(config, nodes)
+
+func _add_bidirectional_connection(config: Dictionary, a: String, b: String) -> void:
+    if not config[a].connections.has(b):
+        config[a].connections.append(b)
+    if not config[b].connections.has(a):
+        config[b].connections.append(a)
 
 func _connect_components(config: Dictionary, nodes: Array):
     """Find disconnected components and bridge them with nearest-node links."""
@@ -201,10 +198,7 @@ func _connect_components(config: Dictionary, nodes: Array):
                     best_b = b
 
         if best_a != "" and best_b != "":
-            if not config[best_a].connections.has(best_b):
-                config[best_a].connections.append(best_b)
-            if not config[best_b].connections.has(best_a):
-                config[best_b].connections.append(best_a)
+            _add_bidirectional_connection(config, best_a, best_b)
 
 func create_map_nodes():
     for node_id in NODE_CONFIG.keys():
@@ -312,9 +306,6 @@ func select_battle_background(node: MapNode) -> String:
             return outdoor_bgs[randi() % outdoor_bgs.size()]
 
 func validate_map_data() -> bool:
-    return _validate_map_data()
-
-func _validate_map_data() -> bool:
     var ok = true
 
     # No isolated nodes
