@@ -2,6 +2,7 @@ class_name Army
 extends Node2D
 
 signal army_clicked(army: Army)
+signal movement_finished(army: Army)
 
 enum ArmyType {
 	PLAYER_MAIN,
@@ -153,6 +154,7 @@ func _move_along_route(delta):
 		if route.is_empty():
 			state = ArmyState.IDLE
 			label.text = army_name
+			movement_finished.emit(self)
 	else:
 		var direction = (target - position).normalized()
 		position += direction * MOVE_SPEED * delta

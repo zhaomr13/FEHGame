@@ -2,6 +2,7 @@ class_name WorldMapManager
 extends Node2D
 
 signal phase_changed(new_phase: int)
+signal turn_started(turn_number: int)
 
 enum GamePhase {
 	PLANNING,
@@ -31,6 +32,8 @@ var all_armies: Array[Army] = []
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
 var battling_armies: Array[Army] = []  # armies in current battle (for midpoint retreat)
+
+var _executing_armies: Dictionary = {}  # armies still moving during EXECUTING phase
 
 var _drag_start: Vector2 = Vector2.ZERO
 var _is_dragging: bool = false
@@ -227,6 +230,7 @@ func setup_faction_start(faction: String, start_city: String):
 	current_phase = GamePhase.PLANNING
 	if planning_ui:
 		planning_ui.visible = true
+	_update_planning_ui()
 
 	_clear_armies()
 	for child in map_data.map_nodes_container.get_children():
@@ -275,6 +279,7 @@ func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.A
 	army.current_city_id = start_city
 	army.squad_data = _convert_squad_data(chars)
 	army.army_type = type
+	army.movement_finished.connect(_on_army_movement_finished)
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
 		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
@@ -349,11 +354,13 @@ func setup_planning_ui():
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 
 	var end_planning_btn = Button.new()
+	end_planning_btn.name = "EndPlanningButton"
 	end_planning_btn.text = "End Planning Phase"
 	end_planning_btn.custom_minimum_size = Vector2(200, 50)
 	end_planning_btn.pressed.connect(_on_end_planning_pressed)
 
 	var cancel_plan_btn = Button.new()
+	cancel_plan_btn.name = "ClearPlansButton"
 	cancel_plan_btn.text = "Clear All Plans"
 	cancel_plan_btn.custom_minimum_size = Vector2(150, 50)
 	cancel_plan_btn.pressed.connect(_on_clear_plans_pressed)
@@ -363,7 +370,36 @@ func setup_planning_ui():
 	panel.add_child(hbox)
 	planning_ui.add_child(panel)
 	planning_ui.visible = false
+
+	var status_label = Label.new()
+	status_label.name = "ExecutionStatusLabel"
+	status_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	status_label.position = Vector2(0, 90)
+	status_label.custom_minimum_size = Vector2(400, 30)
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.visible = false
+	ui.add_child(status_label)
+
 	ui.add_child(planning_ui)
+
+func _update_planning_ui():
+	if not planning_ui:
+		return
+	var end_btn = planning_ui.get_node_or_null("Panel/ButtonContainer/EndPlanningButton")
+	var clear_btn = planning_ui.get_node_or_null("Panel/ButtonContainer/ClearPlansButton")
+	var status = ui.get_node_or_null("ExecutionStatusLabel")
+
+	var is_planning = current_phase == GamePhase.PLANNING
+	if end_btn:
+		end_btn.disabled = not is_planning
+	if clear_btn:
+		clear_btn.disabled = not is_planning
+	if status:
+		status.visible = not is_planning
+		if current_phase == GamePhase.EXECUTING:
+			status.text = "Executing plans..."
+		elif current_phase == GamePhase.BATTLE:
+			status.text = "Battle in progress..."
 
 func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
@@ -390,15 +426,46 @@ func _on_clear_plans_pressed():
 			army.clear_plan()
 
 func _start_execution():
+	if current_phase != GamePhase.PLANNING:
+		return
 	current_phase = GamePhase.EXECUTING
+	phase_changed.emit(current_phase)
 	if planning_ui:
 		planning_ui.visible = false
+	_executing_armies.clear()
 	_plan_ai_moves()
 	for army in all_armies:
 		if is_instance_valid(army) and army.has_plan():
 			army.execute_plan()
+			_executing_armies[army] = true
 	if clock:
 		clock.is_running = true
+	if _executing_armies.is_empty():
+		_end_execution()
+	_update_planning_ui()
+
+func _on_army_movement_finished(army: Army):
+	if not _executing_armies.has(army):
+		return
+	_executing_armies.erase(army)
+	if current_phase == GamePhase.EXECUTING and _executing_armies.is_empty():
+		_end_execution()
+
+func _end_execution():
+	if current_phase != GamePhase.EXECUTING:
+		return
+	current_phase = GamePhase.PLANNING
+	phase_changed.emit(current_phase)
+	if clock:
+		clock.is_running = false
+	if planning_ui:
+		planning_ui.visible = true
+	turn_count += 1
+	_on_turn_started()
+	_update_planning_ui()
+
+func _on_turn_started():
+	turn_started.emit(turn_count)
 
 func open_city_menu(node: MapNode):
 	if city_menu:
@@ -417,11 +484,14 @@ func _on_squad_menu_closed(saved: bool):
 func _start_battle(attacker: Army, defender: Army):
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
+	_executing_armies.erase(attacker)
+	_executing_armies.erase(defender)
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
 	battling_armies = [attacker, defender]
 	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
+	_update_planning_ui()
 
 func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
@@ -454,7 +524,15 @@ func _on_battle_ended(victory: bool):
 					var dir = (origin_pos - army.position).normalized()
 					army.position += dir * 40
 					army.current_city_id = ""
+	for army in battling_armies:
+		if is_instance_valid(army):
+			army.state = Army.ArmyState.IDLE
 	battling_armies.clear()
+
+	# Battle path: increment turn when returning to planning (mirror of _end_execution)
+	turn_count += 1
+	_on_turn_started()
+	_update_planning_ui()
 
 	if planning_ui:
 		planning_ui.visible = true
