@@ -32,7 +32,14 @@ var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
 var battling_armies: Array[Army] = []  # armies in current battle (for midpoint retreat)
 
-const ENCOUNTER_DISTANCE: float = 30.0
+var _drag_start: Vector2 = Vector2.ZERO
+var _is_dragging: bool = false
+const DRAG_THRESHOLD: float = 5.0
+const MIN_ZOOM: float = 0.25
+const MAX_ZOOM: float = 1.5
+const MAP_SIZE: Vector2 = Vector2(3840, 2160)
+
+@onready var camera: Camera2D = $Camera2D
 
 func _ready():
 	setup_background()
@@ -44,6 +51,13 @@ func _ready():
 	setup_ui()
 	setup_battle_result_handler()
 	map_data.node_clicked.connect(_on_node_clicked)
+	if camera:
+		camera.position = MAP_SIZE / 2.0
+		camera.zoom = Vector2(0.5, 0.5)
+		camera.limit_left = 0
+		camera.limit_top = 0
+		camera.limit_right = MAP_SIZE.x
+		camera.limit_bottom = MAP_SIZE.y
 
 func _process(_delta):
 	if current_phase == GamePhase.EXECUTING:
@@ -112,12 +126,36 @@ func _find_route(army: Army, target_city: String) -> Array[String]:
 	return []
 
 func _input(event):
-	if current_phase != GamePhase.PLANNING:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var clicked_army = _get_army_at_position(get_global_mouse_position())
-		if clicked_army:
-			_on_army_clicked(clicked_army)
+	if event is InputEventMouseButton:
+		match event.button_index:
+			MOUSE_BUTTON_WHEEL_UP:
+				if camera:
+					camera.zoom = (camera.zoom * 1.1).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
+			MOUSE_BUTTON_WHEEL_DOWN:
+				if camera:
+					camera.zoom = (camera.zoom / 1.1).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
+			MOUSE_BUTTON_LEFT:
+				if current_phase != GamePhase.PLANNING:
+					return
+				if event.pressed:
+					_drag_start = get_viewport().get_mouse_position()
+					_is_dragging = false
+				else:
+					if not _is_dragging:
+						_handle_world_click()
+	elif event is InputEventMouseMotion:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) and camera:
+			camera.position -= event.relative / camera.zoom
+		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			var mouse_pos = get_viewport().get_mouse_position()
+			if mouse_pos.distance_to(_drag_start) > DRAG_THRESHOLD:
+				_is_dragging = true
+
+func _handle_world_click():
+	var world_pos = get_global_mouse_position()
+	var clicked_army = _get_army_at_position(world_pos)
+	if clicked_army:
+		_on_army_clicked(clicked_army)
 
 func _on_army_clicked(army: Army):
 	if army.army_type == Army.ArmyType.ENEMY:
@@ -257,13 +295,14 @@ func _plan_ai_moves():
 					break
 
 func setup_background():
-	if background_sprite and background_sprite.texture:
+	if not background_sprite:
+		return
+	if background_sprite.texture:
 		var bg_size = background_sprite.texture.get_size()
-		background_sprite.position = Vector2(640, 360)
-		var screen_size = Vector2(1280, 720)
-		var scale_factor = max(screen_size.x / bg_size.x, screen_size.y / bg_size.y)
-		if scale_factor > 1:
-			background_sprite.scale = Vector2(scale_factor, scale_factor)
+		background_sprite.position = bg_size / 2.0
+		background_sprite.scale = Vector2(1.0, 1.0)
+	else:
+		background_sprite.position = MAP_SIZE / 2.0
 
 func setup_ui():
 	setup_city_menu()
