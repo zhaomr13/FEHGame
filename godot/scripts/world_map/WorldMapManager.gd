@@ -37,6 +37,7 @@ var _is_dragging: bool = false
 const DRAG_THRESHOLD: float = 5.0
 const MIN_ZOOM: float = 0.25
 const MAX_ZOOM: float = 1.5
+const WHEEL_ZOOM_FACTOR: float = 1.2
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
 const ENCOUNTER_DISTANCE: float = 30.0
 
@@ -133,10 +134,10 @@ func _input(event):
 		match event.button_index:
 			MOUSE_BUTTON_WHEEL_UP:
 				if camera:
-					camera.zoom = (camera.zoom * 1.1).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
+					_zoom_camera(WHEEL_ZOOM_FACTOR)
 			MOUSE_BUTTON_WHEEL_DOWN:
 				if camera:
-					camera.zoom = (camera.zoom / 1.1).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
+					_zoom_camera(1.0 / WHEEL_ZOOM_FACTOR)
 			MOUSE_BUTTON_LEFT:
 				if current_phase != GamePhase.PLANNING:
 					return
@@ -147,12 +148,28 @@ func _input(event):
 					if not _is_dragging:
 						_handle_world_click()
 	elif event is InputEventMouseMotion:
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) and camera:
+		if camera and (Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) or Input.is_key_pressed(KEY_SPACE)):
 			camera.position -= event.relative / camera.zoom
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			var mouse_pos = get_viewport().get_mouse_position()
 			if mouse_pos.distance_to(_drag_start) > DRAG_THRESHOLD:
 				_is_dragging = true
+	elif event is InputEventMagnifyGesture:
+		if camera:
+			_zoom_camera(event.factor)
+
+func _zoom_camera(factor: float):
+	if not camera or not get_viewport():
+		return
+	var new_zoom = (camera.zoom * factor).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
+
+	# Zoom towards the mouse cursor: keep the world point under the cursor stationary.
+	var viewport = get_viewport()
+	var screen_center = viewport.get_visible_rect().size / 2.0
+	var mouse_screen = viewport.get_mouse_position()
+	var offset = (mouse_screen - screen_center) * (Vector2.ONE / camera.zoom - Vector2.ONE / new_zoom)
+	camera.position += offset
+	camera.zoom = new_zoom
 
 func _handle_world_click():
 	var world_pos = get_global_mouse_position()
