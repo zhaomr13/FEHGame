@@ -2,6 +2,7 @@ class_name MapDataManager
 extends Node2D
 
 signal node_clicked(node: MapNode)
+signal map_data_loaded(success: bool)
 
 var map_nodes: Dictionary = {}
 
@@ -9,8 +10,8 @@ const DEFAULT_MAP_DATA_PATH = "res://data/world_map.json"
 
 var NODE_CONFIG: Dictionary = {}
 
-@onready var map_nodes_container: Node2D = $"../MapNodes"
-@onready var connections_node: Node2D = $"../Connections"
+@onready var map_nodes_container: Node2D = get_node_or_null("../MapNodes")
+@onready var connections_node: Node2D = get_node_or_null("../Connections")
 
 func _ready():
     load_map_data(DEFAULT_MAP_DATA_PATH)
@@ -18,16 +19,19 @@ func _ready():
 func load_map_data(path: String) -> bool:
     if not FileAccess.file_exists(path):
         push_error("Map data file not found: " + path)
+        map_data_loaded.emit(false)
         return false
 
     var json_text = FileAccess.get_file_as_string(path)
     var parsed = JSON.parse_string(json_text)
     if parsed == null or not parsed is Dictionary:
         push_error("Failed to parse map data JSON")
+        map_data_loaded.emit(false)
         return false
 
     NODE_CONFIG = _build_node_config(parsed)
     validate_map_data()
+    map_data_loaded.emit(true)
     return true
 
 func _node_type_from_string(type_str: String) -> int:
@@ -201,6 +205,8 @@ func _connect_components(config: Dictionary, nodes: Array):
             _add_bidirectional_connection(config, best_a, best_b)
 
 func create_map_nodes():
+    if not map_nodes_container or not connections_node:
+        return
     for node_id in NODE_CONFIG.keys():
         var config = NODE_CONFIG[node_id]
         var node = preload("res://scenes/world_map/MapNode.tscn").instantiate()
@@ -218,6 +224,8 @@ func _on_node_clicked(node: MapNode):
     node_clicked.emit(node)
 
 func draw_connections():
+    if not map_nodes_container or not connections_node:
+        return
     var line_color = Color(0.8, 0.7, 0.4, 0.6)
     var line_width = 3.0
 
