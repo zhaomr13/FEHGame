@@ -64,6 +64,17 @@ func get_city_position(city_id: String) -> Vector2:
 		return NODE_CONFIG[city_id].pos
 	return Vector2.ZERO
 
+func get_nearest_city(pos: Vector2) -> String:
+	var nearest = ""
+	var min_dist = INF
+	for city_id in NODE_CONFIG.keys():
+		var city_pos = NODE_CONFIG[city_id].pos
+		var dist = pos.distance_to(city_pos)
+		if dist < min_dist:
+			min_dist = dist
+			nearest = city_id
+	return nearest
+
 func can_move_to(from_id: String, to_id: String) -> bool:
 	if from_id == to_id:
 		return false

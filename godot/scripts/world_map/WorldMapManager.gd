@@ -60,7 +60,6 @@ func _check_encounters():
 			if a1.army_type == a2.army_type:
 				continue
 			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
-				print("[TIME] encounter ", Time.get_ticks_msec())
 				_start_battle(a1, a2)
 				return
 
@@ -106,10 +105,13 @@ func _on_army_clicked(army: Army):
 	army.set_selected(true)
 
 func _set_destination_to(army: Army, target_city: String):
-	if army.current_city_id == target_city:
+	var from_city = army.current_city_id
+	if from_city == "":
+		from_city = map_data.get_nearest_city(army.position)
+	if from_city == target_city:
 		return
-	if map_data.can_move_to(army.current_city_id, target_city):
-		var path = map_data.find_path(army.current_city_id, target_city)
+	if map_data.can_move_to(from_city, target_city):
+		var path = map_data.find_path(from_city, target_city)
 		if not path.is_empty():
 			var waypoints: Array[Vector2] = []
 			var cities: Array[String] = []
@@ -320,7 +322,6 @@ func _on_squad_menu_closed(saved: bool):
 		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
 
 func _start_battle(attacker: Army, defender: Army):
-	print("[TIME] _start_battle ", Time.get_ticks_msec())
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 	attacker.state = Army.ArmyState.IN_BATTLE
@@ -333,7 +334,6 @@ func setup_battle_result_handler():
 	GameManager.battle_ended.connect(_on_battle_ended)
 
 func _on_battle_ended(victory: bool):
-	print("[TIME] _on_battle_ended ", Time.get_ticks_msec())
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 	if clock:
