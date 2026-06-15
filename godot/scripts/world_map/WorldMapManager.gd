@@ -91,6 +91,7 @@ func _on_node_clicked(node: MapNode):
 		selected_army.set_route(waypoints, cities)
 
 func _find_route(army: Army, target_city: String) -> Array[String]:
+	print("[DEBUG] _find_route from=", army.current_city_id, " to=", target_city)
 	var from_city = army.current_city_id
 	if from_city == "":
 		from_city = map_data.get_nearest_city(army.position)
