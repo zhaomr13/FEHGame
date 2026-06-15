@@ -450,6 +450,8 @@ func _on_squad_menu_closed(saved: bool):
 func _start_battle(attacker: Army, defender: Army):
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
+	_executing_armies.erase(attacker)
+	_executing_armies.erase(defender)
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
 	battling_armies = [attacker, defender]
@@ -488,6 +490,9 @@ func _on_battle_ended(victory: bool):
 					army.position += dir * 40
 					army.current_city_id = ""
 	battling_armies.clear()
+
+	turn_count += 1
+	_on_turn_started()
 
 	if planning_ui:
 		planning_ui.visible = true
