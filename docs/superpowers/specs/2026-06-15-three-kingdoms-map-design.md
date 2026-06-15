@@ -19,7 +19,7 @@
 
 ## 3. Map Data Format
 
-把节点配置从 `MapDataManager.gd` 中的 `NODE_CONFIG` 字典迁移到 JSON 数据文件：
+把节点配置从 `MapDataManager.gd` 中的 `NODE_CONFIG` 字典迁移到 JSON 数据文件（`godot/data/` 目录需要在首次创建时新建）：
 
 ```
 godot/data/world_map.json
@@ -146,7 +146,7 @@ godot/data/world_map.json
 
 其余节点开局为中立（`faction: ""`），由玩家和 AI 争夺。
 
-`Main.gd` 中的 `FACTION_START_POSITIONS` 需要更新为新的城市 id。
+`Main.gd` 中的 `FACTION_START_POSITIONS` 需要更新为新的城市 id（具体 id 在节点布局完成后最终确定）。
 
 ## 9. Integration
 
