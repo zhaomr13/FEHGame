@@ -68,6 +68,7 @@ func _on_node_clicked(node: MapNode):
 		return
 
 	if selected_army == null:
+		# Click own city with no army: select army there or open menu
 		if map_data.NODE_CONFIG[node.node_id].faction == current_faction:
 			var army_here = _get_army_at_city(node.node_id)
 			if army_here and army_here.army_type != Army.ArmyType.ENEMY:
@@ -76,22 +77,27 @@ func _on_node_clicked(node: MapNode):
 				open_city_menu(node)
 		return
 
-	var from_city = selected_army.current_city_id
-	if from_city == "":
-		from_city = map_data.get_nearest_city(selected_army.position)
+	# Army is selected — try to set route to clicked city
+	var path = _find_route(selected_army, node.node_id)
+	if not path.is_empty():
+		var waypoints: Array[Vector2] = []
+		var cities: Array[String] = []
+		for city_id in path:
+			if map_data.map_nodes.has(city_id):
+				var pos = map_data.map_nodes[city_id].position
+				waypoints.append(pos + Vector2(20, -20))
+				cities.append(city_id)
+		selected_army.set_route(waypoints, cities)
 
-	if from_city != node.node_id:
-		if map_data.can_move_to(from_city, node.node_id):
-			var path = map_data.find_path(from_city, node.node_id)
-			if not path.is_empty():
-				var waypoints: Array[Vector2] = []
-				var cities: Array[String] = []
-				for city_id in path:
-					if map_data.map_nodes.has(city_id):
-						var pos = map_data.map_nodes[city_id].position
-						waypoints.append(pos + Vector2(20, -20))
-						cities.append(city_id)
-				selected_army.set_route(waypoints, cities)
+func _find_route(army: Army, target_city: String) -> Array[String]:
+	var from_city = army.current_city_id
+	if from_city == "":
+		from_city = map_data.get_nearest_city(army.position)
+	if from_city == target_city:
+		return []
+	if map_data.can_move_to(from_city, target_city):
+		return map_data.find_path(from_city, target_city)
+	return []
 
 func _input(event):
 	if current_phase != GamePhase.PLANNING:
@@ -104,7 +110,16 @@ func _input(event):
 func _on_army_clicked(army: Army):
 	if army.army_type == Army.ArmyType.ENEMY:
 		if selected_army and selected_army.army_type != Army.ArmyType.ENEMY:
-			_set_destination_to(selected_army, army.current_city_id)
+			var path = _find_route(selected_army, army.current_city_id)
+			if not path.is_empty():
+				var waypoints: Array[Vector2] = []
+				var cities: Array[String] = []
+				for city_id in path:
+					if map_data.map_nodes.has(city_id):
+						var pos = map_data.map_nodes[city_id].position
+						waypoints.append(pos + Vector2(20, -20))
+						cities.append(city_id)
+				selected_army.set_route(waypoints, cities)
 		return
 
 	if selected_army and is_instance_valid(selected_army):
@@ -113,22 +128,16 @@ func _on_army_clicked(army: Army):
 	army.set_selected(true)
 
 func _set_destination_to(army: Army, target_city: String):
-	var from_city = army.current_city_id
-	if from_city == "":
-		from_city = map_data.get_nearest_city(army.position)
-	if from_city == target_city:
-		return
-	if map_data.can_move_to(from_city, target_city):
-		var path = map_data.find_path(from_city, target_city)
-		if not path.is_empty():
-			var waypoints: Array[Vector2] = []
-			var cities: Array[String] = []
-			for city_id in path:
-				if map_data.map_nodes.has(city_id):
-					var pos = map_data.map_nodes[city_id].position
-					waypoints.append(pos + Vector2(20, -20))
-					cities.append(city_id)
-			army.set_route(waypoints, cities)
+	var path = _find_route(army, target_city)
+	if not path.is_empty():
+		var waypoints: Array[Vector2] = []
+		var cities: Array[String] = []
+		for city_id in path:
+			if map_data.map_nodes.has(city_id):
+				var pos = map_data.map_nodes[city_id].position
+				waypoints.append(pos + Vector2(20, -20))
+				cities.append(city_id)
+		army.set_route(waypoints, cities)
 
 func _get_army_at_position(pos: Vector2) -> Army:
 	for army in all_armies:
@@ -146,8 +155,6 @@ func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
 	current_node_id = start_city
 	current_phase = GamePhase.PLANNING
-
-	# Show planning UI when entering world map
 	if planning_ui:
 		planning_ui.visible = true
 
@@ -195,7 +202,7 @@ func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.A
 	var army = Army.new()
 	army.current_city_id = start_city
 	army.squad_data = _convert_squad_data(chars)
-	army.army_type = type  # Set BEFORE add_child so setup_visual uses correct color
+	army.army_type = type
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
 		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
@@ -266,13 +273,11 @@ func setup_planning_ui():
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 
 	var end_planning_btn = Button.new()
-	end_planning_btn.name = "EndPlanningButton"
 	end_planning_btn.text = "End Planning Phase"
 	end_planning_btn.custom_minimum_size = Vector2(200, 50)
 	end_planning_btn.pressed.connect(_on_end_planning_pressed)
 
 	var cancel_plan_btn = Button.new()
-	cancel_plan_btn.name = "CancelPlanButton"
 	cancel_plan_btn.text = "Clear All Plans"
 	cancel_plan_btn.custom_minimum_size = Vector2(150, 50)
 	cancel_plan_btn.pressed.connect(_on_clear_plans_pressed)
@@ -282,7 +287,6 @@ func setup_planning_ui():
 	panel.add_child(hbox)
 	planning_ui.add_child(panel)
 	planning_ui.visible = false
-
 	ui.add_child(planning_ui)
 
 func setup_city_menu():
@@ -313,7 +317,6 @@ func _start_execution():
 	current_phase = GamePhase.EXECUTING
 	if planning_ui:
 		planning_ui.visible = false
-	# Plan AI moves, then execute all plans
 	_plan_ai_moves()
 	for army in all_armies:
 		if is_instance_valid(army) and army.has_plan():
@@ -340,7 +343,6 @@ func _start_battle(attacker: Army, defender: Army):
 	phase_changed.emit(current_phase)
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
-
 	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 
@@ -352,19 +354,16 @@ func _on_battle_ended(victory: bool):
 	phase_changed.emit(current_phase)
 	if clock:
 		clock.is_running = false
-
 	if victory and selected_army:
 		var city_id = selected_army.current_city_id
 		map_data.NODE_CONFIG[city_id].faction = current_faction
 		if map_data.map_nodes.has(city_id):
 			map_data.map_nodes[city_id].set_faction_color(current_faction)
-
 	var i = all_armies.size() - 1
 	while i >= 0:
 		if not is_instance_valid(all_armies[i]):
 			all_armies.remove_at(i)
 		i -= 1
-
 	if planning_ui:
 		planning_ui.visible = true
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
