@@ -45,7 +45,8 @@ REGIONS = [
     ]),
 ]
 
-NODE_TYPES = ["city"] * 60 + ["fort"] * 20 + ["village"] * 20
+NODE_TYPES = ["city", "fort", "village"]
+NODE_WEIGHTS = [0.6, 0.2, 0.2]
 
 def generate_nodes():
     nodes = []
@@ -74,7 +75,7 @@ def generate_nodes():
                 y = random.randint(y_min, y_max)
 
             name = name_pool[i] if i < len(name_pool) else f"region{node_id}"
-            ntype = NODE_TYPES[(node_id - 1) % len(NODE_TYPES)]
+            ntype = random.choices(NODE_TYPES, weights=NODE_WEIGHTS)[0]
             nodes.append({
                 "id": f"city_{node_id:02d}",
                 "name": name,
