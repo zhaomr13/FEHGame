@@ -69,12 +69,20 @@ func _on_node_clicked(node: MapNode):
 
 	if selected_army == null:
 		if map_data.NODE_CONFIG[node.node_id].faction == current_faction:
-			open_city_menu(node)
+			var army_here = _get_army_at_city(node.node_id)
+			if army_here and army_here.army_type != Army.ArmyType.ENEMY:
+				_on_army_clicked(army_here)
+			else:
+				open_city_menu(node)
 		return
 
-	if selected_army.current_city_id != node.node_id:
-		if map_data.can_move_to(selected_army.current_city_id, node.node_id):
-			var path = map_data.find_path(selected_army.current_city_id, node.node_id)
+	var from_city = selected_army.current_city_id
+	if from_city == "":
+		from_city = map_data.get_nearest_city(selected_army.position)
+
+	if from_city != node.node_id:
+		if map_data.can_move_to(from_city, node.node_id):
+			var path = map_data.find_path(from_city, node.node_id)
 			if not path.is_empty():
 				var waypoints: Array[Vector2] = []
 				var cities: Array[String] = []
@@ -125,6 +133,12 @@ func _set_destination_to(army: Army, target_city: String):
 func _get_army_at_position(pos: Vector2) -> Army:
 	for army in all_armies:
 		if is_instance_valid(army) and army.position.distance_to(pos) < 30:
+			return army
+	return null
+
+func _get_army_at_city(city_id: String) -> Army:
+	for army in all_armies:
+		if is_instance_valid(army) and army.current_city_id == city_id:
 			return army
 	return null
 
