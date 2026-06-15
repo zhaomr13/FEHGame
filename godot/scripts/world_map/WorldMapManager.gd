@@ -2,6 +2,7 @@ class_name WorldMapManager
 extends Node2D
 
 signal phase_changed(new_phase: int)
+signal turn_started(turn_number: int)
 
 enum GamePhase {
 	PLANNING,
@@ -31,6 +32,8 @@ var all_armies: Array[Army] = []
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
 var battling_armies: Array[Army] = []  # armies in current battle (for midpoint retreat)
+
+var _executing_armies: Dictionary = {}  # armies still moving during EXECUTING phase
 
 var _drag_start: Vector2 = Vector2.ZERO
 var _is_dragging: bool = false
@@ -275,6 +278,7 @@ func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.A
 	army.current_city_id = start_city
 	army.squad_data = _convert_squad_data(chars)
 	army.army_type = type
+	army.movement_finished.connect(_on_army_movement_finished)
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
 		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
@@ -390,15 +394,44 @@ func _on_clear_plans_pressed():
 			army.clear_plan()
 
 func _start_execution():
+	if current_phase != GamePhase.PLANNING:
+		return
 	current_phase = GamePhase.EXECUTING
+	phase_changed.emit(current_phase)
 	if planning_ui:
 		planning_ui.visible = false
+	_executing_armies.clear()
 	_plan_ai_moves()
 	for army in all_armies:
 		if is_instance_valid(army) and army.has_plan():
 			army.execute_plan()
+			_executing_armies[army] = true
 	if clock:
 		clock.is_running = true
+	if _executing_armies.is_empty():
+		_end_execution()
+
+func _on_army_movement_finished(army: Army):
+	if not _executing_armies.has(army):
+		return
+	_executing_armies.erase(army)
+	if current_phase == GamePhase.EXECUTING and _executing_armies.is_empty():
+		_end_execution()
+
+func _end_execution():
+	if current_phase != GamePhase.EXECUTING:
+		return
+	current_phase = GamePhase.PLANNING
+	phase_changed.emit(current_phase)
+	if clock:
+		clock.is_running = false
+	if planning_ui:
+		planning_ui.visible = true
+	turn_count += 1
+	_on_turn_started()
+
+func _on_turn_started():
+	turn_started.emit(turn_count)
 
 func open_city_menu(node: MapNode):
 	if city_menu:
