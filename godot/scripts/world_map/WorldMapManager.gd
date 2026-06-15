@@ -71,10 +71,16 @@ func _process(_delta):
 func _check_encounters():
 	for i in range(all_armies.size()):
 		var a1 = all_armies[i]
+		if not (a1 is Army):
+			push_warning("_check_encounters: all_armies[%d] is not Army, got %s: %s" % [i, typeof(a1), a1])
+			continue
 		if not is_instance_valid(a1):
 			continue
 		for j in range(i + 1, all_armies.size()):
 			var a2 = all_armies[j]
+			if not (a2 is Army):
+				push_warning("_check_encounters: all_armies[%d] is not Army, got %s: %s" % [j, typeof(a2), a2])
+				continue
 			if not is_instance_valid(a2):
 				continue
 			if a1.army_type == a2.army_type:
@@ -482,6 +488,7 @@ func _on_squad_menu_closed(saved: bool):
 		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
 
 func _start_battle(attacker: Army, defender: Army):
+	print("_start_battle: attacker type=", typeof(attacker), ", current_city_id='", attacker.current_city_id, "', map_data type=", typeof(map_data), ", map_nodes type=", typeof(map_data.map_nodes))
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
 	_executing_armies.erase(attacker)
@@ -489,7 +496,11 @@ func _start_battle(attacker: Army, defender: Army):
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
 	battling_armies = [attacker, defender]
-	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
+	var battle_bg = "plain"
+	if attacker.current_city_id != "" and map_data.map_nodes.has(attacker.current_city_id):
+		battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
+	else:
+		push_warning("_start_battle: attacker has no valid current_city_id ('%s'), falling back to 'plain'" % attacker.current_city_id)
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 	_update_planning_ui()
 
