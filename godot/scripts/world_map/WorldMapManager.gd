@@ -489,8 +489,12 @@ func _on_battle_ended(victory: bool):
 					var dir = (origin_pos - army.position).normalized()
 					army.position += dir * 40
 					army.current_city_id = ""
+	for army in battling_armies:
+		if is_instance_valid(army):
+			army.state = Army.ArmyState.IDLE
 	battling_armies.clear()
 
+	# Battle path: increment turn when returning to planning (mirror of _end_execution)
 	turn_count += 1
 	_on_turn_started()
 
