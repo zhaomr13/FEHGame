@@ -37,6 +37,7 @@ var _executing_armies: Dictionary = {}  # armies still moving during EXECUTING p
 
 var _drag_start: Vector2 = Vector2.ZERO
 var _is_dragging: bool = false
+var _is_shift_panning: bool = false
 const DRAG_THRESHOLD: float = 5.0
 const MIN_ZOOM: float = 0.25
 const MAX_ZOOM: float = 1.5
@@ -142,16 +143,25 @@ func _input(event):
 				if camera:
 					_zoom_camera(1.0 / WHEEL_ZOOM_FACTOR)
 			MOUSE_BUTTON_LEFT:
-				if current_phase != GamePhase.PLANNING:
-					return
 				if event.pressed:
+					_is_shift_panning = Input.is_key_pressed(KEY_SHIFT)
+					if _is_shift_panning:
+						_drag_start = get_global_mouse_position()
+						return
+					if current_phase != GamePhase.PLANNING:
+						return
 					_drag_start = get_global_mouse_position()
 					_is_dragging = false
 				else:
+					if _is_shift_panning:
+						_is_shift_panning = false
+						return
+					if current_phase != GamePhase.PLANNING:
+						return
 					if not _is_dragging:
 						_handle_world_click()
 	elif event is InputEventMouseMotion:
-		if camera and (Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) or Input.is_key_pressed(KEY_SPACE)):
+		if camera and (Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) or Input.is_key_pressed(KEY_SPACE) or _is_shift_panning or (Input.is_key_pressed(KEY_SHIFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))):
 			camera.position -= event.relative / camera.zoom
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			var mouse_pos = get_viewport().get_mouse_position()
