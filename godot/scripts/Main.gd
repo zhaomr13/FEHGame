@@ -52,7 +52,7 @@ func _on_faction_selected(faction: String):
 	initialize_player_army(faction)
 
 	# Set starting position based on faction
-	var start_city = FACTION_START_POSITIONS.get(faction, "city_3")
+	var start_city = FACTION_START_POSITIONS.get(faction, "city_03")
 	world_map.current_node_id = start_city
 
 	# Initialize squads (all unassigned initially)
