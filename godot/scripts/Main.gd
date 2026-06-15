@@ -7,9 +7,10 @@ extends Node2D
 
 # Faction starting positions
 const FACTION_START_POSITIONS = {
-	"askr": "city_3",  # Askr starts at central city
-	"embla": "city_1", # Embla starts at northern fort
-	"nifl": "city_8"   # Nifl starts at southern city
+	"askr": "city_11",    # central kingdom
+	"embla": "city_01",   # northern empire
+	"nifl": "city_45",    # eastern kingdom
+	"muspell": "city_33"  # western frontier
 }
 
 var selected_faction: String = ""
@@ -91,7 +92,6 @@ func initialize_player_army(faction: String):
 			GameManager.available_recruits.append(char)
 
 func _on_state_changed(new_state: GameConstants.GameState):
-	print("[TIME] Main._on_state_changed ", GameConstants.GameState.keys()[new_state], " ", Time.get_ticks_msec())
 	match new_state:
 		GameConstants.GameState.WORLD_MAP:
 			world_map.visible = true
