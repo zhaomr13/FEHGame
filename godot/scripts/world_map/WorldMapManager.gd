@@ -30,6 +30,7 @@ var planning_ui: Control = null
 var all_armies: Array[Army] = []
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
+var battling_armies: Array[Army] = []  # armies in current battle (for midpoint retreat)
 
 const ENCOUNTER_DISTANCE: float = 30.0
 
@@ -97,9 +98,11 @@ func _find_route(army: Army, target_city: String) -> Array[String]:
 	var nearest = map_data.get_nearest_city(army.position)
 	if nearest != "" and not from_cities.has(nearest):
 		from_cities.append(nearest)
-	# Also try target_city_id if army was heading somewhere
-	if army.target_city_id != "" and not from_cities.has(army.target_city_id):
-		from_cities.append(army.target_city_id)
+	# Also try between-cities tracking (from/to)
+	if army.from_city_id != "" and not from_cities.has(army.from_city_id):
+		from_cities.append(army.from_city_id)
+	if army.to_city_id != "" and not from_cities.has(army.to_city_id):
+		from_cities.append(army.to_city_id)
 
 	for from_city in from_cities:
 		if from_city == target_city:
@@ -352,6 +355,7 @@ func _start_battle(attacker: Army, defender: Army):
 	phase_changed.emit(current_phase)
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
+	battling_armies = [attacker, defender]
 	var battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 
@@ -373,6 +377,20 @@ func _on_battle_ended(victory: bool):
 		if not is_instance_valid(all_armies[i]):
 			all_armies.remove_at(i)
 		i -= 1
+	# Midpoint retreat: armies not at a city step back toward origin
+	for army in battling_armies:
+		if is_instance_valid(army) and army.from_city_id != "" and army.to_city_id != "":
+			var nearest = map_data.get_nearest_city(army.position)
+			var nearest_pos = map_data.NODE_CONFIG[nearest].pos if nearest != "" else Vector2.ZERO
+			if army.position.distance_to(nearest_pos) > 15:
+				# Not at a city — retreat toward origin
+				var origin_pos = map_data.NODE_CONFIG[army.from_city_id].pos if map_data.NODE_CONFIG.has(army.from_city_id) else null
+				if origin_pos != null:
+					var dir = (origin_pos - army.position).normalized()
+					army.position += dir * 40
+					army.current_city_id = ""
+	battling_armies.clear()
+
 	if planning_ui:
 		planning_ui.visible = true
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
