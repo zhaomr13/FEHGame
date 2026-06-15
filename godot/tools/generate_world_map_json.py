@@ -71,6 +71,7 @@ def generate_nodes():
 
             if attempts >= 1000:
                 # Fallback: nudge from last successful position
+                print(f"Warning: node {node_id} ({name}) placed after 1000 attempts — may overlap")
                 x = random.randint(x_min, x_max)
                 y = random.randint(y_min, y_max)
 
@@ -100,8 +101,10 @@ def add_manual_connections(nodes):
     # Validate that all referenced nodes exist
     ids = {n["id"] for n in nodes}
     for conn in manual:
-        assert conn["from"] in ids, f"Missing node {conn['from']}"
-        assert conn["to"] in ids, f"Missing node {conn['to']}"
+        if conn["from"] not in ids:
+            raise ValueError(f"Missing node {conn['from']}")
+        if conn["to"] not in ids:
+            raise ValueError(f"Missing node {conn['to']}")
     return manual
 
 def build_output():
