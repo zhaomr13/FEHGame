@@ -134,3 +134,14 @@ func _initialize_all_characters():
 - Add rarity tiers affecting stat variance and skill pools.
 - Add character roster UI.
 - Add recruitment logic on world map.
+
+## Implementation Status
+
+Implemented in commits:
+- `3f0aff1 style(character): rename char variable in roster test`
+- `bf7d61e feat(character): generate unique Chinese fantasy names`
+- `ba2029f feat(character): add class templates and stat variance`
+- `a2d4af8 feat(character): assign faction and random sprite folder to generated characters`
+- `9034194 feat(game_manager): append 100 generated characters to all_characters`
+
+Note: Final Godot test execution was deferred by request; the test file includes all roster, class, faction, sprite, and GameManager integration assertions.
