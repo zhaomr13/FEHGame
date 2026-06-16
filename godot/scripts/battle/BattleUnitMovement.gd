@@ -7,7 +7,7 @@ func perform_melee_attack_sequence(target: BattleUnit, damage: int):
 	var original_global_pos = battle_unit.global_position
 	var target_global_pos = target.global_position
 
-	var stop_distance = 90.0
+	var stop_distance = 180.0
 	var approach_direction = 1.0 if target_global_pos.x > original_global_pos.x else -1.0
 	var jump_target_global = Vector2(target_global_pos.x - stop_distance * approach_direction, target_global_pos.y)
 

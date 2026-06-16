@@ -22,7 +22,7 @@ func start_deployment(player_army: Array, enemy_army: Array):
 
 func _play_preparation_animation(player_army: Array, enemy_army: Array):
 	var entry_y_offset = -200
-	var final_y_offset = 80
+	var final_y_offset = 0
 	var created_units: Array[BattleUnit] = []
 
 	# Clear any existing units first

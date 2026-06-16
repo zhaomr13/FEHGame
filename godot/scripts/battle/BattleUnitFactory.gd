@@ -9,15 +9,15 @@ func create_preview_unit(data: CharacterData, position: int, is_player: bool, y_
 	var unit_scene = preload("res://scenes/battle/BattleUnit.tscn")
 	var unit = unit_scene.instantiate()
 
-	var x_pos = (position % 3) * 120 - 120
-	unit.scale = Vector2(0.5, 0.5)
+	var x_pos = (position % 3) * 160 - 160
+	unit.scale = Vector2(1, 1)
 	unit.position = Vector2(x_pos, y_offset)
 
 	if is_player:
 		player_formation.add_child(unit)
 		battle_mgr.player_units.append(unit)
 	else:
-		unit.scale.x = -0.5
+		unit.scale.x = -1
 		enemy_formation.add_child(unit)
 		battle_mgr.enemy_units.append(unit)
 
@@ -29,17 +29,17 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 	var unit_scene = preload("res://scenes/battle/BattleUnit.tscn")
 	var unit = unit_scene.instantiate()
 
-	var x_pos = (position % 3) * 120 - 120
-	var y_pos = 80
+	var x_pos = (position % 3) * 160 - 160
+	var y_pos = 0
 
-	unit.scale = Vector2(0.5, 0.5)
+	unit.scale = Vector2(1, 1)
 
 	if is_player:
 		unit.position = Vector2(x_pos, y_pos)
 		player_formation.add_child(unit)
 	else:
 		unit.position = Vector2(x_pos, y_pos)
-		unit.scale.x = -0.5
+		unit.scale.x = -1
 		enemy_formation.add_child(unit)
 
 	unit.setup(data, position, is_player)
