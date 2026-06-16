@@ -80,11 +80,21 @@ func _check_encounters():
 			var a2 = all_armies[j]
 			if not is_instance_valid(a2):
 				continue
-			if a1.army_type == a2.army_type:
+			if _are_allies(a1, a2):
 				continue
 			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
 				_start_battle(a1, a2)
 				return
+
+func _are_allies(a1: Army, a2: Army) -> bool:
+	"""Return true if two armies belong to the same faction/alliance."""
+	# All player armies are allies.
+	if a1.army_type != Army.ArmyType.ENEMY and a2.army_type != Army.ArmyType.ENEMY:
+		return true
+	# Enemy armies are allies only if they share the same faction.
+	if a1.army_type == Army.ArmyType.ENEMY and a2.army_type == Army.ArmyType.ENEMY:
+		return a1.faction == a2.faction
+	return false
 
 func _on_node_clicked(node: MapNode):
 	if current_phase != GamePhase.PLANNING:
