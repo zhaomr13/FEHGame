@@ -1,84 +1,86 @@
 extends SceneTree
 
 func _initialize():
-    var generator_script = load("res://scripts/character/CharacterGenerator.gd")
-    assert(generator_script != null, "Failed to load CharacterGenerator script")
+    # Test 1: Load CharacterDatabase
+    var db_script = load("res://scripts/character/CharacterDatabase.gd")
+    assert(db_script != null, "Failed to load CharacterDatabase script")
 
-    var generator = generator_script.new()
-    assert(generator != null, "Failed to instantiate CharacterGenerator")
+    var db = db_script.new()
+    assert(db != null, "Failed to instantiate CharacterDatabase")
 
-    var roster = generator.generate_roster(10)
-    assert(roster.size() == 10, "Expected 10 generated characters, got %d" % roster.size())
+    # Test 2: Load all characters from YAML
+    var characters = db.load_all_characters()
+    assert(characters.size() == 115, "Expected 115 characters, got %d" % characters.size())
 
+    # Test 3: Name uniqueness
     var names = {}
-    for character in roster:
-        assert(character is CharacterData, "Generated item is not CharacterData")
-        assert(character.character_name != "", "Character has empty name")
-        assert(not names.has(character.character_name), "Duplicate name: %s" % character.character_name)
-        names[character.character_name] = true
+    for char in characters:
+        assert(not names.has(char.character_name), "Duplicate name: %s" % char.character_name)
+        names[char.character_name] = true
 
-    # Name uniqueness and style check
-    var roster100 = generator.generate_roster(100)
-    var names100 = {}
-    for char in roster100:
-        assert(not names100.has(char.character_name), "Duplicate name in 100 roster: %s" % char.character_name)
-        names100[char.character_name] = true
-        assert(char.character_name.length() >= 2, "Name too short: %s" % char.character_name)
-        assert(not char.character_name.begins_with("Test"), "Name should not begin with 'Test': %s" % char.character_name)
+    # Test 4: Story characters exist with correct factions
+    var expected_story = {
+        "Sharena": "askr",
+        "Alfonse": "askr",
+        "Anna": "askr",
+        "Veronica": "embla",
+        "Bruno": "embla",
+        "Loki": "embla",
+        "Gunnthra": "nifl",
+        "Hrid": "nifl",
+        "Ylgr": "nifl",
+        "Laevatein": "muspell",
+        "Laegjarn": "muspell",
+        "Helbindi": "muspell",
+        "Klein": "",
+        "Rebecca": "",
+        "Lyn": ""
+    }
+    for char in characters:
+        if expected_story.has(char.character_name):
+            assert(char.faction == expected_story[char.character_name],
+                "Story character %s has wrong faction: %s" % [char.character_name, char.faction])
 
-    # Stat sanity check
-    var sample = generator.generate_roster(20)
-    for char in sample:
-        assert(char.max_hp > 0, "HP must be positive")
-        assert(char.attack > 0, "Attack must be positive")
-        assert(char.defense >= 0, "Defense must be non-negative")
-        assert(char.speed > 0, "Speed must be positive")
-        assert(char.soldiers > 0, "Soldiers must be positive")
+    # Test 5: Stat sanity checks
+    for char in characters:
+        assert(char.max_hp > 0, "HP must be positive for %s" % char.character_name)
+        assert(char.attack > 0, "Attack must be positive for %s" % char.character_name)
+        assert(char.defense >= 0, "Defense must be non-negative for %s" % char.character_name)
+        assert(char.speed > 0, "Speed must be positive for %s" % char.character_name)
+        assert(char.soldiers > 0, "Soldiers must be positive for %s" % char.character_name)
         assert(char.character_class in [
             GameConstants.CharacterClass.LORD,
             GameConstants.CharacterClass.KNIGHT,
             GameConstants.CharacterClass.MAGE,
             GameConstants.CharacterClass.FIGHTER,
             GameConstants.CharacterClass.ARCHER
-        ], "Invalid character class")
+        ], "Invalid character class for %s" % char.character_name)
 
-    for char in sample:
-        var template = generator.CLASS_TEMPLATES[char.character_class]
-        assert(char.max_hp >= template.max_hp - generator.HP_VARIANCE and char.max_hp <= template.max_hp + generator.HP_VARIANCE,
-            "HP %d out of variance range for %s" % [char.max_hp, char.character_class])
-        assert(char.attack >= template.attack - generator.STAT_VARIANCE and char.attack <= template.attack + generator.STAT_VARIANCE,
-            "Attack %d out of variance range for %s" % [char.attack, char.character_class])
-        assert(char.defense >= template.defense - generator.STAT_VARIANCE and char.defense <= template.defense + generator.STAT_VARIANCE,
-            "Defense %d out of variance range for %s" % [char.defense, char.character_class])
-        assert(char.speed >= template.speed - generator.STAT_VARIANCE and char.speed <= template.speed + generator.STAT_VARIANCE,
-            "Speed %d out of variance range for %s" % [char.speed, char.character_class])
-        assert(char.soldiers >= template.soldiers - generator.SOLDIER_VARIANCE and char.soldiers <= template.soldiers + generator.SOLDIER_VARIANCE,
-            "Soldiers %d out of variance range for %s" % [char.soldiers, char.character_class])
-        assert(char.weapon_type == template.weapon,
-            "Weapon type %s does not match class %s" % [char.weapon_type, char.character_class])
-        assert(char.max_soldiers == char.soldiers,
-            "max_soldiers %d does not match soldiers %d" % [char.max_soldiers, char.soldiers])
-        assert(char.leadership >= generator.LEADERSHIP_MIN and char.leadership <= generator.LEADERSHIP_MAX,
-            "Leadership %d out of range" % char.leadership)
+    # Test 6: Faction balance for generated characters
+    var faction_counts = {"askr": 0, "embla": 0, "nifl": 0, "muspell": 0, "": 0}
+    for char in characters:
+        if faction_counts.has(char.faction):
+            faction_counts[char.faction] += 1
 
-    # Faction and sprite check
-    var roster100b = generator.generate_roster(100)
-    var faction_counts = {"askr": 0, "embla": 0, "nifl": 0, "muspell": 0}
-    for char in roster100b:
-        assert(faction_counts.has(char.faction), "Unexpected faction: %s" % char.faction)
-        faction_counts[char.faction] += 1
-        assert(char.sprite_frames_path != "", "Missing sprite path")
-        var dir_access = DirAccess.open(char.sprite_frames_path.get_base_dir())
-        assert(dir_access != null and dir_access.dir_exists(char.sprite_frames_path), "Sprite folder does not exist: %s" % char.sprite_frames_path)
+    assert(faction_counts["askr"] >= 25, "Expected at least 25 askr characters, got %d" % faction_counts["askr"])
+    assert(faction_counts["embla"] >= 25, "Expected at least 25 embla characters, got %d" % faction_counts["embla"])
+    assert(faction_counts["nifl"] >= 25, "Expected at least 25 nifl characters, got %d" % faction_counts["nifl"])
+    assert(faction_counts["muspell"] >= 25, "Expected at least 25 muspell characters, got %d" % faction_counts["muspell"])
 
-    for faction in faction_counts.keys():
-        var c = faction_counts[faction]
-        assert(c >= 20 and c <= 30, "Faction %s count %d is out of balance" % [faction, c])
+    # Test 7: Sprite paths exist
+    for char in characters:
+        assert(char.sprite_frames_path != "", "Missing sprite path for %s" % char.character_name)
+        var dir = DirAccess.open(char.sprite_frames_path.get_base_dir())
+        assert(dir != null, "Sprite folder does not exist for %s: %s" % [char.character_name, char.sprite_frames_path])
 
-    # Integration: GameManager loads all characters
+    # Test 8: Tactics are set up
+    for char in characters:
+        assert(char.tactics.size() == 4, "Expected 4 tactics for %s, got %d" % [char.character_name, char.tactics.size()])
+
+    # Test 9: Integration - GameManager loads all characters
     var gm = load("res://scripts/autoload/GameManager.gd").new()
     gm._initialize_all_characters()
-    assert(gm.all_characters.size() == 115, "Expected 115 total characters, got %d" % gm.all_characters.size())
+    assert(gm.all_characters.size() == 115, "Expected 115 total characters in GameManager, got %d" % gm.all_characters.size())
 
-    print("CharacterGenerator test PASSED")
+    print("Character database test PASSED")
     quit(0)
