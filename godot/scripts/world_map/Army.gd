@@ -56,6 +56,7 @@ const ARMY_COLORS = {
 
 func _ready():
 	setup_visual()
+	update_visibility()
 
 func setup_visual():
 	# 创建军队图标（使用 Panel 实现圆形）
@@ -125,6 +126,12 @@ func setup_visual():
 	btn.modulate = Color(1, 1, 1, 0.01)  # 几乎透明但可点击
 	btn.pressed.connect(_on_button_pressed)
 	add_child(btn)
+
+func update_visibility():
+	if current_city_id != "" and state != ArmyState.MOVING:
+		visible = false
+	else:
+		visible = true
 
 func _on_button_pressed():
 	army_clicked.emit(self)
