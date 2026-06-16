@@ -52,4 +52,28 @@ func _on_map_data_loaded(success: bool, mgr):
     assert(node_count == 80, "Expected 80 nodes in YAML, got %d" % node_count)
 
     print("WorldMap scene integration test PASSED")
+    _test_army_visibility()
     quit(0)
+
+func _test_army_visibility():
+    var ArmyScript = load("res://scripts/world_map/Army.gd")
+    var army = ArmyScript.new()
+    army.current_city_id = "city_1"
+    army.state = ArmyScript.ArmyState.IDLE
+    army._ready()
+    assert(not army.visible, "Idle army in city should be hidden")
+
+    army.state = ArmyScript.ArmyState.PLANNED
+    army.update_visibility()
+    assert(not army.visible, "Planned army still in city should be hidden")
+
+    army.state = ArmyScript.ArmyState.MOVING
+    army.update_visibility()
+    assert(army.visible, "Moving army should be visible")
+
+    army.state = ArmyScript.ArmyState.IDLE
+    army.current_city_id = ""
+    army.update_visibility()
+    assert(army.visible, "Idle army not in a city should be visible")
+
+    print("Army visibility test PASSED")
