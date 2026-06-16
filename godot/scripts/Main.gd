@@ -92,20 +92,27 @@ func initialize_player_army(faction: String):
 			GameManager.available_recruits.append(char)
 
 func _on_state_changed(new_state: GameConstants.GameState):
+	var world_map_camera = world_map.get_node_or_null("Camera2D")
 	match new_state:
 		GameConstants.GameState.WORLD_MAP:
 			world_map.visible = true
 			battle_manager.visible = false
 			main_menu.visible = false
 			faction_select.visible = false
+			if world_map_camera:
+				world_map_camera.enabled = true
 		GameConstants.GameState.BATTLE_DEPLOYMENT, \
 		GameConstants.GameState.BATTLE_ACTIVE:
 			world_map.visible = false
 			battle_manager.visible = true
 			main_menu.visible = false
 			faction_select.visible = false
+			if world_map_camera:
+				world_map_camera.enabled = false
 		GameConstants.GameState.MAIN_MENU:
 			world_map.visible = false
 			battle_manager.visible = false
 			main_menu.visible = true
 			faction_select.visible = false
+			if world_map_camera:
+				world_map_camera.enabled = false
