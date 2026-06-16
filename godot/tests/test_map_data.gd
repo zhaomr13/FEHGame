@@ -14,7 +14,7 @@ func _on_map_data_loaded(success: bool, mgr):
     var config = mgr.NODE_CONFIG
     assert(config != null and not config.is_empty(), "NODE_CONFIG should not be empty")
 
-    var expected_count = _count_nodes_in_json()
+    var expected_count = _count_nodes_in_yaml()
     assert(config.size() == expected_count, "Expected %d nodes, got %d" % [expected_count, config.size()])
 
     assert(mgr.validate_map_data(), "Map data validation failed")
@@ -27,8 +27,10 @@ func _on_map_data_loaded(success: bool, mgr):
     print("Map data test PASSED: %d nodes, fully connected, no overlaps" % config.size())
     quit(0)
 
-func _count_nodes_in_json() -> int:
-    var json_text = FileAccess.get_file_as_string("res://data/world_map.json")
-    var parsed = JSON.parse_string(json_text)
-    assert(parsed is Dictionary, "Failed to parse world_map.json")
+func _count_nodes_in_yaml() -> int:
+    var yaml_text = FileAccess.get_file_as_string("res://data/world_map.yaml")
+    var parser_script = load("res://scripts/utils/YamlParser.gd")
+    var parser = parser_script.new()
+    var parsed = parser.parse(yaml_text)
+    assert(parsed is Dictionary, "Failed to parse world_map.yaml")
     return parsed["nodes"].size()

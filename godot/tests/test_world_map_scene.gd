@@ -42,12 +42,14 @@ func _on_map_data_loaded(success: bool, mgr):
 
     assert(mgr.validate_map_data(), "Map data validation failed")
 
-    # Test 3: Verify world_map.json has 80 nodes
-    var json_text = FileAccess.get_file_as_string("res://data/world_map.json")
-    var parsed = JSON.parse_string(json_text)
-    assert(parsed is Dictionary, "Failed to parse world_map.json")
+    # Test 3: Verify world_map.yaml has 80 nodes
+    var yaml_text = FileAccess.get_file_as_string("res://data/world_map.yaml")
+    var parser_script = load("res://scripts/utils/YamlParser.gd")
+    var parser = parser_script.new()
+    var parsed = parser.parse(yaml_text)
+    assert(parsed is Dictionary, "Failed to parse world_map.yaml")
     var node_count = parsed["nodes"].size()
-    assert(node_count == 80, "Expected 80 nodes in JSON, got %d" % node_count)
+    assert(node_count == 80, "Expected 80 nodes in YAML, got %d" % node_count)
 
     print("WorldMap scene integration test PASSED")
     quit(0)
