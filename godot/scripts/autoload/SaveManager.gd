@@ -162,7 +162,7 @@ func has_saved_squads() -> bool:
 	"""Check if squad configuration exists"""
 	return FileAccess.file_exists(SQUAD_SAVE_PATH)
 
-func _load_squad_save_data():
+func _load_squad_save_data() -> Variant:
 	"""Load and parse squad save file. Returns null on failure."""
 	if not FileAccess.file_exists(SQUAD_SAVE_PATH):
 		return null
