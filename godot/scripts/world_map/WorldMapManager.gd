@@ -616,12 +616,17 @@ func _on_battle_ended(victory: bool):
 	phase_changed.emit(current_phase)
 	if clock:
 		clock.is_running = false
-	if victory and selected_army:
-		var city_id = selected_army.current_city_id
-		if city_id != "" and map_data.NODE_CONFIG.has(city_id):
-			map_data.NODE_CONFIG[city_id]["faction"] = current_faction
-			if map_data.map_nodes.has(city_id):
-				map_data.map_nodes[city_id].set_faction_color(current_faction)
+	if victory:
+		# Player won: capture the city where the winning player army is located.
+		for army in battling_armies:
+			if is_instance_valid(army) and army.army_type != Army.ArmyType.ENEMY:
+				var city_id = army.current_city_id
+				if city_id == "":
+					city_id = map_data.get_nearest_city(army.position)
+				if city_id != "" and map_data.NODE_CONFIG.has(city_id):
+					map_data.NODE_CONFIG[city_id]["faction"] = current_faction
+					if map_data.map_nodes.has(city_id):
+						map_data.map_nodes[city_id].set_faction_color(current_faction)
 	if not victory:
 		_destroy_defeated_player_armies()
 
