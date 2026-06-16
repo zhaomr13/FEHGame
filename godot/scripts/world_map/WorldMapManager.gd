@@ -247,6 +247,26 @@ func _get_player_armies_at_city(city_id: String) -> Array[Army]:
 			result.append(army)
 	return result
 
+func _sync_city_faction_colors():
+	"""Update all city colors based on which army currently occupies them.
+	Player armies take priority over enemy armies."""
+	for city_id in map_data.map_nodes.keys():
+		var occupant_faction = ""
+		# Check player armies first
+		for army in player_armies:
+			if is_instance_valid(army) and army.current_city_id == city_id:
+				occupant_faction = army.faction
+				break
+		# If no player army, check enemy armies
+		if occupant_faction == "":
+			for army in enemy_armies:
+				if is_instance_valid(army) and army.current_city_id == city_id:
+					occupant_faction = army.faction
+					break
+		map_data.map_nodes[city_id].set_faction_color(occupant_faction)
+		if map_data.NODE_CONFIG.has(city_id):
+			map_data.NODE_CONFIG[city_id]["faction"] = occupant_faction
+
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
 	current_node_id = start_city
@@ -306,6 +326,7 @@ func _create_player_armies_from_squads(start_city: String):
 		army.army_id = "player_squad_%d" % squad_index
 		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
 		army.squad_index = squad_index
+		army.faction = current_faction
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
 		all_armies.append(army)
@@ -316,9 +337,12 @@ func _create_player_armies_from_squads(start_city: String):
 		var army = _create_army(chars, start_city, Army.ArmyType.PLAYER_MAIN)
 		army.army_id = "player_main"
 		army.army_name = "Main Army"
+		army.faction = current_faction
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
 		all_armies.append(army)
+
+	_sync_city_faction_colors()
 
 func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.ArmyType.PLAYER_SQUAD, offset: Vector2 = Vector2.ZERO) -> Army:
 	var army = Army.new()
@@ -397,9 +421,12 @@ func _create_enemy_armies(player_faction: String):
 			var army = _create_army(squads[i], city_id, Army.ArmyType.ENEMY, offset)
 			army.army_id = "enemy_%s_%d" % [faction, i]
 			army.army_name = "Enemy %s %d" % [faction.capitalize(), i + 1]
+			army.faction = faction
 			army.army_clicked.connect(_on_army_clicked)
 			enemy_armies.append(army)
 			all_armies.append(army)
+
+	_sync_city_faction_colors()
 
 func _plan_ai_moves():
 	for enemy in enemy_armies:
@@ -629,6 +656,9 @@ func _on_battle_ended(victory: bool):
 						map_data.map_nodes[city_id].set_faction_color(current_faction)
 	if not victory:
 		_destroy_defeated_player_armies()
+
+	# Sync city colors after battle outcome and midpoint retreat.
+	_sync_city_faction_colors()
 
 	var i = all_armies.size() - 1
 	while i >= 0:

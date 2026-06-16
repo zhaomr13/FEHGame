@@ -217,7 +217,7 @@ func create_map_nodes():
 		node.position = config.pos
 		node.connections = config.connections
 		node.set_faction_color(config.faction)
-		node.explore()
+		node.is_explored = true
 		node.node_clicked.connect(_on_node_clicked)
 		map_nodes_container.add_child(node)
 		map_nodes[node_id] = node

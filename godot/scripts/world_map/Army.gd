@@ -20,6 +20,7 @@ enum ArmyState {
 var army_id: String = ""
 var army_name: String = "Army"
 var army_type: ArmyType = ArmyType.PLAYER_SQUAD
+var faction: String = ""
 var state: ArmyState = ArmyState.IDLE
 
 var current_city_id: String = ""
