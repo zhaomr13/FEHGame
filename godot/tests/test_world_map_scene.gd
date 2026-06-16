@@ -61,19 +61,19 @@ func _test_army_visibility():
     army.current_city_id = "city_1"
     army.state = ArmyScript.ArmyState.IDLE
     army._ready()
-    assert(not army.visible, "Idle army in city should be hidden")
+    assert(not army.get_node("CirclePanel").visible, "Idle army in city should hide body")
 
     army.state = ArmyScript.ArmyState.PLANNED
     army.update_visibility()
-    assert(not army.visible, "Planned army still in city should be hidden")
+    assert(not army.get_node("CirclePanel").visible, "Planned army still in city should hide body")
 
     army.state = ArmyScript.ArmyState.MOVING
     army.update_visibility()
-    assert(army.visible, "Moving army should be visible")
+    assert(army.get_node("CirclePanel").visible, "Moving army should show body")
 
     army.state = ArmyScript.ArmyState.IDLE
     army.current_city_id = ""
     army.update_visibility()
-    assert(army.visible, "Idle army not in a city should be visible")
+    assert(army.get_node("CirclePanel").visible, "Idle army not in a city should show body")
 
     print("Army visibility test PASSED")

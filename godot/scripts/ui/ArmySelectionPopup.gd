@@ -18,6 +18,8 @@ func setup(armies: Array[Army]):
 	_armies = armies
 	item_list.clear()
 	for army in armies:
+		if not is_instance_valid(army):
+			continue
 		var text = "%s (%d members)" % [army.army_name, army.squad_data.size()]
 		item_list.add_item(text)
 

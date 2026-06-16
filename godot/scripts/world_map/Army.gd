@@ -56,10 +56,18 @@ func _ready():
 	update_visibility()
 
 func update_visibility():
-	if current_city_id != "" and state != ArmyState.MOVING:
-		visible = false
-	else:
-		visible = true
+	var hidden = current_city_id != "" and state != ArmyState.MOVING
+	# Hide the army body visuals but keep the node (and plan line) active.
+	for child_name in ["CirclePanel", "BorderPanel", "Label", "ClickButton"]:
+		var child = get_node_or_null(child_name)
+		if child:
+			child.visible = not hidden
+	# Re-apply selection indicator state with hidden check.
+	if selection_indicator:
+		selection_indicator.visible = _is_selected() and not hidden
+
+func _is_selected() -> bool:
+	return selection_indicator.visible if selection_indicator else false
 
 func setup_visual():
 	# Main circle with faction color
@@ -134,6 +142,7 @@ func setup_visual():
 	btn.position = Vector2(-20, -20)
 	btn.flat = true
 	btn.modulate = Color(1, 1, 1, 0.01)
+	btn.name = "ClickButton"
 	btn.pressed.connect(_on_button_pressed)
 	add_child(btn)
 
@@ -142,7 +151,8 @@ func _on_button_pressed():
 
 func set_selected(selected: bool):
 	if selection_indicator:
-		selection_indicator.visible = selected
+		var hidden = current_city_id != "" and state != ArmyState.MOVING
+		selection_indicator.visible = selected and not hidden
 
 func _process(delta):
 	if state == ArmyState.MOVING and not route.is_empty():
