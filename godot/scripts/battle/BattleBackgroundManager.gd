@@ -20,10 +20,13 @@ const BATTLE_BACKGROUNDS = {
 @onready var foreground_sprite: Sprite2D = $"../Foreground"
 
 func set_background(bg_type: String):
-	var bg_path = BATTLE_BACKGROUNDS.get(bg_type, BATTLE_BACKGROUNDS["plain"])
-	var fg_path = BATTLE_BACKGROUNDS.get(bg_type + "_fg", BATTLE_BACKGROUNDS["plain_fg"])
+	# Use solid black for battle background; ignore bg_type for now
+	var black_image = Image.create(1, 1, false, Image.FORMAT_RGB8)
+	black_image.fill(Color.BLACK)
+	var black_texture = ImageTexture.create_from_image(black_image)
 
 	if background_sprite:
-		background_sprite.texture = load(bg_path)
+		background_sprite.texture = black_texture
+		background_sprite.scale = Vector2(1280, 720)
 	if foreground_sprite:
-		foreground_sprite.texture = load(fg_path)
+		foreground_sprite.visible = false
