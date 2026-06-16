@@ -11,11 +11,11 @@ func _initialize():
     assert(roster.size() == 10, "Expected 10 generated characters, got %d" % roster.size())
 
     var names = {}
-    for char in roster:
-        assert(char is CharacterData, "Generated item is not CharacterData")
-        assert(char.character_name != "", "Character has empty name")
-        assert(not names.has(char.character_name), "Duplicate name: %s" % char.character_name)
-        names[char.character_name] = true
+    for character in roster:
+        assert(character is CharacterData, "Generated item is not CharacterData")
+        assert(character.character_name != "", "Character has empty name")
+        assert(not names.has(character.character_name), "Duplicate name: %s" % character.character_name)
+        names[character.character_name] = true
 
     print("CharacterGenerator skeleton test PASSED")
     quit(0)
