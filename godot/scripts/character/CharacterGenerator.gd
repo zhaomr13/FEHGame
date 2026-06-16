@@ -13,6 +13,25 @@ const BODY_SYLLABLES: Array[String] = [
     "因", "雅", "露", "马", "肯", "巴", "坦", "鲁", "索", "迦"
 ]
 
+const FACTIONS: Array[String] = ["askr", "embla", "nifl", "muspell"]
+
+const SPRITE_FOLDERS: Array[String] = [
+    "char_01_alm",
+    "char_02_lilina",
+    "char_03_dorcas",
+    "char_04_abel",
+    "char_05_klein",
+    "char_07_lyn",
+    "char_08_robin",
+    "char_09_rebecca",
+    "char_10_hector",
+    "char_armorax",
+    "char_armorsw",
+    "char_beleth",
+    "char_diadora",
+    "char_sylvia"
+]
+
 const HP_VARIANCE: int = 3
 const STAT_VARIANCE: int = 2
 const SOLDIER_VARIANCE: int = 10
@@ -45,8 +64,10 @@ func generate_roster(count: int) -> Array[CharacterData]:
     for i in range(count):
         var char_data = CharacterData.new()
         char_data.character_name = _generate_unique_name()
+        char_data.faction = FACTIONS[i % FACTIONS.size()]
         char_data.character_class = CLASS_KEYS[rng.randi() % CLASS_KEYS.size()]
         _apply_class_template(char_data, rng)
+        char_data.sprite_frames_path = "res://assets/characters/" + SPRITE_FOLDERS[rng.randi() % SPRITE_FOLDERS.size()] + "/"
         char_data.setup_default_tactics()
         result.append(char_data)
     return result

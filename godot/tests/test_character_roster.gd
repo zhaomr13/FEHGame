@@ -61,5 +61,19 @@ func _initialize():
         assert(char.leadership >= generator.LEADERSHIP_MIN and char.leadership <= generator.LEADERSHIP_MAX,
             "Leadership %d out of range" % char.leadership)
 
+    # Faction and sprite check
+    var roster100b = generator.generate_roster(100)
+    var faction_counts = {"askr": 0, "embla": 0, "nifl": 0, "muspell": 0}
+    for char in roster100b:
+        assert(faction_counts.has(char.faction), "Unexpected faction: %s" % char.faction)
+        faction_counts[char.faction] += 1
+        assert(char.sprite_frames_path != "", "Missing sprite path")
+        var dir_access = DirAccess.open(char.sprite_frames_path.get_base_dir())
+        assert(dir_access != null and dir_access.dir_exists(char.sprite_frames_path), "Sprite folder does not exist: %s" % char.sprite_frames_path)
+
+    for faction in faction_counts.keys():
+        var c = faction_counts[faction]
+        assert(c >= 20 and c <= 30, "Faction %s count %d is out of balance" % [faction, c])
+
     print("CharacterGenerator test PASSED")
     quit(0)
