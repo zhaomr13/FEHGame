@@ -56,7 +56,7 @@ func _parse_list(lines: Array[Dictionary], start: int, base_indent: int) -> Dict
         if line.indent > base_indent or not line.content.begins_with("- "):
             break
 
-        var item_text := line.content.substr(2).strip_edges()
+        var item_text: String = line.content.substr(2).strip_edges()
         if item_text == "":
             # Nested value follows
             var nested := _parse_value(lines, i + 1, base_indent + 2)
@@ -68,7 +68,7 @@ func _parse_list(lines: Array[Dictionary], start: int, base_indent: int) -> Dict
             i += 1
             if item_dict.is_empty():
                 # "- key:" with value on following lines
-                var first_key := item_text.substr(0, item_text.find(":")).strip_edges()
+                var first_key: String = item_text.substr(0, item_text.find(":")).strip_edges()
                 var nested := _parse_value(lines, i, base_indent + 2)
                 item_dict[first_key] = nested.value
                 i = nested.next_index
@@ -96,11 +96,11 @@ func _parse_dict(lines: Array[Dictionary], start: int, base_indent: int) -> Dict
             continue
         if line.content.begins_with("- "):
             break
-        var colon_pos := line.content.find(":")
+        var colon_pos: int = line.content.find(":")
         if colon_pos < 0:
             break
-        var key := line.content.substr(0, colon_pos).strip_edges()
-        var rest := line.content.substr(colon_pos + 1).strip_edges()
+        var key: String = line.content.substr(0, colon_pos).strip_edges()
+        var rest: String = line.content.substr(colon_pos + 1).strip_edges()
         if rest == "":
             var nested := _parse_value(lines, i + 1, base_indent + 2)
             result[key] = nested.value
@@ -111,9 +111,9 @@ func _parse_dict(lines: Array[Dictionary], start: int, base_indent: int) -> Dict
     return {"value": result, "next_index": i}
 
 func _parse_inline_dict_start(text: String) -> Dictionary:
-    var colon_pos := text.find(":")
-    var key := text.substr(0, colon_pos).strip_edges()
-    var rest := text.substr(colon_pos + 1).strip_edges()
+    var colon_pos: int = text.find(":")
+    var key: String = text.substr(0, colon_pos).strip_edges()
+    var rest: String = text.substr(colon_pos + 1).strip_edges()
     var result := {}
     if rest != "":
         result[key] = _parse_scalar(rest)
