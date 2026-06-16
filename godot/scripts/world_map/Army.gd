@@ -162,6 +162,7 @@ func _move_along_route(delta):
 		if route.is_empty():
 			state = ArmyState.IDLE
 			label.text = army_name
+			update_visibility()
 			movement_finished.emit(self)
 	else:
 		var direction = (target - position).normalized()
@@ -178,6 +179,7 @@ func set_route(waypoints: Array[Vector2], cities: Array[String]):
 	state = ArmyState.PLANNED
 	label.text = army_name + " →"
 	_update_plan_line()
+	update_visibility()
 
 func _update_plan_line():
 	if army_type == Army.ArmyType.ENEMY:
@@ -198,6 +200,7 @@ func execute_plan():
 	planned_cities.clear()
 	plan_line.visible = false
 	state = ArmyState.MOVING
+	update_visibility()
 
 func clear_plan():
 	planned_route.clear()
@@ -206,6 +209,7 @@ func clear_plan():
 	target_city_id = ""
 	state = ArmyState.IDLE
 	label.text = army_name
+	update_visibility()
 
 func has_plan() -> bool:
 	return state == ArmyState.PLANNED
