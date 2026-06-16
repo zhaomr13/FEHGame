@@ -64,6 +64,12 @@ func _initialize_all_characters():
     _create_character("Rebecca", GameConstants.CharacterClass.ARCHER, "", "bow", "char_09_rebecca")
     _create_character("Lyn", GameConstants.CharacterClass.LORD, "", "sword", "char_07_lyn")
 
+    # Generate 100 additional characters
+    var generator_script = load("res://scripts/character/CharacterGenerator.gd")
+    var generator = generator_script.new()
+    var generated = generator.generate_roster(100)
+    all_characters.append_array(generated)
+
 func _create_character(name: String, char_class: GameConstants.CharacterClass, faction: String, weapon: String, sprite_folder: String):
     var char_data = CharacterData.new()
     char_data.character_name = name

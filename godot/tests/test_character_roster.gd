@@ -75,5 +75,10 @@ func _initialize():
         var c = faction_counts[faction]
         assert(c >= 20 and c <= 30, "Faction %s count %d is out of balance" % [faction, c])
 
+    # Integration: GameManager loads all characters
+    var gm = load("res://scripts/autoload/GameManager.gd").new()
+    gm._initialize_all_characters()
+    assert(gm.all_characters.size() == 115, "Expected 115 total characters, got %d" % gm.all_characters.size())
+
     print("CharacterGenerator test PASSED")
     quit(0)
