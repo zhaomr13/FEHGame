@@ -13,17 +13,57 @@ const BODY_SYLLABLES: Array[String] = [
     "因", "雅", "露", "马", "肯", "巴", "坦", "鲁", "索", "迦"
 ]
 
+const HP_VARIANCE: int = 3
+const STAT_VARIANCE: int = 2
+const SOLDIER_VARIANCE: int = 10
+const LEADERSHIP_MIN: int = 3
+const LEADERSHIP_MAX: int = 7
+
 var _used_names: Dictionary = {}
+
+const CLASS_TEMPLATES: Dictionary = {
+    GameConstants.CharacterClass.LORD:    {"max_hp": 25, "attack": 8, "defense": 5, "speed": 6, "soldiers": 100, "weapon": "sword"},
+    GameConstants.CharacterClass.KNIGHT:  {"max_hp": 30, "attack": 7, "defense": 8, "speed": 4, "soldiers": 120, "weapon": "lance"},
+    GameConstants.CharacterClass.FIGHTER: {"max_hp": 28, "attack": 9, "defense": 4, "speed": 5, "soldiers": 100, "weapon": "axe"},
+    GameConstants.CharacterClass.MAGE:    {"max_hp": 20, "attack": 10, "defense": 3, "speed": 6, "soldiers": 80,  "weapon": "magic"},
+    GameConstants.CharacterClass.ARCHER:  {"max_hp": 22, "attack": 8, "defense": 4, "speed": 7, "soldiers": 90,  "weapon": "bow"}
+}
+
+const CLASS_KEYS: Array = [
+    GameConstants.CharacterClass.LORD,
+    GameConstants.CharacterClass.KNIGHT,
+    GameConstants.CharacterClass.FIGHTER,
+    GameConstants.CharacterClass.MAGE,
+    GameConstants.CharacterClass.ARCHER
+]
 
 func generate_roster(count: int) -> Array[CharacterData]:
     var result: Array[CharacterData] = []
     _used_names.clear()
+    var rng = RandomNumberGenerator.new()
+    rng.randomize()
     for i in range(count):
         var char_data = CharacterData.new()
         char_data.character_name = _generate_unique_name()
+        char_data.character_class = CLASS_KEYS[rng.randi() % CLASS_KEYS.size()]
+        _apply_class_template(char_data, rng)
         char_data.setup_default_tactics()
         result.append(char_data)
     return result
+
+func _apply_class_template(char_data: CharacterData, rng: RandomNumberGenerator):
+    var template = CLASS_TEMPLATES[char_data.character_class]
+    char_data.max_hp = template.max_hp + rng.randi_range(-HP_VARIANCE, HP_VARIANCE)
+    char_data.current_hp = char_data.max_hp
+    char_data.attack = template.attack + rng.randi_range(-STAT_VARIANCE, STAT_VARIANCE)
+    char_data.defense = template.defense + rng.randi_range(-STAT_VARIANCE, STAT_VARIANCE)
+    char_data.speed = template.speed + rng.randi_range(-STAT_VARIANCE, STAT_VARIANCE)
+    char_data.soldiers = template.soldiers + rng.randi_range(-SOLDIER_VARIANCE, SOLDIER_VARIANCE)
+    char_data.max_soldiers = char_data.soldiers
+    char_data.weapon_type = template.weapon
+    char_data.leadership = rng.randi_range(LEADERSHIP_MIN, LEADERSHIP_MAX)
+    char_data.level = 1
+    char_data.experience = 0
 
 func _generate_unique_name() -> String:
     var max_attempts = 1000
