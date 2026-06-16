@@ -337,12 +337,12 @@ func _plan_ai_moves():
 func setup_background():
 	if not background_sprite:
 		return
-	if background_sprite.texture:
-		var bg_size = background_sprite.texture.get_size()
-		background_sprite.position = bg_size / 2.0
-		background_sprite.scale = Vector2(1.0, 1.0)
-	else:
-		background_sprite.position = MAP_SIZE / 2.0
+	# Use a solid black texture instead of loading an image
+	var image = Image.create(1, 1, false, Image.FORMAT_RGB8)
+	image.fill(Color.BLACK)
+	background_sprite.texture = ImageTexture.create_from_image(image)
+	background_sprite.position = MAP_SIZE / 2.0
+	background_sprite.scale = Vector2(MAP_SIZE.x, MAP_SIZE.y)
 
 func setup_ui():
 	setup_city_menu()
