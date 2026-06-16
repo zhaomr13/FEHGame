@@ -19,37 +19,37 @@
 
 ## 3. Map Data Format
 
-把节点配置从 `MapDataManager.gd` 中的 `NODE_CONFIG` 字典迁移到 JSON 数据文件（`godot/data/` 目录需要在首次创建时新建）：
+把节点配置从 `MapDataManager.gd` 中的 `NODE_CONFIG` 字典迁移到 YAML 数据文件（`godot/data/` 目录需要在首次创建时新建）：
 
 ```
-godot/data/world_map.json
+godot/data/world_map.yaml
 ```
 
-### 3.1 JSON Schema
+### 3.1 YAML Schema
 
-```json
-{
-  "metadata": {
-    "map_size": {"x": 3840, "y": 2160},
-    "connection_strategy": "auto_with_overrides",
-    "max_auto_distance": 320,
-    "target_connections": 3
-  },
-  "nodes": [
-    {
-      "id": "city_01",
-      "name": "北境要塞",
-      "type": "fort",
-      "pos": {"x": 1450, "y": 420},
-      "faction": "embla",
-      "force_connections": ["city_02", "city_05"],
-      "blocked_neighbors": []
-    }
-  ],
-  "manual_connections": [
-    {"from": "city_03", "to": "city_21"}
-  ]
-}
+```yaml
+metadata:
+  map_size:
+    x: 3840
+    y: 2160
+  connection_strategy: "auto_with_overrides"
+  max_auto_distance: 320
+  target_connections: 3
+nodes:
+  - id: "city_01"
+    name: "北境要塞"
+    type: "fort"
+    pos:
+      x: 1450
+      y: 420
+    faction: "embla"
+    force_connections:
+      - "city_02"
+      - "city_05"
+    blocked_neighbors:
+manual_connections:
+  - from: "city_03"
+    to: "city_21"
 ```
 
 ### 3.2 Field Descriptions
@@ -154,7 +154,7 @@ godot/data/world_map.json
 
 | File | Change |
 |------|--------|
-| `godot/scripts/world_map/MapDataManager.gd` | 从 JSON 加载节点；新增自动连接函数；保留现有查询接口。 |
+| `godot/scripts/world_map/MapDataManager.gd` | 从 YAML 加载节点；新增自动连接函数；保留现有查询接口。 |
 | `godot/scripts/world_map/WorldMapManager.gd` | 添加 `Camera2D` 引用；鼠标点击坐标转换；更新势力起始逻辑。 |
 | `godot/scripts/Main.gd` | 更新 `FACTION_START_POSITIONS` 到新的城市 id。 |
 | `godot/scenes/world_map/WorldMap.tscn` | 添加 `Camera2D` 节点；替换背景图为 `three_kingdoms_map.png`。 |
@@ -169,9 +169,9 @@ godot/data/world_map.json
 
 ### 10.1 Automated Checks
 
-在 `MapDataManager` 加载 JSON 后运行自检：
+在 `MapDataManager` 加载 YAML 后运行自检：
 
-1. JSON 解析成功。
+1. YAML 解析成功。
 2. 没有孤立节点（每个节点至少 1 条连接）。
 3. 势力起始城市之间图连通。
 4. 没有节点间距 < 60 像素（避免重叠）。
