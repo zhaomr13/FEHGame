@@ -44,7 +44,6 @@ const MAX_ZOOM: float = 1.5
 const WHEEL_ZOOM_FACTOR: float = 1.2
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
 const ENCOUNTER_DISTANCE: float = 30.0
-const ARMIES_PER_FACTION: int = 10
 const ARMY_OFFSET_RADIUS: float = 60.0
 
 @onready var camera: Camera2D = $Camera2D
@@ -275,7 +274,7 @@ func _create_player_armies_from_squads(start_city: String):
 		for squad_data in GameManager.squad_data:
 			source_squads.append(squad_data.duplicate())
 	else:
-		source_squads = _split_characters_into_squads(GameManager.player_army, ARMIES_PER_FACTION)
+		source_squads = _split_characters_into_squads(GameManager.player_army, GameConstants.ARMIES_PER_FACTION)
 
 	# Place each army in a different connected city when possible
 	var placement_cities = _get_start_region_cities(start_city, source_squads.size())
@@ -294,6 +293,7 @@ func _create_player_armies_from_squads(start_city: String):
 		var army = _create_army(squad_data, city_id, army_type, offset)
 		army.army_id = "player_squad_%d" % squad_index
 		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
+		army.squad_index = squad_index
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
 		all_armies.append(army)
@@ -371,7 +371,7 @@ func _create_enemy_armies(player_faction: String):
 		if faction_chars.is_empty():
 			continue
 
-		var squads = _split_characters_into_squads(faction_chars, ARMIES_PER_FACTION)
+		var squads = _split_characters_into_squads(faction_chars, GameConstants.ARMIES_PER_FACTION)
 		var faction_cities = _get_faction_cities(faction)
 		if faction_cities.is_empty():
 			# Fallback: use the faction's predefined start city if no city on map matches
@@ -559,6 +559,13 @@ func _on_squad_menu_closed(saved: bool):
 		city_menu.visible = true
 	if saved and squad_menu:
 		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
+		_rebuild_player_armies_from_squads()
+
+func _rebuild_player_armies_from_squads():
+	"""Rebuild player armies from current squad configuration."""
+	_clear_armies()
+	_create_player_armies_from_squads(current_node_id)
+	_create_enemy_armies(current_faction)
 
 func _start_battle(attacker: Army, defender: Army):
 	current_phase = GamePhase.BATTLE
@@ -588,6 +595,9 @@ func _on_battle_ended(victory: bool):
 			map_data.NODE_CONFIG[city_id]["faction"] = current_faction
 			if map_data.map_nodes.has(city_id):
 				map_data.map_nodes[city_id].set_faction_color(current_faction)
+	if not victory:
+		_destroy_defeated_player_armies()
+
 	var i = all_armies.size() - 1
 	while i >= 0:
 		if not is_instance_valid(all_armies[i]):
@@ -620,3 +630,22 @@ func _on_battle_ended(victory: bool):
 		planning_ui.visible = true
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
+
+func _destroy_defeated_player_armies():
+	"""Destroy player armies that lost the battle (permadeath)."""
+	for army in battling_armies:
+		if is_instance_valid(army) and army.army_type != Army.ArmyType.ENEMY:
+			if army.squad_index >= 0 and army.squad_index < GameManager.squad_data.size():
+				GameManager.destroy_squad_after_defeat(army.squad_index)
+			_remove_army(army)
+
+func _remove_army(army: Army):
+	"""Remove an army from tracking arrays and queue it for deletion."""
+	if not is_instance_valid(army):
+		return
+	all_armies.erase(army)
+	player_armies.erase(army)
+	enemy_armies.erase(army)
+	if selected_army == army:
+		selected_army = null
+	army.queue_free()

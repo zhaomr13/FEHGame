@@ -95,3 +95,18 @@ func _on_unit_acted(unit: BattleUnit):
 
 func _on_battle_finished(victory: bool):
 	battle_finished.emit(victory)
+	_cleanup_battle_units()
+
+func _cleanup_battle_units():
+	"""Free all battle units and clear tracking arrays to prevent stale references."""
+	for unit in all_units:
+		if is_instance_valid(unit):
+			unit.queue_free()
+	player_units.clear()
+	enemy_units.clear()
+	all_units.clear()
+	if status_panel:
+		status_panel.cleanup_status_entries()
+	is_battle_active = false
+	is_combat_running = false
+	current_turn = 0

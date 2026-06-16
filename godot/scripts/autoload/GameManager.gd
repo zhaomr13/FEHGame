@@ -12,9 +12,9 @@ var player_gold: int = 1000
 var current_battle_background: String = "plain"
 var current_faction: String = ""
 
-# Squad system: 3 squads max, 6 characters per squad
-# squad_data[0] = squad 1, squad_data[1] = squad 2, squad_data[2] = squad 3
-var squad_data: Array = [[], [], []]
+# Squad system: dynamic squads, max 10 squads, 6 characters per squad
+# squad_data is an Array of Arrays, each inner array is a squad's CharacterData[]
+var squad_data: Array = []
 var unassigned_units: Array[CharacterData] = []
 
 # All available characters in the game, assigned to factions
@@ -84,22 +84,32 @@ func end_battle(victory: bool):
 
 # Squad management functions
 func initialize_squads():
-    """Initialize squads from player_army - all unassigned"""
-    squad_data = [[], [], []]
+    """Initialize squads from player_army - all unassigned, 10 empty squads"""
+    squad_data = []
+    for i in range(GameConstants.MAX_SQUADS):
+        squad_data.append([])
     unassigned_units = []
     for character in player_army:
         unassigned_units.append(character)
 
 func get_active_squads() -> Array:
-    """Return list of squads that have members"""
+    """Return list of squads that have members (non-empty)"""
     var active = []
     for squad in squad_data:
         if squad.size() > 0:
             active.append(squad)
     return active
 
+func get_active_squad_indices() -> Array[int]:
+    """Return indices of squads that have members"""
+    var indices: Array[int] = []
+    for i in range(squad_data.size()):
+        if squad_data[i].size() > 0:
+            indices.append(i)
+    return indices
+
 func get_squad(squad_index: int) -> Array:
-    """Get a specific squad by index (0-2)"""
+    """Get a specific squad by index"""
     if squad_index >= 0 and squad_index < squad_data.size():
         return squad_data[squad_index]
     return []
@@ -109,7 +119,7 @@ func update_squad_data(squads: Array, unassigned: Array[CharacterData]):
     squad_data = squads
     unassigned_units = unassigned
 
-    # Rebuild player_army in order (squad 1, 2, 3, unassigned)
+    # Rebuild player_army in order (squads, then unassigned)
     var new_army: Array[CharacterData] = []
     for squad in squad_data:
         for character in squad:
@@ -117,3 +127,51 @@ func update_squad_data(squads: Array, unassigned: Array[CharacterData]):
     for character in unassigned_units:
         new_army.append(character)
     player_army = new_army
+
+func create_squad() -> int:
+    """Create a new empty squad. Returns the new squad index, or -1 if at max."""
+    if squad_data.size() >= GameConstants.MAX_SQUADS:
+        return -1
+    squad_data.append([])
+    return squad_data.size() - 1
+
+func disband_squad(squad_index: int) -> bool:
+    """Disband a squad: all members become unassigned. Returns true if disbanded."""
+    if squad_index < 0 or squad_index >= squad_data.size():
+        return false
+    var squad = squad_data[squad_index]
+    for character in squad:
+        if not unassigned_units.has(character):
+            unassigned_units.append(character)
+    squad_data[squad_index].clear()
+    return true
+
+func remove_empty_squads():
+    """Remove all empty squads from the array, compacting indices."""
+    var new_squads: Array = []
+    for squad in squad_data:
+        if squad.size() > 0:
+            new_squads.append(squad)
+    squad_data = new_squads
+
+func destroy_squad_after_defeat(squad_index: int):
+    """Permanently destroy a squad after battle defeat. Characters are removed from the game."""
+    if squad_index < 0 or squad_index >= squad_data.size():
+        return
+    var squad = squad_data[squad_index]
+    for character in squad:
+        var idx = player_army.find(character)
+        if idx >= 0:
+            player_army.remove_at(idx)
+        var uidx = unassigned_units.find(character)
+        if uidx >= 0:
+            unassigned_units.remove_at(uidx)
+    squad_data[squad_index].clear()
+    remove_empty_squads()
+
+func get_squad_index_for_character(character: CharacterData) -> int:
+    """Find which squad index a character belongs to, or -1 if unassigned/not found."""
+    for i in range(squad_data.size()):
+        if squad_data[i].has(character):
+            return i
+    return -1
