@@ -137,11 +137,34 @@ func _initialize_all_characters():
 
 ## Implementation Status
 
-Implemented in commits:
+Initially implemented with a runtime `CharacterGenerator` (commits below). Later revised to store all 115 characters in a static YAML database loaded at runtime.
+
+### Initial Generator Implementation
 - `3f0aff1 style(character): rename char variable in roster test`
 - `bf7d61e feat(character): generate unique Chinese fantasy names`
 - `ba2029f feat(character): add class templates and stat variance`
 - `a2d4af8 feat(character): assign faction and random sprite folder to generated characters`
 - `9034194 feat(game_manager): append 100 generated characters to all_characters`
 
-Note: Final Godot test execution was deferred by request; the test file includes all roster, class, faction, sprite, and GameManager integration assertions.
+### YAML Database Migration
+- `cf3fbc5 feat(utils): add lightweight YAML parser and tests`
+- `f792ca5 feat(character): add CharacterDatabase loader for YAML`
+- `359f02c feat(data): add character YAML database and generation script`
+- `2fbd0f2 refactor(game_manager): load characters from YAML database`
+- `de7d452 test(character): update roster test for YAML database`
+- `6b88c18 chore(character): remove CharacterGenerator`
+
+Note: Final Godot test execution was deferred by request; the test files include YAML parser, roster, class, faction, sprite, and GameManager integration assertions.
+
+## Post-Implementation Revision: YAML Database
+
+After the initial generator was implemented, the approach was revised to use a data-driven YAML database instead of runtime procedural generation:
+
+- All 115 characters (15 story + 100 generated) are now stored in `godot/data/characters.yaml`.
+- `godot/scripts/utils/YamlParser.gd` provides a lightweight subset YAML parser.
+- `godot/scripts/character/CharacterDatabase.gd` loads the YAML and constructs `CharacterData` resources.
+- `GameManager._initialize_all_characters()` loads the roster through `CharacterDatabase` instead of calling `CharacterGenerator`.
+- `CharacterGenerator.gd` was removed.
+- `tools/generate_characters_yaml.py` is a one-time script that can regenerate the YAML file from the original generator logic if needed.
+
+This makes the roster human-editable, version-controllable, and deterministic.
