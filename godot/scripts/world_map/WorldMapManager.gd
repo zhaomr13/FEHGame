@@ -277,15 +277,21 @@ func _create_player_armies_from_squads(start_city: String):
 	else:
 		source_squads = _split_characters_into_squads(GameManager.player_army, ARMIES_PER_FACTION)
 
+	# Place each army in a different connected city when possible
+	var placement_cities = _get_start_region_cities(start_city, source_squads.size())
+	if placement_cities.is_empty():
+		placement_cities = [start_city]
+
 	var squad_index = 0
 	for squad_data in source_squads:
 		if squad_data.is_empty():
 			squad_index += 1
 			continue
 
+		var city_id = placement_cities[squad_index % placement_cities.size()]
 		var army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
 		var offset = _army_offset(squad_index, source_squads.size())
-		var army = _create_army(squad_data, start_city, army_type, offset)
+		var army = _create_army(squad_data, city_id, army_type, offset)
 		army.army_id = "player_squad_%d" % squad_index
 		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
 		army.army_clicked.connect(_on_army_clicked)
@@ -339,6 +345,22 @@ func _get_faction_cities(faction: String) -> Array[String]:
 		if map_data.NODE_CONFIG[city_id].faction == faction:
 			cities.append(city_id)
 	return cities
+
+func _get_start_region_cities(start_city: String, count: int) -> Array[String]:
+	"""Return up to `count` connected cities starting from `start_city` using BFS."""
+	var result: Array[String] = []
+	if not map_data.NODE_CONFIG.has(start_city):
+		return result
+	var visited: Dictionary = {start_city: true}
+	var queue: Array[String] = [start_city]
+	while not queue.is_empty() and result.size() < count:
+		var current = queue.pop_front()
+		result.append(current)
+		for neighbor in map_data.NODE_CONFIG[current].connections:
+			if not visited.has(neighbor):
+				visited[neighbor] = true
+				queue.append(neighbor)
+	return result
 
 func _create_enemy_armies(player_faction: String):
 	var all_factions = ["askr", "embla", "nifl", "muspell"]
