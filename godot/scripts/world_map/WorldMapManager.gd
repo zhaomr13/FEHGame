@@ -21,6 +21,7 @@ var city_menu: Control = null
 var squad_menu: Control = null
 var selected_army: Army = null
 var planning_ui: Control = null
+var army_selection_popup: ArmySelectionPopup = null
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
@@ -90,13 +91,17 @@ func _on_node_clicked(node: MapNode):
 		return
 
 	if selected_army == null:
-		# Click own city with no army: select army there or open menu
-		if map_data.NODE_CONFIG[node.node_id].faction == current_faction:
-			var army_here = _get_army_at_city(node.node_id)
-			if army_here and army_here.army_type != Army.ArmyType.ENEMY:
-				_on_army_clicked(army_here)
-			else:
-				open_city_menu(node)
+		var garrisoned = _get_player_armies_at_city(node.node_id)
+		if garrisoned.size() == 1:
+			_on_army_clicked(garrisoned[0])
+		elif garrisoned.size() > 1:
+			if city_menu:
+				city_menu.visible = false
+			army_selection_popup.setup(garrisoned)
+			var screen_center = get_viewport().get_visible_rect().size / 2.0
+			army_selection_popup.popup_at(screen_center)
+		else:
+			open_city_menu(node)
 		return
 
 	# Army is selected — try to set route to clicked city
@@ -234,6 +239,13 @@ func _get_army_at_city(city_id: String) -> Army:
 		if is_instance_valid(army) and army.current_city_id == city_id:
 			return army
 	return null
+
+func _get_player_armies_at_city(city_id: String) -> Array[Army]:
+	var result: Array[Army] = []
+	for army in player_armies:
+		if is_instance_valid(army) and army.current_city_id == city_id:
+			result.append(army)
+	return result
 
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
@@ -417,6 +429,20 @@ func setup_ui():
 	setup_city_menu()
 	setup_squad_menu()
 	setup_planning_ui()
+	setup_army_selection_popup()
+
+func setup_army_selection_popup():
+	army_selection_popup = preload("res://scenes/ui/ArmySelectionPopup.tscn").instantiate()
+	ui.add_child(army_selection_popup)
+	army_selection_popup.army_selected.connect(_on_popup_army_selected)
+	army_selection_popup.cancelled.connect(_on_popup_cancelled)
+
+func _on_popup_army_selected(army: Army):
+	_on_army_clicked(army)
+
+func _on_popup_cancelled():
+	if city_menu:
+		city_menu.visible = true
 
 func setup_planning_ui():
 	planning_ui = Control.new()
