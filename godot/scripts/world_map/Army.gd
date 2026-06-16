@@ -28,6 +28,7 @@ var target_city_id: String = ""
 var from_city_id: String = ""
 var to_city_id: String = ""
 var squad_data: Array[CharacterData] = []
+var squad_index: int = -1  # Index into GameManager.squad_data, -1 if not linked
 
 # Planned route (set during planning, executed on End Planning)
 var planned_route: Array[Vector2] = []
