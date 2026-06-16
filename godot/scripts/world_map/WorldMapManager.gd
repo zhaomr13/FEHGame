@@ -44,6 +44,8 @@ const MAX_ZOOM: float = 1.5
 const WHEEL_ZOOM_FACTOR: float = 1.2
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
 const ENCOUNTER_DISTANCE: float = 30.0
+const ARMIES_PER_FACTION: int = 10
+const ARMY_OFFSET_RADIUS: float = 60.0
 
 @onready var camera: Camera2D = $Camera2D
 
@@ -260,14 +262,30 @@ func _clear_armies():
 	enemy_armies.clear()
 
 func _create_player_armies_from_squads(start_city: String):
-	var squad_index = 0
+	var source_squads: Array = []
+
+	# Use configured squads if any are non-empty; otherwise split player_army into 10 squads
+	var has_configured_squads = false
 	for squad_data in GameManager.squad_data:
+		if not squad_data.is_empty():
+			has_configured_squads = true
+			break
+
+	if has_configured_squads:
+		for squad_data in GameManager.squad_data:
+			source_squads.append(squad_data.duplicate())
+	else:
+		source_squads = _split_characters_into_squads(GameManager.player_army, ARMIES_PER_FACTION)
+
+	var squad_index = 0
+	for squad_data in source_squads:
 		if squad_data.is_empty():
 			squad_index += 1
 			continue
 
 		var army_type = Army.ArmyType.PLAYER_MAIN if squad_index == 0 else Army.ArmyType.PLAYER_SQUAD
-		var army = _create_army(squad_data, start_city, army_type)
+		var offset = _army_offset(squad_index, source_squads.size())
+		var army = _create_army(squad_data, start_city, army_type, offset)
 		army.army_id = "player_squad_%d" % squad_index
 		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
 		army.army_clicked.connect(_on_army_clicked)
@@ -284,7 +302,7 @@ func _create_player_armies_from_squads(start_city: String):
 		player_armies.append(army)
 		all_armies.append(army)
 
-func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.ArmyType.PLAYER_SQUAD) -> Army:
+func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.ArmyType.PLAYER_SQUAD, offset: Vector2 = Vector2.ZERO) -> Army:
 	var army = Army.new()
 	army.current_city_id = start_city
 	army.squad_data = _convert_squad_data(chars)
@@ -292,7 +310,7 @@ func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.A
 	army.movement_finished.connect(_on_army_movement_finished)
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
-		army.position = map_data.map_nodes[start_city].position + Vector2(20, -20)
+		army.position = map_data.map_nodes[start_city].position + offset
 	return army
 
 func _convert_squad_data(data: Array) -> Array[CharacterData]:
@@ -302,6 +320,26 @@ func _convert_squad_data(data: Array) -> Array[CharacterData]:
 			result.append(char)
 	return result
 
+func _army_offset(index: int, total: int) -> Vector2:
+	var angle = 2.0 * PI * index / max(1, total)
+	return Vector2(cos(angle), sin(angle)) * ARMY_OFFSET_RADIUS
+
+func _split_characters_into_squads(characters: Array, squad_count: int) -> Array[Array]:
+	var squads: Array[Array] = []
+	for i in range(squad_count):
+		squads.append([])
+	for i in range(characters.size()):
+		var squad_index = i % max(1, squad_count)
+		squads[squad_index].append(characters[i])
+	return squads
+
+func _get_faction_cities(faction: String) -> Array[String]:
+	var cities: Array[String] = []
+	for city_id in map_data.NODE_CONFIG.keys():
+		if map_data.NODE_CONFIG[city_id].faction == faction:
+			cities.append(city_id)
+	return cities
+
 func _create_enemy_armies(player_faction: String):
 	var all_factions = ["askr", "embla", "nifl", "muspell"]
 	for faction in all_factions:
@@ -310,15 +348,24 @@ func _create_enemy_armies(player_faction: String):
 		var faction_chars = GameManager.get_characters_by_faction(faction)
 		if faction_chars.is_empty():
 			continue
-		for city_id in map_data.NODE_CONFIG.keys():
-			if map_data.NODE_CONFIG[city_id].faction == faction:
-				var army = _create_army(faction_chars, city_id, Army.ArmyType.ENEMY)
-				army.army_id = "enemy_%s" % faction
-				army.army_name = "Enemy: " + faction.capitalize()
-				army.army_clicked.connect(_on_army_clicked)
-				enemy_armies.append(army)
-				all_armies.append(army)
-				break
+
+		var squads = _split_characters_into_squads(faction_chars, ARMIES_PER_FACTION)
+		var faction_cities = _get_faction_cities(faction)
+		if faction_cities.is_empty():
+			# Fallback: use the faction's predefined start city if no city on map matches
+			faction_cities = ["city_01"]
+
+		for i in range(squads.size()):
+			if squads[i].is_empty():
+				continue
+			var city_id = faction_cities[i % faction_cities.size()]
+			var offset = _army_offset(i, squads.size())
+			var army = _create_army(squads[i], city_id, Army.ArmyType.ENEMY, offset)
+			army.army_id = "enemy_%s_%d" % [faction, i]
+			army.army_name = "Enemy %s %d" % [faction.capitalize(), i + 1]
+			army.army_clicked.connect(_on_army_clicked)
+			enemy_armies.append(army)
+			all_armies.append(army)
 
 func _plan_ai_moves():
 	for enemy in enemy_armies:

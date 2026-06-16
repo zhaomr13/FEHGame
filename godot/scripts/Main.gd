@@ -77,9 +77,8 @@ func initialize_player_army(faction: String):
 	if faction_characters.is_empty():
 		faction_characters = GameManager.get_characters_by_faction("")
 
-	# Assign up to 3 characters to player
-	for i in range(min(3, faction_characters.size())):
-		var character = faction_characters[i]
+	# Assign all faction characters to player
+	for character in faction_characters:
 		character.faction = faction  # Ensure faction is set correctly
 		GameManager.player_army.append(character)
 		print("Assigned ", character.character_name, " to player faction ", faction)
