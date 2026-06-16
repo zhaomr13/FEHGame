@@ -541,6 +541,7 @@ func _start_execution():
 	_plan_ai_moves()
 	for army in all_armies:
 		if is_instance_valid(army) and army.has_plan():
+			army.update_visibility()
 			army.execute_plan()
 			_executing_armies[army] = true
 	if clock:
