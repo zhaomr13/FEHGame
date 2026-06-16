@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://squad_menu"]
+[gd_scene load_steps=5 format=3 uid="uid://squad_menu"]
 
 [ext_resource type="Script" path="res://scripts/ui/SquadMenu.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuData.gd" id="2_data"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuLists.gd" id="3_lists"]
+[ext_resource type="Script" path="res://scripts/ui/SquadMenuActions.gd" id="4_actions"]
 
 [node name="SquadMenu" type="Control"]
 layout_mode = 3
@@ -10,6 +13,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
+
+[node name="SquadMenuData" type="Node" parent="."]
+script = ExtResource("2_data")
+
+[node name="SquadMenuLists" type="Node" parent="."]
+script = ExtResource("3_lists")
+
+[node name="SquadMenuActions" type="Node" parent="."]
+script = ExtResource("4_actions")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -50,79 +62,20 @@ horizontal_alignment = 1
 [node name="SubtitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "Assign characters to squads (max 6 per squad, 3 squads max)"
+text = "Assign characters to squads (max 6 per squad, up to 10 squads)"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="SquadContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="SquadScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SquadContainer" type="HBoxContainer" parent="Panel/VBoxContainer/SquadScrollContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 20
-
-[node name="Squad1Panel" type="VBoxContainer" parent="Panel/VBoxContainer/SquadContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Squad1Label" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad1Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Squad 1"
-horizontal_alignment = 1
-
-[node name="Squad1List" type="ItemList" parent="Panel/VBoxContainer/SquadContainer/Squad1Panel"]
-layout_mode = 2
-size_flags_vertical = 3
-select_mode = 0
-
-[node name="Squad1Count" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad1Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "0/6 members"
-horizontal_alignment = 1
-
-[node name="Squad2Panel" type="VBoxContainer" parent="Panel/VBoxContainer/SquadContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Squad2Label" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad2Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Squad 2"
-horizontal_alignment = 1
-
-[node name="Squad2List" type="ItemList" parent="Panel/VBoxContainer/SquadContainer/Squad2Panel"]
-layout_mode = 2
-size_flags_vertical = 3
-select_mode = 0
-
-[node name="Squad2Count" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad2Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "0/6 members"
-horizontal_alignment = 1
-
-[node name="Squad3Panel" type="VBoxContainer" parent="Panel/VBoxContainer/SquadContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Squad3Label" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad3Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Squad 3"
-horizontal_alignment = 1
-
-[node name="Squad3List" type="ItemList" parent="Panel/VBoxContainer/SquadContainer/Squad3Panel"]
-layout_mode = 2
-size_flags_vertical = 3
-select_mode = 0
-
-[node name="Squad3Count" type="Label" parent="Panel/VBoxContainer/SquadContainer/Squad3Panel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "0/6 members"
-horizontal_alignment = 1
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -158,24 +111,24 @@ layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 1
 
-[node name="ToSquad1Button" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
+[node name="CreateSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(100, 40)
-text = "→ Squad 1"
+custom_minimum_size = Vector2(120, 40)
+text = "+ Create Squad"
 
-[node name="ToSquad2Button" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
+[node name="DisbandSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(100, 40)
-text = "→ Squad 2"
+custom_minimum_size = Vector2(120, 40)
+text = "- Disband Squad"
 
-[node name="ToSquad3Button" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
+[node name="MoveToSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(100, 40)
-text = "→ Squad 3"
+custom_minimum_size = Vector2(140, 40)
+text = "→ Move to Squad"
 
 [node name="RemoveButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(100, 40)
+custom_minimum_size = Vector2(120, 40)
 text = "← Remove"
 
 [node name="ActionContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]

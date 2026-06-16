@@ -1,22 +1,27 @@
-[gd_scene load_steps=4 format=3 uid="uid://battlescene_base"]
+[gd_scene load_steps=9 format=3 uid="uid://battlescene_base"]
 
 [ext_resource type="Script" path="res://scripts/battle/BattleManager.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/battle/backgrounds/plain_bg.png" id="2_bg"]
-[ext_resource type="Texture2D" path="res://assets/battle/backgrounds/plain_fg.png" id="3_fg"]
+[ext_resource type="Script" path="res://scripts/battle/BattleBackgroundManager.gd" id="2_bgscript"]
+[ext_resource type="Script" path="res://scripts/battle/BattleDeploymentManager.gd" id="3_deploy"]
+[ext_resource type="Script" path="res://scripts/battle/BattleUnitFactory.gd" id="4_factory"]
+[ext_resource type="Script" path="res://scripts/battle/BattleStatusPanel.gd" id="5_status"]
+[ext_resource type="Script" path="res://scripts/battle/BattleTurnManager.gd" id="6_turn"]
+[ext_resource type="Texture2D" path="res://assets/battle/backgrounds/plain_bg.png" id="7_bg"]
+[ext_resource type="Texture2D" path="res://assets/battle/backgrounds/plain_fg.png" id="8_fg"]
 
 [node name="BattleScene" type="Node2D"]
 script = ExtResource("1_script")
 
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -2
-texture = ExtResource("2_bg")
+texture = ExtResource("7_bg")
 centered = true
 position = Vector2(640, 360)
 
 [node name="Foreground" type="Sprite2D" parent="."]
 visible = false
 z_index = 10
-texture = ExtResource("3_fg")
+texture = ExtResource("8_fg")
 centered = true
 position = Vector2(640, 360)
 
@@ -43,3 +48,18 @@ offset_left = 1080.0
 offset_top = 100.0
 offset_right = 1260.0
 offset_bottom = 400.0
+
+[node name="BattleBackgroundManager" type="Node2D" parent="."]
+script = ExtResource("2_bgscript")
+
+[node name="BattleDeploymentManager" type="Node2D" parent="."]
+script = ExtResource("3_deploy")
+
+[node name="BattleUnitFactory" type="Node2D" parent="."]
+script = ExtResource("4_factory")
+
+[node name="BattleStatusPanel" type="Node2D" parent="."]
+script = ExtResource("5_status")
+
+[node name="BattleTurnManager" type="Node2D" parent="."]
+script = ExtResource("6_turn")

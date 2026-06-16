@@ -41,3 +41,8 @@ enum Formation {
 const SCREEN_WIDTH = 1280
 const SCREEN_HEIGHT = 720
 const TILE_SIZE = 64
+
+# Squad system
+const MAX_SQUAD_SIZE: int = 6
+const MAX_SQUADS: int = 10
+const ARMIES_PER_FACTION: int = 10

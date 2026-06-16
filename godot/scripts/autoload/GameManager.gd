@@ -12,9 +12,9 @@ var player_gold: int = 1000
 var current_battle_background: String = "plain"
 var current_faction: String = ""
 
-# Squad system: 3 squads max, 6 characters per squad
-# squad_data[0] = squad 1, squad_data[1] = squad 2, squad_data[2] = squad 3
-var squad_data: Array = [[], [], []]
+# Squad system: dynamic squads, max 10 squads, 6 characters per squad
+# squad_data is an Array of Arrays, each inner array is a squad's CharacterData[]
+var squad_data: Array = []
 var unassigned_units: Array[CharacterData] = []
 
 # All available characters in the game, assigned to factions
@@ -24,75 +24,23 @@ var available_recruits: Array[CharacterData] = []  # Characters that can be recr
 func _ready():
     print("GameManager initialized")
     _initialize_all_characters()
+    var t = Time.get_ticks_msec()
+    var count = 0
+    var done = {}
+    for cd in all_characters:
+        var folder = cd.sprite_frames_path.get_base_dir()
+        if not done.has(folder):
+            done[folder] = true
+            preload("res://scripts/AtlasLoader.gd").load_character_atlas(folder)
+            count += 1
+    print("Preloaded ", count, " sprite atlases in ", Time.get_ticks_msec() - t, "ms")
 
 func _initialize_all_characters():
-    """Initialize all characters in the game world with their faction affiliations"""
+    """Initialize all characters by loading them from the YAML database."""
     all_characters.clear()
-
-    # Askr Kingdom characters
-    _create_character("Sharena", GameConstants.CharacterClass.KNIGHT, "askr", "lance", "char_02_lilina")
-    _create_character("Alfonse", GameConstants.CharacterClass.LORD, "askr", "sword", "char_01_alm")
-    _create_character("Anna", GameConstants.CharacterClass.FIGHTER, "askr", "axe", "char_08_robin")
-
-    # Embla Empire characters
-    _create_character("Veronica", GameConstants.CharacterClass.MAGE, "embla", "magic", "char_02_lilina")
-    _create_character("Bruno", GameConstants.CharacterClass.LORD, "embla", "sword", "char_01_alm")
-    _create_character("Loki", GameConstants.CharacterClass.ARCHER, "embla", "bow", "char_09_rebecca")
-
-    # Nifl Kingdom characters
-    _create_character("Gunnthra", GameConstants.CharacterClass.MAGE, "nifl", "magic", "char_02_lilina")
-    _create_character("Hrid", GameConstants.CharacterClass.LORD, "nifl", "sword", "char_01_alm")
-    _create_character("Ylgr", GameConstants.CharacterClass.FIGHTER, "nifl", "axe", "char_03_dorcas")
-
-    # Muspell characters
-    _create_character("Laevatein", GameConstants.CharacterClass.KNIGHT, "muspell", "sword", "char_10_hector")
-    _create_character("Laegjarn", GameConstants.CharacterClass.KNIGHT, "muspell", "lance", "char_04_abel")
-    _create_character("Helbindi", GameConstants.CharacterClass.FIGHTER, "muspell", "axe", "char_03_dorcas")
-
-    # Neutral/Independent characters
-    _create_character("Klein", GameConstants.CharacterClass.ARCHER, "", "bow", "char_05_klein")
-    _create_character("Rebecca", GameConstants.CharacterClass.ARCHER, "", "bow", "char_09_rebecca")
-    _create_character("Lyn", GameConstants.CharacterClass.LORD, "", "sword", "char_07_lyn")
-
-func _create_character(name: String, char_class: GameConstants.CharacterClass, faction: String, weapon: String, sprite_folder: String):
-    var char_data = CharacterData.new()
-    char_data.character_name = name
-    char_data.character_class = char_class
-    char_data.faction = faction
-    char_data.weapon_type = weapon
-    char_data.sprite_frames_path = "res://assets/characters/" + sprite_folder + "/"
-    char_data.setup_default_tactics()
-
-    # Set stats based on class
-    match char_class:
-        GameConstants.CharacterClass.LORD:
-            char_data.max_hp = 25
-            char_data.attack = 8
-            char_data.defense = 5
-            char_data.speed = 6
-        GameConstants.CharacterClass.KNIGHT:
-            char_data.max_hp = 30
-            char_data.attack = 7
-            char_data.defense = 8
-            char_data.speed = 4
-        GameConstants.CharacterClass.FIGHTER:
-            char_data.max_hp = 28
-            char_data.attack = 9
-            char_data.defense = 4
-            char_data.speed = 5
-        GameConstants.CharacterClass.MAGE:
-            char_data.max_hp = 20
-            char_data.attack = 10
-            char_data.defense = 3
-            char_data.speed = 6
-        GameConstants.CharacterClass.ARCHER:
-            char_data.max_hp = 22
-            char_data.attack = 8
-            char_data.defense = 4
-            char_data.speed = 7
-
-    char_data.current_hp = char_data.max_hp
-    all_characters.append(char_data)
+    var db = CharacterDatabase.new()
+    all_characters = db.load_all_characters()
+    print("Loaded ", all_characters.size(), " characters from database")
 
 func get_characters_by_faction(faction: String) -> Array[CharacterData]:
     """Get all characters belonging to a specific faction"""
@@ -129,7 +77,6 @@ func start_battle(player_units: Array, enemy_units: Array):
 func start_battle_with_background(player_units: Array, enemy_units: Array, background_type: String):
     current_battle_background = background_type
     battle_started_with_background.emit(player_units, enemy_units, background_type)
-    change_state(GameConstants.GameState.BATTLE_DEPLOYMENT)
 
 func end_battle(victory: bool):
     battle_ended.emit(victory)
@@ -137,22 +84,32 @@ func end_battle(victory: bool):
 
 # Squad management functions
 func initialize_squads():
-    """Initialize squads from player_army - all unassigned"""
-    squad_data = [[], [], []]
+    """Initialize squads from player_army - all unassigned, 10 empty squads"""
+    squad_data = []
+    for i in range(GameConstants.MAX_SQUADS):
+        squad_data.append([])
     unassigned_units = []
     for character in player_army:
         unassigned_units.append(character)
 
 func get_active_squads() -> Array:
-    """Return list of squads that have members"""
+    """Return list of squads that have members (non-empty)"""
     var active = []
     for squad in squad_data:
         if squad.size() > 0:
             active.append(squad)
     return active
 
+func get_active_squad_indices() -> Array[int]:
+    """Return indices of squads that have members"""
+    var indices: Array[int] = []
+    for i in range(squad_data.size()):
+        if squad_data[i].size() > 0:
+            indices.append(i)
+    return indices
+
 func get_squad(squad_index: int) -> Array:
-    """Get a specific squad by index (0-2)"""
+    """Get a specific squad by index"""
     if squad_index >= 0 and squad_index < squad_data.size():
         return squad_data[squad_index]
     return []
@@ -162,7 +119,7 @@ func update_squad_data(squads: Array, unassigned: Array[CharacterData]):
     squad_data = squads
     unassigned_units = unassigned
 
-    # Rebuild player_army in order (squad 1, 2, 3, unassigned)
+    # Rebuild player_army in order (squads, then unassigned)
     var new_army: Array[CharacterData] = []
     for squad in squad_data:
         for character in squad:
@@ -170,3 +127,51 @@ func update_squad_data(squads: Array, unassigned: Array[CharacterData]):
     for character in unassigned_units:
         new_army.append(character)
     player_army = new_army
+
+func create_squad() -> int:
+    """Create a new empty squad. Returns the new squad index, or -1 if at max."""
+    if squad_data.size() >= GameConstants.MAX_SQUADS:
+        return -1
+    squad_data.append([])
+    return squad_data.size() - 1
+
+func disband_squad(squad_index: int) -> bool:
+    """Disband a squad: all members become unassigned. Returns true if disbanded."""
+    if squad_index < 0 or squad_index >= squad_data.size():
+        return false
+    var squad = squad_data[squad_index]
+    for character in squad:
+        if not unassigned_units.has(character):
+            unassigned_units.append(character)
+    squad_data[squad_index].clear()
+    return true
+
+func remove_empty_squads():
+    """Remove all empty squads from the array, compacting indices."""
+    var new_squads: Array = []
+    for squad in squad_data:
+        if squad.size() > 0:
+            new_squads.append(squad)
+    squad_data = new_squads
+
+func destroy_squad_after_defeat(squad_index: int):
+    """Permanently destroy a squad after battle defeat. Characters are removed from the game."""
+    if squad_index < 0 or squad_index >= squad_data.size():
+        return
+    var squad = squad_data[squad_index]
+    for character in squad:
+        var idx = player_army.find(character)
+        if idx >= 0:
+            player_army.remove_at(idx)
+        var uidx = unassigned_units.find(character)
+        if uidx >= 0:
+            unassigned_units.remove_at(uidx)
+    squad_data[squad_index].clear()
+    remove_empty_squads()
+
+func get_squad_index_for_character(character: CharacterData) -> int:
+    """Find which squad index a character belongs to, or -1 if unassigned/not found."""
+    for i in range(squad_data.size()):
+        if squad_data[i].has(character):
+            return i
+    return -1

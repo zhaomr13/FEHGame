@@ -1,8 +1,13 @@
 extends Node
 ## Runtime atlas loader - creates SpriteFrames from JSON atlas without plugin
 
+static var _cache: Dictionary = {}
+
 ## Load all animations from a character folder (e.g., res://assets/characters/char_01_alm/)
 static func load_character_atlas(character_folder: String) -> SpriteFrames:
+	if _cache.has(character_folder):
+		return _cache[character_folder]
+
 	var sprite_frames = SpriteFrames.new()
 
 	# List of animation names to load
@@ -18,6 +23,7 @@ static func load_character_atlas(character_folder: String) -> SpriteFrames:
 
 		_load_single_animation(sprite_frames, anim_name, json_path, png_path)
 
+	_cache[character_folder] = sprite_frames
 	return sprite_frames
 
 ## Load a single animation into existing SpriteFrames
@@ -73,6 +79,10 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 		sprite_frames.add_frame(anim_name, atlas_tex, duration_frames)
 
 static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
+	var cache_key = json_path + "|" + png_path
+	if _cache.has(cache_key):
+		return _cache[cache_key]
+
 	var sprite_frames = SpriteFrames.new()
 
 	# Load JSON
@@ -136,4 +146,5 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 
 			sprite_frames.add_frame(anim_name, atlas_tex, duration_frames)
 
+	_cache[cache_key] = sprite_frames
 	return sprite_frames

@@ -1,0 +1,1728 @@
+# Character Database
+# 15 story characters + 100 generated characters
+
+characters:
+  - name: "Sharena"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 7
+    defense: 8
+    speed: 4
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_02_lilina"
+
+  - name: "Alfonse"
+    class: "LORD"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 5
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_01_alm"
+
+  - name: "Anna"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 9
+    defense: 4
+    speed: 5
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_08_robin"
+
+  - name: "Veronica"
+    class: "MAGE"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 10
+    defense: 3
+    speed: 6
+    leadership: 5
+    weapon_type: "magic"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_02_lilina"
+
+  - name: "Bruno"
+    class: "LORD"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 5
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_01_alm"
+
+  - name: "Loki"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 8
+    defense: 4
+    speed: 7
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_09_rebecca"
+
+  - name: "Gunnthra"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 10
+    defense: 3
+    speed: 6
+    leadership: 5
+    weapon_type: "magic"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_02_lilina"
+
+  - name: "Hrid"
+    class: "LORD"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 5
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_01_alm"
+
+  - name: "Ylgr"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 9
+    defense: 4
+    speed: 5
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_03_dorcas"
+
+  - name: "Laevatein"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 7
+    defense: 8
+    speed: 4
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_10_hector"
+
+  - name: "Laegjarn"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 7
+    defense: 8
+    speed: 4
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_04_abel"
+
+  - name: "Helbindi"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 9
+    defense: 4
+    speed: 5
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_03_dorcas"
+
+  - name: "Klein"
+    class: "ARCHER"
+    faction: ""
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 8
+    defense: 4
+    speed: 7
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_05_klein"
+
+  - name: "Rebecca"
+    class: "ARCHER"
+    faction: ""
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 8
+    defense: 4
+    speed: 7
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_09_rebecca"
+
+  - name: "Lyn"
+    class: "LORD"
+    faction: ""
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 5
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_07_lyn"
+
+  - name: "雷斯罗妮"
+    class: "LORD"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 8
+    defense: 4
+    speed: 5
+    leadership: 4
+    weapon_type: "sword"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_armorsw"
+
+  - name: "格露因露"
+    class: "LORD"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 6
+    defense: 4
+    speed: 5
+    leadership: 7
+    weapon_type: "sword"
+    soldiers: 109
+    max_soldiers: 109
+    sprite_folder: "char_01_alm"
+
+  - name: "希妮"
+    class: "ARCHER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 7
+    defense: 5
+    speed: 9
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 80
+    max_soldiers: 80
+    sprite_folder: "char_diadora"
+
+  - name: "莉鲁"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 8
+    defense: 3
+    speed: 5
+    leadership: 3
+    weapon_type: "axe"
+    soldiers: 92
+    max_soldiers: 92
+    sprite_folder: "char_08_robin"
+
+  - name: "雷娅"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 9
+    defense: 2
+    speed: 6
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_08_robin"
+
+  - name: "婕斯"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 6
+    speed: 6
+    leadership: 3
+    weapon_type: "bow"
+    soldiers: 81
+    max_soldiers: 81
+    sprite_folder: "char_armorsw"
+
+  - name: "菲克克"
+    class: "KNIGHT"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 33
+    attack: 5
+    defense: 9
+    speed: 4
+    leadership: 6
+    weapon_type: "lance"
+    soldiers: 130
+    max_soldiers: 130
+    sprite_folder: "char_sylvia"
+
+  - name: "菲奥"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 32
+    attack: 7
+    defense: 6
+    speed: 6
+    leadership: 4
+    weapon_type: "lance"
+    soldiers: 127
+    max_soldiers: 127
+    sprite_folder: "char_beleth"
+
+  - name: "凯拉"
+    class: "MAGE"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 12
+    defense: 2
+    speed: 6
+    leadership: 3
+    weapon_type: "magic"
+    soldiers: 77
+    max_soldiers: 77
+    sprite_folder: "char_sylvia"
+
+  - name: "乌奥特"
+    class: "FIGHTER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 8
+    defense: 6
+    speed: 5
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_09_rebecca"
+
+  - name: "梅克娜特"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 26
+    attack: 8
+    defense: 6
+    speed: 7
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 108
+    max_soldiers: 108
+    sprite_folder: "char_08_robin"
+
+  - name: "诺万斯拉"
+    class: "ARCHER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 6
+    defense: 2
+    speed: 5
+    leadership: 4
+    weapon_type: "bow"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_03_dorcas"
+
+  - name: "迪雅索德"
+    class: "MAGE"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 21
+    attack: 11
+    defense: 5
+    speed: 6
+    leadership: 7
+    weapon_type: "magic"
+    soldiers: 70
+    max_soldiers: 70
+    sprite_folder: "char_armorsw"
+
+  - name: "佐索"
+    class: "FIGHTER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 9
+    defense: 2
+    speed: 5
+    leadership: 6
+    weapon_type: "axe"
+    soldiers: 95
+    max_soldiers: 95
+    sprite_folder: "char_09_rebecca"
+
+  - name: "格特克肯"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 8
+    defense: 6
+    speed: 3
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_10_hector"
+
+  - name: "莉索"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 9
+    defense: 6
+    speed: 6
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 125
+    max_soldiers: 125
+    sprite_folder: "char_01_alm"
+
+  - name: "塞肯德"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 26
+    attack: 7
+    defense: 3
+    speed: 7
+    leadership: 3
+    weapon_type: "axe"
+    soldiers: 92
+    max_soldiers: 92
+    sprite_folder: "char_beleth"
+
+  - name: "诺优迦德"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 8
+    defense: 10
+    speed: 3
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 126
+    max_soldiers: 126
+    sprite_folder: "char_sylvia"
+
+  - name: "海娜"
+    class: "KNIGHT"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 32
+    attack: 7
+    defense: 9
+    speed: 4
+    leadership: 6
+    weapon_type: "lance"
+    soldiers: 126
+    max_soldiers: 126
+    sprite_folder: "char_09_rebecca"
+
+  - name: "塞露"
+    class: "LORD"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 6
+    defense: 7
+    speed: 8
+    leadership: 4
+    weapon_type: "sword"
+    soldiers: 108
+    max_soldiers: 108
+    sprite_folder: "char_04_abel"
+
+  - name: "维恩优"
+    class: "LORD"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 6
+    defense: 3
+    speed: 6
+    leadership: 3
+    weapon_type: "sword"
+    soldiers: 106
+    max_soldiers: 106
+    sprite_folder: "char_04_abel"
+
+  - name: "格雷雷"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 10
+    defense: 6
+    speed: 8
+    leadership: 4
+    weapon_type: "bow"
+    soldiers: 95
+    max_soldiers: 95
+    sprite_folder: "char_diadora"
+
+  - name: "贝拉"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 11
+    defense: 4
+    speed: 7
+    leadership: 3
+    weapon_type: "magic"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_armorsw"
+
+  - name: "诺卡"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 7
+    defense: 3
+    speed: 4
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 107
+    max_soldiers: 107
+    sprite_folder: "char_09_rebecca"
+
+  - name: "雷坦尔斯"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 8
+    defense: 2
+    speed: 6
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_01_alm"
+
+  - name: "梅尔"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 8
+    defense: 9
+    speed: 5
+    leadership: 4
+    weapon_type: "lance"
+    soldiers: 122
+    max_soldiers: 122
+    sprite_folder: "char_01_alm"
+
+  - name: "婕优"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 11
+    defense: 3
+    speed: 7
+    leadership: 7
+    weapon_type: "magic"
+    soldiers: 85
+    max_soldiers: 85
+    sprite_folder: "char_03_dorcas"
+
+  - name: "琪迦鲁"
+    class: "LORD"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 26
+    attack: 10
+    defense: 3
+    speed: 6
+    leadership: 3
+    weapon_type: "sword"
+    soldiers: 91
+    max_soldiers: 91
+    sprite_folder: "char_armorax"
+
+  - name: "维鲁"
+    class: "ARCHER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 6
+    defense: 6
+    speed: 5
+    leadership: 4
+    weapon_type: "bow"
+    soldiers: 82
+    max_soldiers: 82
+    sprite_folder: "char_armorax"
+
+  - name: "塞妮雅罗"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 5
+    defense: 10
+    speed: 3
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 129
+    max_soldiers: 129
+    sprite_folder: "char_01_alm"
+
+  - name: "艾雅因"
+    class: "ARCHER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 8
+    defense: 4
+    speed: 6
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 87
+    max_soldiers: 87
+    sprite_folder: "char_05_klein"
+
+  - name: "塞德"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 9
+    defense: 2
+    speed: 3
+    leadership: 6
+    weapon_type: "axe"
+    soldiers: 109
+    max_soldiers: 109
+    sprite_folder: "char_armorax"
+
+  - name: "菲奥坦"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 7
+    defense: 7
+    speed: 4
+    leadership: 3
+    weapon_type: "lance"
+    soldiers: 117
+    max_soldiers: 117
+    sprite_folder: "char_07_lyn"
+
+  - name: "迪索特姆"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 8
+    defense: 6
+    speed: 9
+    leadership: 3
+    weapon_type: "bow"
+    soldiers: 97
+    max_soldiers: 97
+    sprite_folder: "char_05_klein"
+
+  - name: "凯优雅因"
+    class: "LORD"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 10
+    defense: 4
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 109
+    max_soldiers: 109
+    sprite_folder: "char_04_abel"
+
+  - name: "贝尔文"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 10
+    defense: 4
+    speed: 3
+    leadership: 3
+    weapon_type: "axe"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_08_robin"
+
+  - name: "迪斯"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 32
+    attack: 7
+    defense: 7
+    speed: 5
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 123
+    max_soldiers: 123
+    sprite_folder: "char_10_hector"
+
+  - name: "贝娅"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 5
+    defense: 8
+    speed: 6
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 114
+    max_soldiers: 114
+    sprite_folder: "char_08_robin"
+
+  - name: "诺万马特"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 7
+    defense: 4
+    speed: 4
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_07_lyn"
+
+  - name: "诺巴雅"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 33
+    attack: 6
+    defense: 7
+    speed: 5
+    leadership: 3
+    weapon_type: "lance"
+    soldiers: 115
+    max_soldiers: 115
+    sprite_folder: "char_beleth"
+
+  - name: "欧克"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 6
+    defense: 6
+    speed: 5
+    leadership: 3
+    weapon_type: "lance"
+    soldiers: 125
+    max_soldiers: 125
+    sprite_folder: "char_04_abel"
+
+  - name: "塞肯姆"
+    class: "FIGHTER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 8
+    defense: 3
+    speed: 3
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 102
+    max_soldiers: 102
+    sprite_folder: "char_07_lyn"
+
+  - name: "菲罗姆"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 11
+    defense: 5
+    speed: 7
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_02_lilina"
+
+  - name: "迪拉索罗"
+    class: "LORD"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 10
+    defense: 6
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 103
+    max_soldiers: 103
+    sprite_folder: "char_armorax"
+
+  - name: "佐马雅优"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 5
+    defense: 9
+    speed: 2
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 127
+    max_soldiers: 127
+    sprite_folder: "char_armorsw"
+
+  - name: "琪娅雅"
+    class: "FIGHTER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 28
+    attack: 7
+    defense: 4
+    speed: 7
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_beleth"
+
+  - name: "梅雅马索"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 11
+    defense: 3
+    speed: 8
+    leadership: 4
+    weapon_type: "magic"
+    soldiers: 76
+    max_soldiers: 76
+    sprite_folder: "char_08_robin"
+
+  - name: "格妮巴"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 9
+    defense: 8
+    speed: 5
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_05_klein"
+
+  - name: "佐卡雅"
+    class: "ARCHER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 8
+    defense: 5
+    speed: 8
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 86
+    max_soldiers: 86
+    sprite_folder: "char_10_hector"
+
+  - name: "海巴优"
+    class: "LORD"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 10
+    defense: 7
+    speed: 6
+    leadership: 3
+    weapon_type: "sword"
+    soldiers: 97
+    max_soldiers: 97
+    sprite_folder: "char_armorsw"
+
+  - name: "乌罗优"
+    class: "KNIGHT"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 5
+    defense: 7
+    speed: 5
+    leadership: 7
+    weapon_type: "lance"
+    soldiers: 112
+    max_soldiers: 112
+    sprite_folder: "char_09_rebecca"
+
+  - name: "海卡巴"
+    class: "MAGE"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 11
+    defense: 2
+    speed: 5
+    leadership: 3
+    weapon_type: "magic"
+    soldiers: 73
+    max_soldiers: 73
+    sprite_folder: "char_diadora"
+
+  - name: "维丝德"
+    class: "ARCHER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 6
+    defense: 6
+    speed: 6
+    leadership: 3
+    weapon_type: "bow"
+    soldiers: 94
+    max_soldiers: 94
+    sprite_folder: "char_03_dorcas"
+
+  - name: "佐鲁"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 21
+    attack: 9
+    defense: 6
+    speed: 9
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 97
+    max_soldiers: 97
+    sprite_folder: "char_09_rebecca"
+
+  - name: "伊奥"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 10
+    defense: 2
+    speed: 6
+    leadership: 7
+    weapon_type: "magic"
+    soldiers: 85
+    max_soldiers: 85
+    sprite_folder: "char_armorsw"
+
+  - name: "艾特"
+    class: "LORD"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 8
+    defense: 4
+    speed: 6
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 100
+    max_soldiers: 100
+    sprite_folder: "char_10_hector"
+
+  - name: "欧妮方优"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 6
+    defense: 7
+    speed: 2
+    leadership: 6
+    weapon_type: "lance"
+    soldiers: 123
+    max_soldiers: 123
+    sprite_folder: "char_07_lyn"
+
+  - name: "婕肯拉"
+    class: "MAGE"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 12
+    defense: 1
+    speed: 8
+    leadership: 6
+    weapon_type: "magic"
+    soldiers: 85
+    max_soldiers: 85
+    sprite_folder: "char_01_alm"
+
+  - name: "普尔拉"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 21
+    attack: 12
+    defense: 5
+    speed: 5
+    leadership: 6
+    weapon_type: "magic"
+    soldiers: 77
+    max_soldiers: 77
+    sprite_folder: "char_05_klein"
+
+  - name: "梅罗"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 10
+    defense: 3
+    speed: 6
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 109
+    max_soldiers: 109
+    sprite_folder: "char_10_hector"
+
+  - name: "伊拉"
+    class: "ARCHER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 6
+    defense: 2
+    speed: 8
+    leadership: 4
+    weapon_type: "bow"
+    soldiers: 94
+    max_soldiers: 94
+    sprite_folder: "char_03_dorcas"
+
+  - name: "伊坦斯"
+    class: "FIGHTER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 26
+    attack: 10
+    defense: 4
+    speed: 5
+    leadership: 6
+    weapon_type: "axe"
+    soldiers: 98
+    max_soldiers: 98
+    sprite_folder: "char_diadora"
+
+  - name: "贝肯尔娜"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 17
+    attack: 12
+    defense: 1
+    speed: 6
+    leadership: 4
+    weapon_type: "magic"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_02_lilina"
+
+  - name: "迪罗优奥"
+    class: "KNIGHT"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 33
+    attack: 5
+    defense: 10
+    speed: 3
+    leadership: 4
+    weapon_type: "lance"
+    soldiers: 114
+    max_soldiers: 114
+    sprite_folder: "char_09_rebecca"
+
+  - name: "婕雷"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 9
+    defense: 3
+    speed: 7
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 93
+    max_soldiers: 93
+    sprite_folder: "char_diadora"
+
+  - name: "希坦因娜"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 8
+    defense: 6
+    speed: 8
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 86
+    max_soldiers: 86
+    sprite_folder: "char_02_lilina"
+
+  - name: "诺雅克斯"
+    class: "LORD"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 8
+    defense: 7
+    speed: 4
+    leadership: 7
+    weapon_type: "sword"
+    soldiers: 91
+    max_soldiers: 91
+    sprite_folder: "char_07_lyn"
+
+  - name: "乌索坦"
+    class: "ARCHER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 8
+    defense: 2
+    speed: 8
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 83
+    max_soldiers: 83
+    sprite_folder: "char_08_robin"
+
+  - name: "雷肯恩奥"
+    class: "MAGE"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 9
+    defense: 4
+    speed: 5
+    leadership: 7
+    weapon_type: "magic"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_05_klein"
+
+  - name: "海肯奥"
+    class: "MAGE"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 12
+    defense: 3
+    speed: 6
+    leadership: 4
+    weapon_type: "magic"
+    soldiers: 72
+    max_soldiers: 72
+    sprite_folder: "char_05_klein"
+
+  - name: "格克巴"
+    class: "ARCHER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 9
+    defense: 4
+    speed: 5
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_03_dorcas"
+
+  - name: "塞娜"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 9
+    defense: 6
+    speed: 5
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_10_hector"
+
+  - name: "塞娅"
+    class: "MAGE"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 12
+    defense: 2
+    speed: 7
+    leadership: 6
+    weapon_type: "magic"
+    soldiers: 84
+    max_soldiers: 84
+    sprite_folder: "char_diadora"
+
+  - name: "莉妮马德"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 6
+    defense: 8
+    speed: 6
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 125
+    max_soldiers: 125
+    sprite_folder: "char_10_hector"
+
+  - name: "格文雷马"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 10
+    defense: 4
+    speed: 5
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 97
+    max_soldiers: 97
+    sprite_folder: "char_02_lilina"
+
+  - name: "琪万娅雷"
+    class: "ARCHER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 7
+    defense: 3
+    speed: 6
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 88
+    max_soldiers: 88
+    sprite_folder: "char_beleth"
+
+  - name: "艾姆方方"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 6
+    defense: 8
+    speed: 3
+    leadership: 5
+    weapon_type: "lance"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_beleth"
+
+  - name: "普奥文"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 21
+    attack: 7
+    defense: 5
+    speed: 5
+    leadership: 3
+    weapon_type: "bow"
+    soldiers: 98
+    max_soldiers: 98
+    sprite_folder: "char_05_klein"
+
+  - name: "萨因"
+    class: "KNIGHT"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 27
+    attack: 7
+    defense: 9
+    speed: 2
+    leadership: 3
+    weapon_type: "lance"
+    soldiers: 122
+    max_soldiers: 122
+    sprite_folder: "char_09_rebecca"
+
+  - name: "诺万万巴"
+    class: "LORD"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 7
+    defense: 7
+    speed: 6
+    leadership: 3
+    weapon_type: "sword"
+    soldiers: 97
+    max_soldiers: 97
+    sprite_folder: "char_02_lilina"
+
+  - name: "诺娅罗万"
+    class: "ARCHER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 20
+    attack: 10
+    defense: 5
+    speed: 8
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 89
+    max_soldiers: 89
+    sprite_folder: "char_sylvia"
+
+  - name: "菲德"
+    class: "LORD"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 26
+    attack: 6
+    defense: 4
+    speed: 5
+    leadership: 5
+    weapon_type: "sword"
+    soldiers: 92
+    max_soldiers: 92
+    sprite_folder: "char_03_dorcas"
+
+  - name: "海娅"
+    class: "LORD"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 6
+    defense: 6
+    speed: 7
+    leadership: 7
+    weapon_type: "sword"
+    soldiers: 105
+    max_soldiers: 105
+    sprite_folder: "char_05_klein"
+
+  - name: "格妮雷德"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 10
+    defense: 2
+    speed: 4
+    leadership: 5
+    weapon_type: "axe"
+    soldiers: 110
+    max_soldiers: 110
+    sprite_folder: "char_armorax"
+
+  - name: "缇马坦"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 32
+    attack: 6
+    defense: 8
+    speed: 3
+    leadership: 3
+    weapon_type: "lance"
+    soldiers: 111
+    max_soldiers: 111
+    sprite_folder: "char_03_dorcas"
+
+  - name: "雷恩奥斯"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 21
+    attack: 9
+    defense: 2
+    speed: 8
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 92
+    max_soldiers: 92
+    sprite_folder: "char_05_klein"
+
+  - name: "维坦"
+    class: "ARCHER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 19
+    attack: 9
+    defense: 4
+    speed: 9
+    leadership: 5
+    weapon_type: "bow"
+    soldiers: 80
+    max_soldiers: 80
+    sprite_folder: "char_02_lilina"
+
+  - name: "乌奥迦姆"
+    class: "ARCHER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 6
+    defense: 4
+    speed: 9
+    leadership: 3
+    weapon_type: "bow"
+    soldiers: 85
+    max_soldiers: 85
+    sprite_folder: "char_09_rebecca"
+
+  - name: "凯雅雷"
+    class: "KNIGHT"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 8
+    defense: 9
+    speed: 2
+    leadership: 6
+    weapon_type: "lance"
+    soldiers: 121
+    max_soldiers: 121
+    sprite_folder: "char_08_robin"
+
+  - name: "塞文姆"
+    class: "KNIGHT"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 8
+    defense: 9
+    speed: 4
+    leadership: 6
+    weapon_type: "lance"
+    soldiers: 127
+    max_soldiers: 127
+    sprite_folder: "char_01_alm"
+
+  - name: "格丝"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 25
+    attack: 10
+    defense: 6
+    speed: 3
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 104
+    max_soldiers: 104
+    sprite_folder: "char_08_robin"
+
+  - name: "婕奥"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 29
+    attack: 10
+    defense: 5
+    speed: 3
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 98
+    max_soldiers: 98
+    sprite_folder: "char_10_hector"
+
+  - name: "雷妮"
+    class: "MAGE"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 17
+    attack: 8
+    defense: 5
+    speed: 5
+    leadership: 4
+    weapon_type: "magic"
+    soldiers: 79
+    max_soldiers: 79
+    sprite_folder: "char_10_hector"
+
+  - name: "琪露姆"
+    class: "LORD"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 6
+    defense: 6
+    speed: 4
+    leadership: 4
+    weapon_type: "sword"
+    soldiers: 105
+    max_soldiers: 105
+    sprite_folder: "char_beleth"
+
+  - name: "格迦万"
+    class: "MAGE"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 23
+    attack: 11
+    defense: 4
+    speed: 5
+    leadership: 6
+    weapon_type: "magic"
+    soldiers: 87
+    max_soldiers: 87
+    sprite_folder: "char_03_dorcas"
+
+  - name: "伊坦尔娅"
+    class: "ARCHER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 24
+    attack: 7
+    defense: 2
+    speed: 7
+    leadership: 6
+    weapon_type: "bow"
+    soldiers: 90
+    max_soldiers: 90
+    sprite_folder: "char_diadora"
+
+  - name: "莉文德"
+    class: "FIGHTER"
+    faction: "askr"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 11
+    defense: 6
+    speed: 6
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 104
+    max_soldiers: 104
+    sprite_folder: "char_10_hector"
+
+  - name: "诺方"
+    class: "ARCHER"
+    faction: "embla"
+    level: 1
+    experience: 0
+    max_hp: 22
+    attack: 9
+    defense: 4
+    speed: 6
+    leadership: 4
+    weapon_type: "bow"
+    soldiers: 98
+    max_soldiers: 98
+    sprite_folder: "char_08_robin"
+
+  - name: "琪罗"
+    class: "FIGHTER"
+    faction: "nifl"
+    level: 1
+    experience: 0
+    max_hp: 30
+    attack: 10
+    defense: 5
+    speed: 6
+    leadership: 4
+    weapon_type: "axe"
+    soldiers: 105
+    max_soldiers: 105
+    sprite_folder: "char_01_alm"
+
+  - name: "艾妮鲁因"
+    class: "FIGHTER"
+    faction: "muspell"
+    level: 1
+    experience: 0
+    max_hp: 31
+    attack: 7
+    defense: 5
+    speed: 3
+    leadership: 7
+    weapon_type: "axe"
+    soldiers: 104
+    max_soldiers: 104
+    sprite_folder: "char_01_alm"
