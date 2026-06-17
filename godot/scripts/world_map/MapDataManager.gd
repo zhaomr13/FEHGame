@@ -5,6 +5,7 @@ signal node_clicked(node: MapNode)
 signal map_data_loaded(success: bool)
 
 var map_nodes: Dictionary = {}
+var _base_node_config: Dictionary = {}
 
 const DEFAULT_MAP_DATA_PATH = "res://data/world_map.yaml"
 
@@ -31,6 +32,7 @@ func load_map_data(path: String) -> bool:
 		return false
 
 	NODE_CONFIG = _build_node_config(parsed)
+	_base_node_config = NODE_CONFIG.duplicate(true)
 	validate_map_data()
 	map_data_loaded.emit(true)
 	return true
@@ -221,6 +223,16 @@ func create_map_nodes():
 		node.node_clicked.connect(_on_node_clicked)
 		map_nodes_container.add_child(node)
 		map_nodes[node_id] = node
+
+func reset_ownership():
+	"""Restore city ownership to the initial YAML values."""
+	if _base_node_config.is_empty():
+		return
+	for city_id in NODE_CONFIG.keys():
+		if _base_node_config.has(city_id):
+			NODE_CONFIG[city_id]["faction"] = _base_node_config[city_id].faction
+			if map_nodes.has(city_id):
+				map_nodes[city_id].set_faction_color(NODE_CONFIG[city_id].faction)
 
 func _on_node_clicked(node: MapNode):
 	node_clicked.emit(node)

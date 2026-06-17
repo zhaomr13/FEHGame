@@ -3,6 +3,7 @@ extends Node2D
 
 signal army_clicked(army: Army)
 signal movement_finished(army: Army)
+signal left_city(army: Army, city_id: String)
 
 enum ArmyType {
 	PLAYER_MAIN,
@@ -39,6 +40,7 @@ var planned_cities: Array[String] = []
 var route: Array[Vector2] = []
 var route_cities: Array[String] = []
 const MOVE_SPEED: float = 80.0
+var movement_paused: bool = false
 
 # Visual
 var label: Label
@@ -155,6 +157,8 @@ func set_selected(selected: bool):
 		selection_indicator.visible = selected and not hidden
 
 func _process(delta):
+	if movement_paused:
+		return
 	if state == ArmyState.MOVING and not route.is_empty():
 		_move_along_route(delta)
 	# Update plan line position (relative)
@@ -205,12 +209,31 @@ func execute_plan():
 	# Move planned route to active route
 	if planned_route.is_empty():
 		return
+	var departed_city := current_city_id
+	current_city_id = ""
+	if departed_city != "":
+		left_city.emit(self, departed_city)
 	route = planned_route.duplicate()
 	route_cities = planned_cities.duplicate()
 	planned_route.clear()
 	planned_cities.clear()
 	plan_line.visible = false
 	state = ArmyState.MOVING
+	update_visibility()
+
+func pause_for_battle():
+	movement_paused = true
+
+func reset_for_planning():
+	movement_paused = false
+	planned_route.clear()
+	planned_cities.clear()
+	route.clear()
+	route_cities.clear()
+	target_city_id = ""
+	plan_line.visible = false
+	state = ArmyState.IDLE
+	label.text = army_name
 	update_visibility()
 
 func clear_plan():

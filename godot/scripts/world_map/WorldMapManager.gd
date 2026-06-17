@@ -3,6 +3,7 @@ extends Node2D
 
 signal phase_changed(new_phase: int)
 signal turn_started(turn_number: int)
+signal event_logged(message: String, color: Color)
 
 enum GamePhase {
 	PLANNING,
@@ -22,6 +23,8 @@ var squad_menu: Control = null
 var selected_army: Army = null
 var planning_ui: Control = null
 var army_selection_popup: ArmySelectionPopup = null
+var event_log_panel: Control = null
+var event_log_list: VBoxContainer = null
 
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
@@ -33,6 +36,7 @@ var all_armies: Array[Army] = []
 var player_armies: Array[Army] = []
 var enemy_armies: Array[Army] = []
 var battling_armies: Array[Army] = []  # armies in current battle (for midpoint retreat)
+var battle_city_id: String = ""
 
 var _executing_armies: Dictionary = {}  # armies still moving during EXECUTING phase
 
@@ -44,8 +48,9 @@ const MIN_ZOOM: float = 0.25
 const MAX_ZOOM: float = 1.5
 const WHEEL_ZOOM_FACTOR: float = 1.2
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
-const ENCOUNTER_DISTANCE: float = 30.0
-const ARMY_OFFSET_RADIUS: float = 60.0
+const ARMY_OFFSET_RADIUS: float = 0.0
+const ROAD_ENCOUNTER_DISTANCE: float = 24.0
+const MAP_VIEW_RATIO: float = 0.75
 
 @onready var camera: Camera2D = $Camera2D
 
@@ -62,10 +67,7 @@ func _ready():
 	if camera:
 		camera.position = MAP_SIZE / 2.0
 		camera.zoom = Vector2(0.5, 0.5)
-		camera.limit_left = 0
-		camera.limit_top = 0
-		camera.limit_right = MAP_SIZE.x
-		camera.limit_bottom = MAP_SIZE.y
+		_update_camera_limits()
 
 func _process(_delta):
 	if current_phase == GamePhase.EXECUTING:
@@ -82,7 +84,7 @@ func _check_encounters():
 				continue
 			if _are_allies(a1, a2):
 				continue
-			if a1.position.distance_to(a2.position) < ENCOUNTER_DISTANCE:
+			if _should_start_battle(a1, a2):
 				_start_battle(a1, a2)
 				return
 
@@ -96,22 +98,29 @@ func _are_allies(a1: Army, a2: Army) -> bool:
 		return a1.faction == a2.faction
 	return false
 
+func _should_start_battle(a1: Army, a2: Army) -> bool:
+	"""Start battle when hostile armies share a city or collide on the same road segment."""
+	if a1.current_city_id != "" and a1.current_city_id == a2.current_city_id:
+		return true
+	if not _is_reverse_road_segment(a1, a2):
+		return false
+	return a1.position.distance_to(a2.position) <= ROAD_ENCOUNTER_DISTANCE
+
+func _is_reverse_road_segment(a1: Army, a2: Army) -> bool:
+	if a1.state != Army.ArmyState.MOVING or a2.state != Army.ArmyState.MOVING:
+		return false
+	if a1.from_city_id == "" or a1.to_city_id == "" or a2.from_city_id == "" or a2.to_city_id == "":
+		return false
+	return a1.from_city_id == a2.to_city_id and a1.to_city_id == a2.from_city_id
+
 func _on_node_clicked(node: MapNode):
 	if current_phase != GamePhase.PLANNING:
 		return
 
 	if selected_army == null:
-		var garrisoned = _get_player_armies_at_city(node.node_id)
-		if garrisoned.size() == 1:
-			_on_army_clicked(garrisoned[0])
-		elif garrisoned.size() > 1:
-			if city_menu:
-				city_menu.visible = false
-			army_selection_popup.setup(garrisoned)
-			var screen_center = get_viewport().get_visible_rect().size / 2.0
-			army_selection_popup.popup_at(screen_center)
-		else:
-			open_city_menu(node)
+		if not _can_open_city_menu(node):
+			return
+		open_city_menu(node)
 		return
 
 	# Army is selected — try to set route to clicked city
@@ -125,29 +134,38 @@ func _on_node_clicked(node: MapNode):
 				waypoints.append(pos + Vector2(20, -20))
 				cities.append(city_id)
 		selected_army.set_route(waypoints, cities)
+		_clear_selected_army()
 
 func _find_route(army: Army, target_city: String) -> Array[String]:
 	if not is_instance_valid(army):
 		return []
+	if target_city == "":
+		return []
 	var from_cities: Array[String] = []
 	if army.current_city_id != "":
 		from_cities.append(army.current_city_id)
-	# Also try the nearest city (might differ if army is between cities)
-	var nearest = map_data.get_nearest_city(army.position)
-	if nearest != "" and not from_cities.has(nearest):
-		from_cities.append(nearest)
-	# Also try between-cities tracking (from/to)
-	if army.from_city_id != "" and not from_cities.has(army.from_city_id):
-		from_cities.append(army.from_city_id)
-	if army.to_city_id != "" and not from_cities.has(army.to_city_id):
-		from_cities.append(army.to_city_id)
+	else:
+		if army.from_city_id != "":
+			from_cities.append(army.from_city_id)
+		if army.to_city_id != "" and not from_cities.has(army.to_city_id):
+			from_cities.append(army.to_city_id)
 
 	for from_city in from_cities:
 		if from_city == target_city:
+			return []
+		if not map_data.NODE_CONFIG.has(from_city) or not map_data.NODE_CONFIG.has(target_city):
 			continue
-		if map_data.can_move_to(from_city, target_city):
-			return map_data.find_path(from_city, target_city)
+		if map_data.NODE_CONFIG[from_city].connections.has(target_city):
+			return [target_city]
 	return []
+
+func _can_open_city_menu(node: MapNode) -> bool:
+	if not node:
+		return false
+	if not map_data.NODE_CONFIG.has(node.node_id):
+		return false
+	var faction: String = map_data.NODE_CONFIG[node.node_id].faction
+	return faction == current_faction
 
 func _input(event):
 	if event is InputEventMouseButton:
@@ -219,12 +237,10 @@ func _on_army_clicked(army: Army):
 						waypoints.append(pos + Vector2(20, -20))
 						cities.append(city_id)
 				selected_army.set_route(waypoints, cities)
+				_clear_selected_army()
 		return
 
-	if selected_army and is_instance_valid(selected_army):
-		selected_army.set_selected(false)
-	selected_army = army
-	army.set_selected(true)
+	_set_selected_army(army)
 
 func _set_destination_to(army: Army, target_city: String):
 	var path = _find_route(army, target_city)
@@ -258,24 +274,54 @@ func _get_player_armies_at_city(city_id: String) -> Array[Army]:
 	return result
 
 func _sync_city_faction_colors():
-	"""Update all city colors based on which army currently occupies them.
-	Player armies take priority over enemy armies."""
+	"""Update all city colors from the stored ownership data."""
 	for city_id in map_data.map_nodes.keys():
-		var occupant_faction = ""
-		# Check player armies first
-		for army in player_armies:
-			if is_instance_valid(army) and army.current_city_id == city_id:
-				occupant_faction = army.faction
-				break
-		# If no player army, check enemy armies
-		if occupant_faction == "":
-			for army in enemy_armies:
-				if is_instance_valid(army) and army.current_city_id == city_id:
-					occupant_faction = army.faction
-					break
-		map_data.map_nodes[city_id].set_faction_color(occupant_faction)
 		if map_data.NODE_CONFIG.has(city_id):
-			map_data.NODE_CONFIG[city_id]["faction"] = occupant_faction
+			map_data.map_nodes[city_id].set_faction_color(map_data.NODE_CONFIG[city_id].faction)
+
+func _refresh_city_ownership(city_id: String):
+	"""Set a city to the faction currently occupying it, or neutral if empty."""
+	if city_id == "" or not map_data.NODE_CONFIG.has(city_id):
+		return
+
+	var occupant_faction := ""
+	for army in all_armies:
+		if is_instance_valid(army) and army.current_city_id == city_id:
+			occupant_faction = army.faction
+			break
+
+	_set_city_owner(city_id, occupant_faction)
+
+func _set_city_owner(city_id: String, faction: String):
+	if city_id == "" or not map_data.NODE_CONFIG.has(city_id):
+		return
+	map_data.NODE_CONFIG[city_id]["faction"] = faction
+	if map_data.map_nodes.has(city_id):
+		map_data.map_nodes[city_id].set_faction_color(faction)
+
+func _get_battle_city_id(attacker: Army, defender: Army) -> String:
+	"""Return the city being fought over, if the battle happens inside a city."""
+	if is_instance_valid(attacker) and attacker.current_city_id != "" and attacker.state != Army.ArmyState.MOVING:
+		return attacker.current_city_id
+	if is_instance_valid(defender) and defender.current_city_id != "" and defender.state != Army.ArmyState.MOVING:
+		return defender.current_city_id
+	return ""
+
+func _get_winning_faction(victory: bool) -> String:
+	if victory:
+		return current_faction
+	for army in battling_armies:
+		if is_instance_valid(army) and army.army_type == Army.ArmyType.ENEMY:
+			return army.faction
+	return ""
+
+func _remove_battle_losers(victory: bool):
+	for army in battling_armies:
+		if not is_instance_valid(army):
+			continue
+		var lost_side = (victory and army.army_type == Army.ArmyType.ENEMY) or (not victory and army.army_type != Army.ArmyType.ENEMY)
+		if lost_side:
+			_destroy_battle_army(army)
 
 func setup_faction_start(faction: String, start_city: String):
 	current_faction = faction
@@ -289,6 +335,7 @@ func setup_faction_start(faction: String, start_city: String):
 	for child in map_data.map_nodes_container.get_children():
 		child.queue_free()
 	map_data.map_nodes.clear()
+	map_data.reset_ownership()
 	map_data.create_map_nodes()
 
 	_create_player_armies_from_squads(start_city)
@@ -318,8 +365,12 @@ func _create_player_armies_from_squads(start_city: String):
 	else:
 		source_squads = _split_characters_into_squads(GameManager.player_army, GameConstants.ARMIES_PER_FACTION)
 
-	# Place each army in a different connected city when possible
-	var placement_cities = _get_start_region_cities(start_city, source_squads.size())
+	# Place player armies only in player-controlled cities at start.
+	var placement_cities = _get_faction_cities(current_faction)
+	if placement_cities.is_empty():
+		placement_cities = [start_city]
+	elif not placement_cities.has(start_city):
+		placement_cities.push_front(start_city)
 	if placement_cities.is_empty():
 		placement_cities = [start_city]
 
@@ -363,6 +414,7 @@ func _create_army(chars: Array, start_city: String, type: Army.ArmyType = Army.A
 	army_mgr_node.add_child(army)
 	if map_data.map_nodes.has(start_city):
 		army.position = map_data.map_nodes[start_city].position + offset
+	army.left_city.connect(_on_army_left_city)
 	return army
 
 func _convert_squad_data(data: Array) -> Array[CharacterData]:
@@ -524,6 +576,23 @@ func setup_planning_ui():
 
 	ui.add_child(planning_ui)
 
+func _log_event(message: String, color: Color = Color(0.92, 0.92, 0.92)):
+	event_logged.emit(message, color)
+
+func set_event_log_visible(visible: bool):
+	pass
+
+func clear_event_log():
+	pass
+
+func _update_camera_limits():
+	if not camera:
+		return
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = MAP_SIZE.x
+	camera.limit_bottom = MAP_SIZE.y
+
 func _update_planning_ui():
 	if not planning_ui:
 		return
@@ -547,6 +616,7 @@ func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
 	ui.add_child(city_menu)
 	city_menu.open_formation.connect(_on_open_formation)
+	city_menu.army_selected.connect(_on_city_army_selected)
 	city_menu.visible = false
 
 func setup_squad_menu():
@@ -566,6 +636,8 @@ func _on_clear_plans_pressed():
 	for army in player_armies:
 		if is_instance_valid(army):
 			army.clear_plan()
+	_clear_selected_army()
+	_log_event("All player plans cleared.", Color(0.8, 0.8, 0.95))
 
 func _start_execution():
 	if current_phase != GamePhase.PLANNING:
@@ -591,12 +663,27 @@ func _on_army_movement_finished(army: Army):
 	if not _executing_armies.has(army):
 		return
 	_executing_armies.erase(army)
+	_refresh_city_ownership(army.current_city_id)
+	if army.current_city_id != "":
+		_log_event("%s entered %s." % [army.army_name, _get_city_display_name(army.current_city_id)], Color(0.8, 0.95, 0.8))
+	if current_phase == GamePhase.EXECUTING and player_armies.has(army):
+		_check_encounters()
+		if current_phase != GamePhase.EXECUTING:
+			return
+		_reset_armies_after_execution()
+		_end_execution()
+		return
 	if current_phase == GamePhase.EXECUTING and _executing_armies.is_empty():
 		_end_execution()
+
+func _on_army_left_city(army: Army, city_id: String):
+	_refresh_city_ownership(city_id)
+	_log_event("%s left %s." % [army.army_name, _get_city_display_name(city_id)], Color(0.95, 0.85, 0.7))
 
 func _end_execution():
 	if current_phase != GamePhase.EXECUTING:
 		return
+	_executing_armies.clear()
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
 	if clock:
@@ -612,7 +699,15 @@ func _on_turn_started():
 
 func open_city_menu(node: MapNode):
 	if city_menu:
-		city_menu.show_city(node.node_name, node.node_type, false)
+		var garrisoned = _get_player_armies_at_city(node.node_id)
+		city_menu.show_city(node.node_name, node.node_type, false, garrisoned)
+
+func _on_city_army_selected(army: Army):
+	if not is_instance_valid(army):
+		return
+	_set_selected_army(army)
+	if city_menu:
+		city_menu.visible = false
 
 func _on_open_formation():
 	if squad_menu:
@@ -632,16 +727,18 @@ func _rebuild_player_armies_from_squads():
 	_create_enemy_armies(current_faction)
 
 func _start_battle(attacker: Army, defender: Army):
+	_pause_all_armies_for_battle()
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
-	_executing_armies.erase(attacker)
-	_executing_armies.erase(defender)
+	_executing_armies.clear()
 	attacker.state = Army.ArmyState.IN_BATTLE
 	defender.state = Army.ArmyState.IN_BATTLE
 	battling_armies = [attacker, defender]
+	battle_city_id = _get_battle_city_id(attacker, defender)
 	var battle_bg = "plain"
-	if attacker.current_city_id != "" and map_data.map_nodes.has(attacker.current_city_id):
-		battle_bg = map_data.select_battle_background(map_data.map_nodes[attacker.current_city_id])
+	if battle_city_id != "" and map_data.map_nodes.has(battle_city_id):
+		battle_bg = map_data.select_battle_background(map_data.map_nodes[battle_city_id])
+	_log_event(_describe_battle_start(attacker, defender), Color(1.0, 0.7, 0.55))
 	GameManager.start_battle_with_background(attacker.squad_data, defender.squad_data, battle_bg)
 	_update_planning_ui()
 
@@ -651,24 +748,14 @@ func setup_battle_result_handler():
 func _on_battle_ended(victory: bool):
 	current_phase = GamePhase.PLANNING
 	phase_changed.emit(current_phase)
+	_executing_armies.clear()
 	if clock:
 		clock.is_running = false
-	if victory:
-		# Player won: capture the city where the winning player army is located.
-		for army in battling_armies:
-			if is_instance_valid(army) and army.army_type != Army.ArmyType.ENEMY:
-				var city_id = army.current_city_id
-				if city_id == "":
-					city_id = map_data.get_nearest_city(army.position)
-				if city_id != "" and map_data.NODE_CONFIG.has(city_id):
-					map_data.NODE_CONFIG[city_id]["faction"] = current_faction
-					if map_data.map_nodes.has(city_id):
-						map_data.map_nodes[city_id].set_faction_color(current_faction)
-	if not victory:
-		_destroy_defeated_player_armies()
-
-	# Sync city colors after battle outcome and midpoint retreat.
-	_sync_city_faction_colors()
+	var winning_faction = _get_winning_faction(victory)
+	if battle_city_id != "" and winning_faction != "":
+		_set_city_owner(battle_city_id, winning_faction)
+		_log_event("%s is now controlled by %s." % [_get_city_display_name(battle_city_id), winning_faction], Color(0.8, 0.9, 1.0))
+	_remove_battle_losers(victory)
 
 	var i = all_armies.size() - 1
 	while i >= 0:
@@ -676,7 +763,7 @@ func _on_battle_ended(victory: bool):
 			all_armies.remove_at(i)
 		i -= 1
 	# Midpoint retreat: armies not at a city step back toward origin
-	battling_armies = battling_armies.filter(func(a): return is_instance_valid(a))
+	battling_armies = battling_armies.filter(func(a): return is_instance_valid(a) and all_armies.has(a))
 	for army in battling_armies:
 		if is_instance_valid(army) and army.from_city_id != "" and army.to_city_id != "":
 			var nearest = map_data.get_nearest_city(army.position)
@@ -692,24 +779,39 @@ func _on_battle_ended(victory: bool):
 		if is_instance_valid(army):
 			army.state = Army.ArmyState.IDLE
 	battling_armies.clear()
+	battle_city_id = ""
+	_reset_armies_after_battle()
+
+	# Sync city colors after battle outcome and midpoint retreat.
+	_sync_city_faction_colors()
 
 	# Battle path: increment turn when returning to planning (mirror of _end_execution)
 	turn_count += 1
 	_on_turn_started()
 	_update_planning_ui()
+	_log_event(_describe_battle_end(victory), Color(0.85, 0.9, 1.0))
 
 	if planning_ui:
 		planning_ui.visible = true
 	GameManager.change_state(GameConstants.GameState.WORLD_MAP)
 	visible = true
 
-func _destroy_defeated_player_armies():
-	"""Destroy player armies that lost the battle (permadeath)."""
-	for army in battling_armies:
-		if is_instance_valid(army) and army.army_type != Army.ArmyType.ENEMY:
-			if army.squad_index >= 0 and army.squad_index < GameManager.squad_data.size():
-				GameManager.destroy_squad_after_defeat(army.squad_index)
-			_remove_army(army)
+func _pause_all_armies_for_battle():
+	for army in all_armies:
+		if is_instance_valid(army):
+			army.pause_for_battle()
+
+func _reset_armies_after_battle():
+	_clear_selected_army()
+	for army in all_armies:
+		if is_instance_valid(army):
+			army.reset_for_planning()
+
+func _reset_armies_after_execution():
+	_clear_selected_army()
+	for army in all_armies:
+		if is_instance_valid(army):
+			army.reset_for_planning()
 
 func _remove_army(army: Army):
 	"""Remove an army from tracking arrays and queue it for deletion."""
@@ -721,3 +823,53 @@ func _remove_army(army: Army):
 	if selected_army == army:
 		selected_army = null
 	army.queue_free()
+
+func _destroy_battle_army(army: Army):
+	"""Explicitly clean up an army defeated in battle."""
+	if not is_instance_valid(army):
+		return
+	_log_event("%s was destroyed in battle." % army.army_name, Color(1.0, 0.75, 0.75))
+	army.pause_for_battle()
+	army.planned_route.clear()
+	army.planned_cities.clear()
+	army.route.clear()
+	army.route_cities.clear()
+	army.plan_line.visible = false
+	army.target_city_id = ""
+	army.from_city_id = ""
+	army.to_city_id = ""
+	army.state = Army.ArmyState.IDLE
+	army.update_visibility()
+	if army.army_type != Army.ArmyType.ENEMY and army.squad_index >= 0 and army.squad_index < GameManager.squad_data.size():
+		GameManager.destroy_squad_after_defeat(army.squad_index)
+	_remove_army(army)
+
+func _set_selected_army(army: Army):
+	if selected_army and is_instance_valid(selected_army) and selected_army != army:
+		selected_army.set_selected(false)
+	selected_army = army
+	if selected_army and is_instance_valid(selected_army):
+		selected_army.set_selected(true)
+
+func _clear_selected_army():
+	if selected_army and is_instance_valid(selected_army):
+		selected_army.set_selected(false)
+	selected_army = null
+
+func _get_city_display_name(city_id: String) -> String:
+	if map_data.NODE_CONFIG.has(city_id):
+		return map_data.NODE_CONFIG[city_id].name
+	return city_id
+
+func _describe_battle_start(attacker: Army, defender: Army) -> String:
+	if battle_city_id != "":
+		return "Battle started at %s between %s and %s." % [_get_city_display_name(battle_city_id), attacker.army_name, defender.army_name]
+	if attacker.from_city_id != "" and attacker.to_city_id != "":
+		return "Battle started on the road between %s and %s." % [attacker.army_name, defender.army_name]
+	return "Battle started between %s and %s." % [attacker.army_name, defender.army_name]
+
+func _describe_battle_end(victory: bool) -> String:
+	var result = "won" if victory else "lost"
+	if battle_city_id != "":
+		return "Battle at %s %s." % [_get_city_display_name(battle_city_id), result]
+	return "Battle %s." % result

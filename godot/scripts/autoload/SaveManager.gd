@@ -16,6 +16,7 @@ func save_game():
 	var save_data = {
 		"chapter": _get_gm().current_chapter,
 		"gold": _get_gm().player_gold,
+		"current_faction": _get_gm().current_faction,
 		"player_army": []
 	}
 
@@ -30,7 +31,14 @@ func save_game():
 			"attack": character.attack,
 			"defense": character.defense,
 			"speed": character.speed,
-			"soldiers": character.soldiers
+			"leadership": character.leadership,
+			"weapon_type": character.weapon_type,
+			"soldiers": character.soldiers,
+			"max_soldiers": character.max_soldiers,
+			"faction": character.faction,
+			"sprite_frames_path": character.sprite_frames_path,
+			"skills": _serialize_skills(character.skills),
+			"tactics": _serialize_tactics(character.tactics)
 		})
 
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -56,6 +64,7 @@ func load_game() -> bool:
 	var save_data = json.data
 	_get_gm().current_chapter = save_data.get("chapter", 1)
 	_get_gm().player_gold = save_data.get("gold", 1000)
+	_get_gm().current_faction = save_data.get("current_faction", _get_gm().current_faction)
 
 	# Restore player army from save data
 	_get_gm().player_army.clear()
@@ -71,8 +80,16 @@ func load_game() -> bool:
 		character.attack = char_data.get("attack", 5)
 		character.defense = char_data.get("defense", 3)
 		character.speed = char_data.get("speed", 5)
+		character.leadership = char_data.get("leadership", 5)
+		character.weapon_type = char_data.get("weapon_type", "sword")
 		character.soldiers = char_data.get("soldiers", 100)
-		character.setup_default_tactics()
+		character.max_soldiers = char_data.get("max_soldiers", character.soldiers)
+		character.faction = char_data.get("faction", _get_gm().current_faction)
+		character.sprite_frames_path = char_data.get("sprite_frames_path", "")
+		character.skills = _deserialize_skills(char_data.get("skills", []))
+		character.tactics = _deserialize_tactics(char_data.get("tactics", []))
+		if character.tactics.is_empty():
+			character.setup_default_tactics()
 		_get_gm().player_army.append(character)
 
 	# Load squad configuration
@@ -117,7 +134,7 @@ func load_squads() -> Array:
 	"""Load squad configuration from file"""
 	var result: Array = []
 	var squad_save = _load_squad_save_data()
-	if squad_save == null:
+	if squad_save.is_empty():
 		return _pad_squads(result)
 
 	var saved_squads = squad_save.get("squads", [])
@@ -147,7 +164,7 @@ func load_unassigned() -> Array[CharacterData]:
 	"""Load unassigned characters from file"""
 	var result: Array[CharacterData] = []
 	var squad_save = _load_squad_save_data()
-	if squad_save == null:
+	if squad_save.is_empty():
 		return result
 
 	var character_lookup = _build_character_lookup()
@@ -162,10 +179,10 @@ func has_saved_squads() -> bool:
 	"""Check if squad configuration exists"""
 	return FileAccess.file_exists(SQUAD_SAVE_PATH)
 
-func _load_squad_save_data() -> Variant:
-	"""Load and parse squad save file. Returns null on failure."""
+func _load_squad_save_data() -> Dictionary:
+	"""Load and parse squad save file. Returns an empty Dictionary on failure."""
 	if not FileAccess.file_exists(SQUAD_SAVE_PATH):
-		return null
+		return {}
 
 	var file = FileAccess.open(SQUAD_SAVE_PATH, FileAccess.READ)
 	var json_string = file.get_as_text()
@@ -175,11 +192,11 @@ func _load_squad_save_data() -> Variant:
 	var error = json.parse(json_string)
 	if error != OK:
 		print("Squad JSON parse error: ", json.get_error_message())
-		return null
+		return {}
 
 	if json.data is Dictionary:
 		return json.data
-	return null
+	return {}
 
 func _build_character_lookup() -> Dictionary:
 	"""Build a name -> CharacterData lookup from player_army."""
@@ -198,3 +215,61 @@ func _pad_squads(squads: Array) -> Array:
 	while squads.size() < GameConstants.MAX_SQUADS:
 		squads.append([])
 	return squads
+
+func _serialize_tactics(tactics: Array) -> Array:
+	var result: Array = []
+	for tactic in tactics:
+		if tactic is Tactic:
+			result.append({
+				"priority": tactic.priority,
+				"condition_type": tactic.condition_type,
+				"condition_value": tactic.condition_value,
+				"target_type": tactic.target_type,
+				"action_type": tactic.action_type,
+				"use_skill": tactic.use_skill
+			})
+	return result
+
+func _deserialize_tactics(tactics_data: Array) -> Array[Tactic]:
+	var result: Array[Tactic] = []
+	for tactic_data in tactics_data:
+		if tactic_data is Dictionary:
+			var tactic := Tactic.new()
+			tactic.priority = tactic_data.get("priority", 1)
+			tactic.condition_type = tactic_data.get("condition_type", Tactic.ConditionType.ALWAYS)
+			tactic.condition_value = tactic_data.get("condition_value", 0.5)
+			tactic.target_type = tactic_data.get("target_type", Tactic.TargetType.NEAREST)
+			tactic.action_type = tactic_data.get("action_type", Tactic.ActionType.ATTACK)
+			tactic.use_skill = tactic_data.get("use_skill", false)
+			result.append(tactic)
+	return result
+
+func _serialize_skills(skills: Array) -> Array:
+	var result: Array = []
+	for skill in skills:
+		if skill is SkillData:
+			result.append({
+				"skill_name": skill.skill_name,
+				"description": skill.description,
+				"skill_type": skill.skill_type,
+				"target_type": skill.target_type,
+				"power": skill.power,
+				"cooldown": skill.cooldown,
+				"current_cooldown": skill.current_cooldown
+			})
+	return result
+
+func _deserialize_skills(skills_data: Array) -> Array[SkillData]:
+	var result: Array[SkillData] = []
+	for skill_data in skills_data:
+		if skill_data is Dictionary:
+			var skill := SkillData.new()
+			skill.skill_name = skill_data.get("skill_name", "Unknown Skill")
+			skill.description = skill_data.get("description", "")
+			skill.skill_type = skill_data.get("skill_type", SkillData.SkillType.ACTIVE)
+			skill.target_type = skill_data.get("target_type", SkillData.TargetType.SINGLE)
+			skill.power = skill_data.get("power", 10)
+			skill.cooldown = skill_data.get("cooldown", 3)
+			skill.current_cooldown = skill_data.get("current_cooldown", 0)
+			result.append(skill)
+	return result

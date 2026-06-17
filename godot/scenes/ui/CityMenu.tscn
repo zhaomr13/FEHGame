@@ -50,6 +50,21 @@ theme_override_font_sizes/font_size = 16
 text = "City information..."
 horizontal_alignment = 1
 
+[node name="GarrisonLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Stationed Armies"
+horizontal_alignment = 1
+
+[node name="GarrisonScroll" type="ScrollContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 110)
+size_flags_vertical = 3
+
+[node name="GarrisonList" type="VBoxContainer" parent="Panel/VBoxContainer/GarrisonScroll"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
 [node name="ButtonContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 15
