@@ -19,7 +19,8 @@ var current_phase: GamePhase = GamePhase.PLANNING
 var current_faction: String = ""
 
 var city_menu: Control = null
-var squad_menu: Control = null
+var army_manage_panel: ArmyManagePanel = null
+var _last_opened_city_id: String = ""
 var selected_army: Army = null
 var planning_ui: Control = null
 var army_selection_popup: ArmySelectionPopup = null
@@ -516,7 +517,7 @@ func setup_background():
 
 func setup_ui():
 	setup_city_menu()
-	setup_squad_menu()
+	setup_army_manage_panel()
 	setup_planning_ui()
 	setup_army_selection_popup()
 
@@ -619,13 +620,14 @@ func setup_city_menu():
 	city_menu.army_selected.connect(_on_city_army_selected)
 	city_menu.visible = false
 
-func setup_squad_menu():
-	if squad_menu != null:
+func setup_army_manage_panel():
+	if army_manage_panel != null:
 		return
-	squad_menu = preload("res://scenes/ui/SquadMenu.tscn").instantiate()
-	ui.add_child(squad_menu)
-	squad_menu.menu_closed.connect(_on_squad_menu_closed)
-	squad_menu.visible = false
+	army_manage_panel = preload("res://scenes/ui/ArmyManagePanel.tscn").instantiate()
+	ui.add_child(army_manage_panel)
+	army_manage_panel.saved.connect(_on_army_manage_saved)
+	army_manage_panel.cancelled.connect(_on_army_manage_cancelled)
+	army_manage_panel.visible = false
 
 func _on_end_planning_pressed():
 	if current_phase != GamePhase.PLANNING:
@@ -699,6 +701,7 @@ func _on_turn_started():
 
 func open_city_menu(node: MapNode):
 	if city_menu:
+		_last_opened_city_id = node.node_id
 		var garrisoned = _get_player_armies_at_city(node.node_id)
 		city_menu.show_city(node.node_name, node.node_type, false, garrisoned)
 
@@ -710,21 +713,104 @@ func _on_city_army_selected(army: Army):
 		city_menu.visible = false
 
 func _on_open_formation():
-	if squad_menu:
-		squad_menu.open_menu()
+	var city_id = _last_opened_city_id if _last_opened_city_id != "" else current_node_id
+	if not army_manage_panel or city_id == "":
+		return
+	var garrisoned: Array = []
+	var squad_indices: Array[int] = []
+	for army in _get_player_armies_at_city(city_id):
+		if is_instance_valid(army):
+			garrisoned.append(army.squad_data)
+			squad_indices.append(army.squad_index)
+	var city_name = _get_city_display_name(city_id)
+	army_manage_panel.setup(garrisoned, GameManager.unassigned_units, city_name, city_id, squad_indices)
+	army_manage_panel.visible = true
 
-func _on_squad_menu_closed(saved: bool):
+func _on_army_manage_saved(armies: Array, unassigned: Array, army_squad_indices: Array):
+	_sync_armies_in_place(armies, unassigned, army_squad_indices)
+	if city_menu and _last_opened_city_id != "":
+		var node = map_data.map_nodes.get(_last_opened_city_id)
+		if node:
+			open_city_menu(node)
+		else:
+			city_menu.visible = true
+
+func _on_army_manage_cancelled():
 	if city_menu:
 		city_menu.visible = true
-	if saved and squad_menu:
-		GameManager.update_squad_data(squad_menu.data.squads, squad_menu.data.unassigned)
-		_rebuild_player_armies_from_squads()
 
-func _rebuild_player_armies_from_squads():
-	"""Rebuild player armies from current squad configuration."""
-	_clear_armies()
-	_create_player_armies_from_squads(current_node_id)
-	_create_enemy_armies(current_faction)
+func _sync_armies_in_place(new_armies: Array, new_unassigned: Array, army_squad_indices: Array):
+	"""Update/create/remove Army nodes at the garrison city based on panel result."""
+	var city_id = _last_opened_city_id if _last_opened_city_id != "" else current_node_id
+
+	# Step 1: Remove armies at this city that were disbanded in the panel
+	var panel_indices: Dictionary = {}
+	for sidx in army_squad_indices:
+		if sidx >= 0:
+			panel_indices[sidx] = true
+	var ri = player_armies.size() - 1
+	while ri >= 0:
+		var army = player_armies[ri]
+		if is_instance_valid(army) and army.squad_index >= 0 \
+				and army.current_city_id == city_id \
+				and not panel_indices.has(army.squad_index):
+			GameManager.squad_data[army.squad_index] = []
+			_remove_army(army)
+		ri -= 1
+
+	# Step 2: Rebuild lookup AFTER removals so freed slots are truly gone
+	var indexed_armies: Dictionary = {}
+	for army in player_armies:
+		if is_instance_valid(army) and army.squad_index >= 0:
+			indexed_armies[army.squad_index] = army
+
+	# Step 3: Allocate squad_indices for brand-new armies (index == -1)
+	var used_indices: Dictionary = indexed_armies.duplicate()  # keys are squad_indices in use
+	for sidx in army_squad_indices:
+		if sidx >= 0:
+			used_indices[sidx] = true
+	var free_slot_ptr: int = 0
+	for i in range(new_armies.size()):
+		if army_squad_indices[i] == -1:
+			while free_slot_ptr < GameConstants.MAX_SQUADS and used_indices.has(free_slot_ptr):
+				free_slot_ptr += 1
+			if free_slot_ptr < GameConstants.MAX_SQUADS:
+				army_squad_indices[i] = free_slot_ptr
+				used_indices[free_slot_ptr] = true
+				free_slot_ptr += 1
+			else:
+				push_error("_sync_armies_in_place: no free squad slots")
+				army_squad_indices[i] = 0
+
+	# Step 4: Update existing armies and create new ones
+	for i in range(new_armies.size()):
+		var squad = new_armies[i]
+		var sidx: int = army_squad_indices[i]
+
+		var typed_squad: Array[CharacterData] = []
+		typed_squad.assign(squad)
+		if sidx < GameManager.squad_data.size():
+			GameManager.squad_data[sidx] = typed_squad
+
+		if indexed_armies.has(sidx):
+			indexed_armies[sidx].squad_data = typed_squad
+		else:
+			var army_type = Army.ArmyType.PLAYER_MAIN if sidx == 0 else Army.ArmyType.PLAYER_SQUAD
+			var army = _create_army(squad, city_id, army_type)
+			army.army_id = "player_squad_%d" % sidx
+			army.army_name = "主队" if sidx == 0 else "第%d队" % (sidx + 1)
+			army.squad_index = sidx
+			army.faction = current_faction
+			army.army_clicked.connect(_on_army_clicked)
+			player_armies.append(army)
+			all_armies.append(army)
+
+	# Step 5: Sync unassigned units
+	var typed_unassigned: Array[CharacterData] = []
+	typed_unassigned.assign(new_unassigned)
+	GameManager.unassigned_units = typed_unassigned
+
+	_sync_city_faction_colors()
 
 func _start_battle(attacker: Army, defender: Army):
 	_pause_all_armies_for_battle()

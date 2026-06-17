@@ -1,0 +1,160 @@
+[gd_scene load_steps=2 format=3 uid="uid://army_manage_panel"]
+
+[ext_resource type="Script" path="res://scripts/ui/ArmyManagePanel.gd" id="1_script"]
+
+[node name="ArmyManagePanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -280.0
+offset_right = 400.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "驻军管理"
+horizontal_alignment = 1
+
+[node name="HBox" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Left" type="VBoxContainer" parent="Panel/VBox/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(170, 0)
+size_flags_horizontal = 0
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Panel/VBox/HBox/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "军队"
+horizontal_alignment = 1
+
+[node name="ScrollArmy" type="ScrollContainer" parent="Panel/VBox/HBox/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ArmyList" type="VBoxContainer" parent="Panel/VBox/HBox/Left/ScrollArmy"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CreateBtn" type="Button" parent="Panel/VBox/HBox/Left"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+text = "+ 新建"
+
+[node name="UnassignedBtn" type="Button" parent="Panel/VBox/HBox/Left"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+toggle_mode = true
+text = "未分配"
+
+[node name="Center" type="VBoxContainer" parent="Panel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="CharTitle" type="Label" parent="Panel/VBox/HBox/Center"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/VBox/HBox/Center"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharList" type="VBoxContainer" parent="Panel/VBox/HBox/Center/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Right" type="VBoxContainer" parent="Panel/VBox/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+size_flags_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="SplitBtn" type="Button" parent="Panel/VBox/HBox/Right"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 34)
+text = "拆分选中"
+
+[node name="MoveTarget" type="OptionButton" parent="Panel/VBox/HBox/Right"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 30)
+text = "目标军队"
+
+[node name="MoveBtn" type="Button" parent="Panel/VBox/HBox/Right"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 34)
+text = "移动到 →"
+
+[node name="DisbandBtn" type="Button" parent="Panel/VBox/HBox/Right"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 34)
+text = "解散军队"
+
+[node name="MsgLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = ""
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+
+[node name="Bottom" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 16
+
+[node name="CancelBtn" type="Button" parent="Panel/VBox/Bottom"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 36)
+text = "取消"
+
+[node name="SaveBtn" type="Button" parent="Panel/VBox/Bottom"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 36)
+text = "保存"

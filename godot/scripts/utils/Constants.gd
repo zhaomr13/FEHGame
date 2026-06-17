@@ -44,5 +44,5 @@ const TILE_SIZE = 64
 
 # Squad system
 const MAX_SQUAD_SIZE: int = 6
-const MAX_SQUADS: int = 10
-const ARMIES_PER_FACTION: int = 10
+const MAX_SQUADS: int = 20
+const ARMIES_PER_FACTION: int = 20

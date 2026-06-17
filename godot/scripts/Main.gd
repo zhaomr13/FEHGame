@@ -149,7 +149,7 @@ func _setup_event_log_panel():
 
 	var collapsed_bg = ColorRect.new()
 	collapsed_bg.name = "Bg"
-	collapsed_bg.color = Color(0.05, 0.07, 0.09, 0.85)
+	collapsed_bg.color = Color(0.05, 0.07, 0.09, 0.92)
 	collapsed_bg.anchor_right = 1.0
 	collapsed_bg.anchor_bottom = 1.0
 	event_log_collapsed.add_child(collapsed_bg)
@@ -194,7 +194,7 @@ func _setup_event_log_panel():
 
 	var expanded_bg = ColorRect.new()
 	expanded_bg.name = "Bg"
-	expanded_bg.color = Color(0.08, 0.1, 0.12, 0.95)
+	expanded_bg.color = Color(0.08, 0.1, 0.12, 0.98)
 	expanded_bg.anchor_right = 1.0
 	expanded_bg.anchor_bottom = 1.0
 	event_log_expanded.add_child(expanded_bg)
