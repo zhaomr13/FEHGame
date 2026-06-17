@@ -131,7 +131,7 @@ func _on_node_clicked(node: MapNode):
 		for city_id in path:
 			if map_data.map_nodes.has(city_id):
 				var pos = map_data.map_nodes[city_id].position
-				waypoints.append(pos + Vector2(20, -20))
+				waypoints.append(pos)
 				cities.append(city_id)
 		selected_army.set_route(waypoints, cities)
 		_clear_selected_army()
@@ -234,7 +234,7 @@ func _on_army_clicked(army: Army):
 				for city_id in path:
 					if map_data.map_nodes.has(city_id):
 						var pos = map_data.map_nodes[city_id].position
-						waypoints.append(pos + Vector2(20, -20))
+						waypoints.append(pos)
 						cities.append(city_id)
 				selected_army.set_route(waypoints, cities)
 				_clear_selected_army()
@@ -250,7 +250,7 @@ func _set_destination_to(army: Army, target_city: String):
 		for city_id in path:
 			if map_data.map_nodes.has(city_id):
 				var pos = map_data.map_nodes[city_id].position
-				waypoints.append(pos + Vector2(20, -20))
+				waypoints.append(pos)
 				cities.append(city_id)
 		army.set_route(waypoints, cities)
 
