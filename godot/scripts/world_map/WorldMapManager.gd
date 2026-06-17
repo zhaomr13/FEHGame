@@ -618,6 +618,7 @@ func setup_city_menu():
 	ui.add_child(city_menu)
 	city_menu.open_formation.connect(_on_open_formation)
 	city_menu.army_selected.connect(_on_city_army_selected)
+	city_menu.city_closed.connect(_on_city_closed)
 	city_menu.visible = false
 
 func setup_army_manage_panel():
@@ -712,7 +713,11 @@ func _on_city_army_selected(army: Army):
 	if city_menu:
 		city_menu.visible = false
 
+func _on_city_closed():
+	_clear_selected_army()
+
 func _on_open_formation():
+	_clear_selected_army()
 	var city_id = _last_opened_city_id if _last_opened_city_id != "" else current_node_id
 	if not army_manage_panel or city_id == "":
 		return
@@ -736,6 +741,7 @@ func _on_army_manage_saved(armies: Array, unassigned: Array, army_squad_indices:
 			city_menu.visible = true
 
 func _on_army_manage_cancelled():
+	_clear_selected_army()
 	if city_menu:
 		city_menu.visible = true
 
