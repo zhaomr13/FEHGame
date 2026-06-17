@@ -13,10 +13,13 @@ var save_manager: Node = null
 @onready var squad_menu_data: SquadMenuData = $"../SquadMenuData"
 @onready var lists: SquadMenuLists = $"../SquadMenuLists"
 
-func _get_gm() -> Node:
-	if game_manager != null:
+func _get_gm():
+	if game_manager != null and is_instance_valid(game_manager):
 		return game_manager
-	return Engine.get_singleton("GameManager")
+	var gm = Engine.get_singleton("GameManager")
+	if gm == null:
+		gm = get_node_or_null("/root/GameManager")
+	return gm
 
 func _get_sm() -> Node:
 	if save_manager != null:
@@ -111,7 +114,9 @@ func _on_remove_from_squad():
 
 func _on_save():
 	squad_menu_data.remove_empty_squads()
-	_get_gm().update_squad_data(squad_menu_data.squads, squad_menu_data.unassigned)
+	var gm = _get_gm()
+	if gm:
+		gm.update_squad_data(squad_menu_data.squads, squad_menu_data.unassigned)
 	_get_sm().save_squads(squad_menu_data.squads, squad_menu_data.unassigned)
 	$"..".visible = false
 	saved.emit()

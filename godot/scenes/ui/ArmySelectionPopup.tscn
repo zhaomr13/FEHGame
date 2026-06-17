@@ -22,7 +22,7 @@ grow_vertical = 2
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-text = "Select Army"
+text = "选择军队"
 horizontal_alignment = 1
 
 [node name="ItemList" type="ItemList" parent="VBoxContainer"]
@@ -31,4 +31,4 @@ size_flags_vertical = 3
 
 [node name="CancelButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
-text = "Cancel"
+text = "取消"

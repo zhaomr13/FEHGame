@@ -40,22 +40,22 @@ func show_city(city_name: String, city_type: int, is_current: bool = false, garr
 	var city_type_name = ""
 	match city_type:
 		GameConstants.NodeType.CITY:
-			city_type_name = "Major City"
+			city_type_name = "主城"
 			gold_reward = 200
 		GameConstants.NodeType.FORT:
-			city_type_name = "Fortress"
+			city_type_name = "要塞"
 			gold_reward = 150
 		GameConstants.NodeType.VILLAGE:
-			city_type_name = "Village"
+			city_type_name = "村庄"
 			gold_reward = 100
 
 	if is_current:
-		info_label.text = "Type: %s\nGold Income: %d\n\nYou are here. Manage your army or deploy to attack." % [city_type_name, gold_reward]
+		info_label.text = "类型: %s\n金币收入: %d\n\n你在这里，可以管理军队或部署攻击。" % [city_type_name, gold_reward]
 		if deploy_button:
 			deploy_button.visible = true
-			deploy_button.text = "Deploy Army"
+			deploy_button.text = "部署"
 	else:
-		info_label.text = "Type: %s\nGold Income: %d\n\nThis city is under your control." % [city_type_name, gold_reward]
+		info_label.text = "类型: %s\n金币收入: %d\n\n此城市在你的控制之下。" % [city_type_name, gold_reward]
 		if deploy_button:
 			deploy_button.visible = false
 
@@ -76,7 +76,7 @@ func _rebuild_garrison_list():
 
 	if _garrisoned_armies.is_empty():
 		var empty_label = Label.new()
-		empty_label.text = "No armies stationed here."
+		empty_label.text = "此处无驻军"
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.modulate = Color(0.8, 0.8, 0.8)
 		garrison_list.add_child(empty_label)
@@ -101,14 +101,14 @@ func _on_heal():
 	for character in GameManager.player_army:
 		character.current_hp = character.max_hp
 		character.soldiers = character.max_soldiers
-	info_label.text = "Army fully healed!"
+	info_label.text = "军队已完全恢复!"
 
 func _on_recruit():
 	recruit_troops.emit()
 	for character in GameManager.player_army:
 		character.soldiers = min(character.soldiers + 50, character.max_soldiers)
 	GameManager.player_gold -= 50
-	info_label.text = "Recruited 50 soldiers per unit! (-50 gold)"
+	info_label.text = "每单位招募了50名士兵! (-50金币)"
 
 func _on_formation():
 	open_formation.emit()

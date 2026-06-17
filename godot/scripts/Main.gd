@@ -170,7 +170,7 @@ func _setup_event_log_panel():
 
 	var toggle_btn = Button.new()
 	toggle_btn.name = "ToggleBtn"
-	toggle_btn.text = "Log"
+	toggle_btn.text = "日志"
 	toggle_btn.anchor_left = 0.88
 	toggle_btn.anchor_right = 1.0
 	toggle_btn.anchor_top = 0.0
@@ -216,7 +216,7 @@ func _setup_event_log_panel():
 
 	var collapse_btn = Button.new()
 	collapse_btn.name = "CollapseBtn"
-	collapse_btn.text = "▲ Collapse"
+	collapse_btn.text = "▲ 收起"
 	collapse_btn.custom_minimum_size = Vector2(0, 28)
 	collapse_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	collapse_btn.pressed.connect(_toggle_event_log)

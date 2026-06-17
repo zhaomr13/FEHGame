@@ -13,13 +13,19 @@ var selected_character: CharacterData = null
 var selected_source: String = ""
 var selected_index: int = -1
 
-func _get_gm() -> Node:
-	if game_manager != null:
+func _get_gm():
+	if game_manager != null and is_instance_valid(game_manager):
 		return game_manager
-	return Engine.get_singleton("GameManager")
+	var gm = Engine.get_singleton("GameManager")
+	if gm == null:
+		gm = get_node_or_null("/root/GameManager")
+	return gm
 
 func load_squad_data():
 	var gm = _get_gm()
+	if gm == null:
+		push_error("SquadMenuData: GameManager not found")
+		return
 	squads = gm.squad_data.duplicate(true)
 	unassigned = gm.unassigned_units.duplicate()
 

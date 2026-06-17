@@ -549,13 +549,13 @@ func setup_planning_ui():
 
 	var end_planning_btn = Button.new()
 	end_planning_btn.name = "EndPlanningButton"
-	end_planning_btn.text = "End Planning Phase"
+	end_planning_btn.text = "结束计划"
 	end_planning_btn.custom_minimum_size = Vector2(200, 50)
 	end_planning_btn.pressed.connect(_on_end_planning_pressed)
 
 	var cancel_plan_btn = Button.new()
 	cancel_plan_btn.name = "ClearPlansButton"
-	cancel_plan_btn.text = "Clear All Plans"
+	cancel_plan_btn.text = "清除计划"
 	cancel_plan_btn.custom_minimum_size = Vector2(150, 50)
 	cancel_plan_btn.pressed.connect(_on_clear_plans_pressed)
 
@@ -608,9 +608,9 @@ func _update_planning_ui():
 	if status:
 		status.visible = not is_planning
 		if current_phase == GamePhase.EXECUTING:
-			status.text = "Executing plans..."
+			status.text = "执行中..."
 		elif current_phase == GamePhase.BATTLE:
-			status.text = "Battle in progress..."
+			status.text = "战斗中..."
 
 func setup_city_menu():
 	city_menu = preload("res://scenes/ui/CityMenu.tscn").instantiate()
@@ -637,7 +637,7 @@ func _on_clear_plans_pressed():
 		if is_instance_valid(army):
 			army.clear_plan()
 	_clear_selected_army()
-	_log_event("All player plans cleared.", Color(0.8, 0.8, 0.95))
+	_log_event("所有计划已清除。", Color(0.8, 0.8, 0.95))
 
 func _start_execution():
 	if current_phase != GamePhase.PLANNING:
@@ -665,7 +665,7 @@ func _on_army_movement_finished(army: Army):
 	_executing_armies.erase(army)
 	_refresh_city_ownership(army.current_city_id)
 	if army.current_city_id != "":
-		_log_event("%s entered %s." % [army.army_name, _get_city_display_name(army.current_city_id)], Color(0.8, 0.95, 0.8))
+		_log_event("%s 进入 %s。" % [army.army_name, _get_city_display_name(army.current_city_id)], Color(0.8, 0.95, 0.8))
 	if current_phase == GamePhase.EXECUTING and player_armies.has(army):
 		_check_encounters()
 		if current_phase != GamePhase.EXECUTING:
@@ -678,7 +678,7 @@ func _on_army_movement_finished(army: Army):
 
 func _on_army_left_city(army: Army, city_id: String):
 	_refresh_city_ownership(city_id)
-	_log_event("%s left %s." % [army.army_name, _get_city_display_name(city_id)], Color(0.95, 0.85, 0.7))
+	_log_event("%s 离开 %s。" % [army.army_name, _get_city_display_name(city_id)], Color(0.95, 0.85, 0.7))
 
 func _end_execution():
 	if current_phase != GamePhase.EXECUTING:
@@ -754,7 +754,7 @@ func _on_battle_ended(victory: bool):
 	var winning_faction = _get_winning_faction(victory)
 	if battle_city_id != "" and winning_faction != "":
 		_set_city_owner(battle_city_id, winning_faction)
-		_log_event("%s is now controlled by %s." % [_get_city_display_name(battle_city_id), winning_faction], Color(0.8, 0.9, 1.0))
+		_log_event("%s 现在由 %s 控制。" % [_get_city_display_name(battle_city_id), winning_faction], Color(0.8, 0.9, 1.0))
 	_remove_battle_losers(victory)
 
 	var i = all_armies.size() - 1
@@ -828,7 +828,7 @@ func _destroy_battle_army(army: Army):
 	"""Explicitly clean up an army defeated in battle."""
 	if not is_instance_valid(army):
 		return
-	_log_event("%s was destroyed in battle." % army.army_name, Color(1.0, 0.75, 0.75))
+	_log_event("%s 在战斗中被消灭。" % army.army_name, Color(1.0, 0.75, 0.75))
 	army.pause_for_battle()
 	army.planned_route.clear()
 	army.planned_cities.clear()
@@ -863,13 +863,13 @@ func _get_city_display_name(city_id: String) -> String:
 
 func _describe_battle_start(attacker: Army, defender: Army) -> String:
 	if battle_city_id != "":
-		return "Battle started at %s between %s and %s." % [_get_city_display_name(battle_city_id), attacker.army_name, defender.army_name]
+		return "%s 战斗开始：%s vs %s。" % [_get_city_display_name(battle_city_id), attacker.army_name, defender.army_name]
 	if attacker.from_city_id != "" and attacker.to_city_id != "":
-		return "Battle started on the road between %s and %s." % [attacker.army_name, defender.army_name]
-	return "Battle started between %s and %s." % [attacker.army_name, defender.army_name]
+		return "道路遭遇战：%s vs %s。" % [attacker.army_name, defender.army_name]
+	return "战斗开始：%s vs %s。" % [attacker.army_name, defender.army_name]
 
 func _describe_battle_end(victory: bool) -> String:
-	var result = "won" if victory else "lost"
+	var result = "胜利" if victory else "失败"
 	if battle_city_id != "":
-		return "Battle at %s %s." % [_get_city_display_name(battle_city_id), result]
-	return "Battle %s." % result
+		return "%s 战斗%s。" % [_get_city_display_name(battle_city_id), result]
+	return "战斗%s。" % result

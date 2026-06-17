@@ -41,19 +41,19 @@ theme_override_constants/separation = 20
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "City Name"
+text = "城市"
 horizontal_alignment = 1
 
 [node name="InfoLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "City information..."
+text = "城市信息..."
 horizontal_alignment = 1
 
 [node name="GarrisonLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Stationed Armies"
+text = "驻军"
 horizontal_alignment = 1
 
 [node name="GarrisonScroll" type="ScrollContainer" parent="Panel/VBoxContainer"]
@@ -73,26 +73,26 @@ alignment = 1
 [node name="HealButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
-text = "Heal Army"
+text = "治疗"
 
 [node name="RecruitButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
-text = "Recruit (+50)"
+text = "招募 (+50)"
 
 [node name="FormationButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
-text = "Formation"
+text = "编队"
 
 [node name="DeployButton" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 custom_minimum_size = Vector2(150, 50)
-text = "Deploy Army"
+text = "部署"
 
 [node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 custom_minimum_size = Vector2(100, 40)
-text = "Leave City"
+text = "离开"

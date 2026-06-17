@@ -4,21 +4,21 @@ signal faction_selected(faction: String)
 
 const FACTIONS = {
 	"askr": {
-		"name": "Askr Kingdom",
-		"description": "Balanced faction with strong recruitment",
-		"bonus": "+20% recruit success",
+		"name": "阿斯克王国",
+		"description": "均衡势力，招募能力强",
+		"bonus": "+20% 招募成功率",
 		"color": Color(0.2, 0.6, 1.0)
 	},
 	"embla": {
-		"name": "Embla Empire",
-		"description": "Military-focused with siege advantages",
-		"bonus": "-20% siege cost",
+		"name": "恩布拉帝国",
+		"description": "军事帝国，攻城优势",
+		"bonus": "-20% 攻城消耗",
 		"color": Color(0.8, 0.2, 0.2)
 	},
 	"nifl": {
-		"name": "Nifl Kingdom",
-		"description": "Fast and agile with speed bonuses",
-		"bonus": "+10% battle speed",
+		"name": "尼福尔王国",
+		"description": "速度敏捷，攻击先手",
+		"bonus": "+10% 战斗速度",
 		"color": Color(0.2, 0.8, 0.8)
 	}
 }
@@ -90,7 +90,7 @@ func create_faction_buttons():
 
 		# Select button
 		var button = Button.new()
-		button.text = "Select"
+		button.text = "选择"
 		button.custom_minimum_size = Vector2(100, 30)
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		button.pressed.connect(_on_faction_button_pressed.bind(faction_id))

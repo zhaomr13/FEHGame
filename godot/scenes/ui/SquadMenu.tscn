@@ -56,13 +56,13 @@ theme_override_constants/separation = 15
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Squad Formation"
+text = "小队编成"
 horizontal_alignment = 1
 
 [node name="SubtitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "Assign characters to squads (max 6 per squad, up to 10 squads)"
+text = "分配角色到小队 (每队最多6人)"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
@@ -87,7 +87,7 @@ size_flags_vertical = 3
 [node name="UnassignedLabel" type="Label" parent="Panel/VBoxContainer/UnassignedPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Unassigned Characters"
+text = "未分配角色"
 horizontal_alignment = 1
 
 [node name="UnassignedList" type="ItemList" parent="Panel/VBoxContainer/UnassignedPanel"]
@@ -99,7 +99,7 @@ select_mode = 0
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Select a character to view details"
+text = "选择角色查看详情"
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -114,22 +114,22 @@ alignment = 1
 [node name="CreateSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 40)
-text = "+ Create Squad"
+text = "+ 新建"
 
 [node name="DisbandSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 40)
-text = "- Disband Squad"
+text = "- 解散"
 
 [node name="MoveToSquadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(140, 40)
-text = "→ Move to Squad"
+text = "→ 编入"
 
 [node name="RemoveButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 40)
-text = "← Remove"
+text = "← 移出"
 
 [node name="ActionContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -139,9 +139,9 @@ alignment = 1
 [node name="SaveButton" type="Button" parent="Panel/VBoxContainer/ActionContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
-text = "Save"
+text = "保存"
 
 [node name="CancelButton" type="Button" parent="Panel/VBoxContainer/ActionContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 50)
-text = "Cancel"
+text = "取消"
