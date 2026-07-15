@@ -15,6 +15,7 @@ const CITY_OVERLAP_THRESHOLD := 60.0
 @onready var toolbar: MapEditorToolbar = $UI/Toolbar
 @onready var properties_panel: MapEditorPropertiesPanel = $UI/PropertiesPanel
 @onready var delete_dialog: ConfirmationDialog = $UI/DeleteConfirmationDialog
+@onready var save_dialog: AcceptDialog = $UI/SaveResultDialog
 
 var _metadata: Dictionary = {}
 var _cities: Array[Dictionary] = []
@@ -232,13 +233,19 @@ func _redraw_connections():
 func _on_save():
 	var error := _validate_map()
 	if error != "":
-		print("保存失败: " + error)
+		_show_save_result("保存失败: " + error)
 		return
 	var ok := MapEditorYamlWriter.write_world_map(_metadata, _cities)
 	if ok:
-		print("地图已保存")
+		_show_save_result("地图已保存")
 	else:
-		print("保存失败")
+		_show_save_result("保存失败，请检查文件权限。")
+
+func _show_save_result(message: String):
+	print(message)
+	if save_dialog:
+		save_dialog.dialog_text = message
+		save_dialog.popup_centered()
 
 func _validate_map() -> String:
 	for i in range(_cities.size()):
