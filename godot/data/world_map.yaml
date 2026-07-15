@@ -11,6 +11,7 @@ nodes:
   - id: "city_01"
     name: "北境要塞"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2719
       y: 157
@@ -18,6 +19,7 @@ nodes:
   - id: "city_02"
     name: "冰风哨站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1226
       y: 225
@@ -25,6 +27,7 @@ nodes:
   - id: "city_03"
     name: "霜狼营地"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 3116
       y: 152
@@ -32,6 +35,7 @@ nodes:
   - id: "city_04"
     name: "雪原镇"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2333
       y: 144
@@ -39,6 +43,7 @@ nodes:
   - id: "city_05"
     name: "极光村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 230
       y: 115
@@ -46,6 +51,7 @@ nodes:
   - id: "city_06"
     name: "冻土驿站"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 1052
       y: 358
@@ -53,6 +59,7 @@ nodes:
   - id: "city_07"
     name: "寒铁堡"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 2398
       y: 201
@@ -60,6 +67,7 @@ nodes:
   - id: "city_08"
     name: "白鸦哨所"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2972
       y: 379
@@ -67,6 +75,7 @@ nodes:
   - id: "city_09"
     name: "冬息村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1939
       y: 401
@@ -74,6 +83,7 @@ nodes:
   - id: "city_10"
     name: "北望塔"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 3660
       y: 103
@@ -81,6 +91,7 @@ nodes:
   - id: "city_11"
     name: "王都阿斯卡"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1153
       y: 932
@@ -88,6 +99,7 @@ nodes:
   - id: "city_12"
     name: "中央广场"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1136
       y: 720
@@ -95,6 +107,7 @@ nodes:
   - id: "city_13"
     name: "圣骑士团驻地"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1878
       y: 604
@@ -102,6 +115,7 @@ nodes:
   - id: "city_14"
     name: "贤者之塔"
     type: "village"
+    icon_size: "small"
     pos:
       x: 896
       y: 867
@@ -109,6 +123,7 @@ nodes:
   - id: "city_15"
     name: "商业街"
     type: "village"
+    icon_size: "small"
     pos:
       x: 2972
       y: 770
@@ -116,6 +131,7 @@ nodes:
   - id: "city_16"
     name: "南门集市"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2381
       y: 1049
@@ -123,6 +139,7 @@ nodes:
   - id: "city_17"
     name: "东门工坊"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2050
       y: 580
@@ -130,6 +147,7 @@ nodes:
   - id: "city_18"
     name: "西门酒馆"
     type: "village"
+    icon_size: "small"
     pos:
       x: 3074
       y: 1133
@@ -137,6 +155,7 @@ nodes:
   - id: "city_19"
     name: "北门军营"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1981
       y: 1091
@@ -144,6 +163,7 @@ nodes:
   - id: "city_20"
     name: "皇家图书馆"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 784
       y: 546
@@ -151,6 +171,7 @@ nodes:
   - id: "city_21"
     name: "治愈教会"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1685
       y: 581
@@ -158,6 +179,7 @@ nodes:
   - id: "city_22"
     name: "勇者大道"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 1638
       y: 964
@@ -165,6 +187,7 @@ nodes:
   - id: "city_23"
     name: "冒险者公会"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1994
       y: 666
@@ -172,6 +195,7 @@ nodes:
   - id: "city_24"
     name: "旧城区"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1358
       y: 1186
@@ -179,6 +203,7 @@ nodes:
   - id: "city_25"
     name: "新城区"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3299
       y: 1163
@@ -186,6 +211,7 @@ nodes:
   - id: "city_26"
     name: "中央车站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3100
       y: 675
@@ -193,6 +219,7 @@ nodes:
   - id: "city_27"
     name: "王立学院"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1502
       y: 667
@@ -200,6 +227,7 @@ nodes:
   - id: "city_28"
     name: "骑士训练场"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 1605
       y: 1155
@@ -207,6 +235,7 @@ nodes:
   - id: "city_29"
     name: "市民广场"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1399
       y: 832
@@ -214,6 +243,7 @@ nodes:
   - id: "city_30"
     name: "中央公园"
     type: "village"
+    icon_size: "small"
     pos:
       x: 729
       y: 734
@@ -221,6 +251,7 @@ nodes:
   - id: "city_31"
     name: "大钟楼"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1792
       y: 910
@@ -228,6 +259,7 @@ nodes:
   - id: "city_32"
     name: "市政厅"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1364
       y: 1080
@@ -235,6 +267,7 @@ nodes:
   - id: "city_33"
     name: "熔岩要塞"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 744
       y: 817
@@ -242,6 +275,7 @@ nodes:
   - id: "city_34"
     name: "炎狼巢穴"
     type: "city"
+    icon_size: "large"
     pos:
       x: 910
       y: 1258
@@ -249,6 +283,7 @@ nodes:
   - id: "city_35"
     name: "灰烬哨站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 642
       y: 742
@@ -256,6 +291,7 @@ nodes:
   - id: "city_36"
     name: "焦土村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 638
       y: 1364
@@ -263,6 +299,7 @@ nodes:
   - id: "city_37"
     name: "火晶矿场"
     type: "city"
+    icon_size: "large"
     pos:
       x: 917
       y: 970
@@ -270,6 +307,7 @@ nodes:
   - id: "city_38"
     name: "赤焰营地"
     type: "city"
+    icon_size: "large"
     pos:
       x: 383
       y: 1121
@@ -277,6 +315,7 @@ nodes:
   - id: "city_39"
     name: "熔铁工坊"
     type: "city"
+    icon_size: "large"
     pos:
       x: 196
       y: 1481
@@ -284,6 +323,7 @@ nodes:
   - id: "city_40"
     name: "热风驿站"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 427
       y: 1411
@@ -291,6 +331,7 @@ nodes:
   - id: "city_41"
     name: "焰纹祭坛"
     type: "city"
+    icon_size: "large"
     pos:
       x: 230
       y: 994
@@ -298,6 +339,7 @@ nodes:
   - id: "city_42"
     name: "岩浆渡口"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1058
       y: 1141
@@ -305,6 +347,7 @@ nodes:
   - id: "city_43"
     name: "焚风哨所"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 123
       y: 1296
@@ -312,6 +355,7 @@ nodes:
   - id: "city_44"
     name: "炎狱之门"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1199
       y: 1368
@@ -319,6 +363,7 @@ nodes:
   - id: "city_45"
     name: "冰晶神殿"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3336
       y: 714
@@ -326,6 +371,7 @@ nodes:
   - id: "city_46"
     name: "雪精灵村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2963
       y: 1064
@@ -333,6 +379,7 @@ nodes:
   - id: "city_47"
     name: "极光观测站"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 3179
       y: 1112
@@ -340,6 +387,7 @@ nodes:
   - id: "city_48"
     name: "冰瀑镇"
     type: "village"
+    icon_size: "small"
     pos:
       x: 3679
       y: 708
@@ -347,6 +395,7 @@ nodes:
   - id: "city_49"
     name: "霜语林地"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 3251
       y: 1461
@@ -354,6 +403,7 @@ nodes:
   - id: "city_50"
     name: "冰镜湖"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3047
       y: 756
@@ -361,6 +411,7 @@ nodes:
   - id: "city_51"
     name: "冬青驿站"
     type: "village"
+    icon_size: "small"
     pos:
       x: 2970
       y: 1152
@@ -368,6 +419,7 @@ nodes:
   - id: "city_52"
     name: "冰牙要塞"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3726
       y: 600
@@ -375,6 +427,7 @@ nodes:
   - id: "city_53"
     name: "雪豹营地"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3640
       y: 619
@@ -382,6 +435,7 @@ nodes:
   - id: "city_54"
     name: "寒冰矿坑"
     type: "village"
+    icon_size: "small"
     pos:
       x: 3383
       y: 1499
@@ -389,6 +443,7 @@ nodes:
   - id: "city_55"
     name: "冰风峡谷"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3269
       y: 845
@@ -396,6 +451,7 @@ nodes:
   - id: "city_56"
     name: "永冻港"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 2801
       y: 687
@@ -403,6 +459,7 @@ nodes:
   - id: "city_57"
     name: "霜花村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2781
       y: 1378
@@ -410,6 +467,7 @@ nodes:
   - id: "city_58"
     name: "冰柱洞窟"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 2897
       y: 731
@@ -417,6 +475,7 @@ nodes:
   - id: "city_59"
     name: "雪鸮哨站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2978
       y: 871
@@ -424,6 +483,7 @@ nodes:
   - id: "city_60"
     name: "南风港"
     type: "village"
+    icon_size: "small"
     pos:
       x: 2984
       y: 1933
@@ -431,6 +491,7 @@ nodes:
   - id: "city_61"
     name: "绿洲镇"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 2708
       y: 1705
@@ -438,6 +499,7 @@ nodes:
   - id: "city_62"
     name: "沙漠驿站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2134
       y: 1882
@@ -445,6 +507,7 @@ nodes:
   - id: "city_63"
     name: "沙丘营地"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2619
       y: 1962
@@ -452,6 +515,7 @@ nodes:
   - id: "city_64"
     name: "烈日要塞"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1420
       y: 1565
@@ -459,6 +523,7 @@ nodes:
   - id: "city_65"
     name: "仙人掌村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2909
       y: 1735
@@ -466,6 +531,7 @@ nodes:
   - id: "city_66"
     name: "流沙渡口"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 529
       y: 1572
@@ -473,6 +539,7 @@ nodes:
   - id: "city_67"
     name: "热风沙漠"
     type: "city"
+    icon_size: "large"
     pos:
       x: 741
       y: 1734
@@ -480,6 +547,7 @@ nodes:
   - id: "city_68"
     name: "绿洲集市"
     type: "city"
+    icon_size: "large"
     pos:
       x: 628
       y: 1838
@@ -487,6 +555,7 @@ nodes:
   - id: "city_69"
     name: "沙蝎巢穴"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 1474
       y: 1785
@@ -494,6 +563,7 @@ nodes:
   - id: "city_70"
     name: "落日哨站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1377
       y: 2052
@@ -501,6 +571,7 @@ nodes:
   - id: "city_71"
     name: "南方遗迹"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2838
       y: 1984
@@ -508,6 +579,7 @@ nodes:
   - id: "city_72"
     name: "边境哨站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 2037
       y: 1753
@@ -515,6 +587,7 @@ nodes:
   - id: "city_73"
     name: "中立贸易站"
     type: "fort"
+    icon_size: "large"
     pos:
       x: 486
       y: 298
@@ -522,6 +595,7 @@ nodes:
   - id: "city_74"
     name: "缓冲营地"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1551
       y: 967
@@ -529,6 +603,7 @@ nodes:
   - id: "city_75"
     name: "界碑村"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3638
       y: 1593
@@ -536,6 +611,7 @@ nodes:
   - id: "city_76"
     name: "和平驿站"
     type: "city"
+    icon_size: "large"
     pos:
       x: 503
       y: 224
@@ -543,6 +619,7 @@ nodes:
   - id: "city_77"
     name: "三不管地带"
     type: "city"
+    icon_size: "large"
     pos:
       x: 3629
       y: 323
@@ -550,6 +627,7 @@ nodes:
   - id: "city_78"
     name: "边境集市"
     type: "city"
+    icon_size: "large"
     pos:
       x: 1828
       y: 475
@@ -557,6 +635,7 @@ nodes:
   - id: "city_79"
     name: "无人区前哨"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1123
       y: 1890
@@ -564,6 +643,7 @@ nodes:
   - id: "city_80"
     name: "缓冲要塞"
     type: "village"
+    icon_size: "small"
     pos:
       x: 1915
       y: 1754

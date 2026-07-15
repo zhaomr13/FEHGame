@@ -1,27 +1,26 @@
-[gd_scene load_steps=6 format=3 uid="uid://djctfbygkh2x2"]
+[gd_scene format=3 uid="uid://djctfbygkh2x2"]
 
 [ext_resource type="Script" uid="uid://dnwkk5m8jbkcu" path="res://scripts/Main.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bqvwmjec5d24u" path="res://scenes/imgs/title_page.png" id="2_vcsgt"]
 [ext_resource type="PackedScene" path="res://scenes/world_map/WorldMap.tscn" id="2_worldmap"]
 [ext_resource type="PackedScene" path="res://scenes/battle/BattleScene.tscn" id="3_battlescene"]
 [ext_resource type="PackedScene" path="res://scenes/ui/FactionSelect.tscn" id="4_faction"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1"]
 font_size = 48
+font_color = Color(0.9137255, 1, 1, 1)
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=2062494020]
 script = ExtResource("1_script")
 
-[node name="MainMenu" type="CanvasLayer" parent="."]
+[node name="MainMenu" type="CanvasLayer" parent="." unique_id=1472030947]
 
-[node name="Background" type="ColorRect" parent="MainMenu"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.1, 0.15, 0.25, 1)
+[node name="Background" type="Sprite2D" parent="MainMenu" unique_id=1862132079]
+position = Vector2(642, 398.99997)
+scale = Vector2(0.847, 0.829)
+texture = ExtResource("2_vcsgt")
 
-[node name="Title" type="Label" parent="MainMenu"]
+[node name="Title" type="Label" parent="MainMenu" unique_id=880498633]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -33,11 +32,11 @@ offset_right = 200.0
 offset_bottom = -50.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "火焰纹章 策略战棋"
+text = "火焰战争"
 label_settings = SubResource("LabelSettings_1")
 horizontal_alignment = 1
 
-[node name="StartButton" type="Button" parent="MainMenu"]
+[node name="StartButton" type="Button" parent="MainMenu" unique_id=1262771067]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -51,13 +50,13 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "开始游戏"
 
-[node name="WorldMap" parent="." instance=ExtResource("2_worldmap")]
+[node name="WorldMap" parent="." unique_id=1905777362 instance=ExtResource("2_worldmap")]
 visible = false
 
-[node name="BattleScene" parent="." instance=ExtResource("3_battlescene")]
+[node name="BattleScene" parent="." unique_id=807759605 instance=ExtResource("3_battlescene")]
 visible = false
 
-[node name="FactionSelectLayer" type="CanvasLayer" parent="."]
+[node name="FactionSelectLayer" type="CanvasLayer" parent="." unique_id=445619834]
 
-[node name="FactionSelect" parent="FactionSelectLayer" instance=ExtResource("4_faction")]
+[node name="FactionSelect" parent="FactionSelectLayer" unique_id=65539881 instance=ExtResource("4_faction")]
 visible = false

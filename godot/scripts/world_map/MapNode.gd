@@ -8,6 +8,7 @@ signal node_clicked(node: MapNode)
 @export var node_name: String = "Unknown"
 @export var connections: Array = []
 @export var is_explored: bool = false
+@export var icon_size: String = "large"
 
 var position_on_map: Vector2i
 var current_faction: String = ""
@@ -24,7 +25,14 @@ const FACTION_COLORS = {
 	"": Color(0.5, 0.5, 0.5)  # Neutral - gray
 }
 
+const LARGE_CITY_TEXTURE = preload("res://assets/ui/large_city.png")
+const SMALL_CITY_TEXTURE = preload("res://assets/ui/small_city.png")
+
+const LARGE_CITY_SIZE = 48.0
+const SMALL_CITY_SIZE = 32.0
+
 func _ready():
+	_setup_icon()
 	if label:
 		label.text = node_name
 	update_visual()
@@ -32,6 +40,19 @@ func _ready():
 	# Connect Area2D input event
 	if area:
 		area.input_event.connect(_on_area_input_event)
+
+func _setup_icon():
+	if not sprite:
+		return
+	match icon_size:
+		"small":
+			sprite.texture = SMALL_CITY_TEXTURE
+			var tex_size = SMALL_CITY_TEXTURE.get_size()
+			sprite.scale = Vector2(SMALL_CITY_SIZE / tex_size.x, SMALL_CITY_SIZE / tex_size.y)
+		"large", _:
+			sprite.texture = LARGE_CITY_TEXTURE
+			var tex_size = LARGE_CITY_TEXTURE.get_size()
+			sprite.scale = Vector2(LARGE_CITY_SIZE / tex_size.x, LARGE_CITY_SIZE / tex_size.y)
 
 func _on_area_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

@@ -506,14 +506,9 @@ func _plan_ai_moves():
 					break
 
 func setup_background():
-	if not background_sprite:
-		return
-	# Use a solid black texture instead of loading an image
-	var image = Image.create(1, 1, false, Image.FORMAT_RGB8)
-	image.fill(Color.BLACK)
-	background_sprite.texture = ImageTexture.create_from_image(image)
-	background_sprite.position = MAP_SIZE / 2.0
-	background_sprite.scale = Vector2(MAP_SIZE.x, MAP_SIZE.y)
+	# Background texture is assigned in WorldMap.tscn via the editor.
+	# This function is kept as a hook for any future runtime background setup.
+	pass
 
 func setup_ui():
 	setup_city_menu()

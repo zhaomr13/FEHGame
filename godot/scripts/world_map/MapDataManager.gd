@@ -47,6 +47,16 @@ func _node_type_from_string(type_str: String) -> int:
 			return GameConstants.NodeType.CITY
 	return GameConstants.NodeType.CITY
 
+func _get_icon_size(node: Dictionary) -> String:
+	var size_str: String = node.get("icon_size", "")
+	if size_str == "large" or size_str == "small":
+		return size_str
+	# Default based on node type
+	var type_str: String = node.get("type", "city")
+	if type_str == "village":
+		return "small"
+	return "large"
+
 func _build_node_config(data: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	var nodes = data.get("nodes", [])
@@ -62,7 +72,8 @@ func _build_node_config(data: Dictionary) -> Dictionary:
 			"type": _node_type_from_string(node.get("type", "city")),
 			"pos": Vector2(pos.get("x", 0.0), pos.get("y", 0.0)),
 			"connections": [],
-			"faction": node.get("faction", "") if node.get("faction") != null else ""
+			"faction": node.get("faction", "") if node.get("faction") != null else "",
+			"icon_size": _get_icon_size(node)
 		}
 
 	_generate_connections(result, data)
@@ -218,6 +229,7 @@ func create_map_nodes():
 		node.node_type = config.type
 		node.position = config.pos
 		node.connections = config.connections
+		node.icon_size = config.icon_size
 		node.set_faction_color(config.faction)
 		node.is_explored = true
 		node.node_clicked.connect(_on_node_clicked)

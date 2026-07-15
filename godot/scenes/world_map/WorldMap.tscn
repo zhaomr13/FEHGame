@@ -1,32 +1,34 @@
-[gd_scene load_steps=5 format=3 uid="uid://worldmap_scene"]
+[gd_scene format=3 uid="uid://ht3dhxqobav5"]
 
-[ext_resource type="Script" path="res://scripts/world_map/WorldMapManager.gd" id="1_script"]
-[ext_resource type="Script" path="res://scripts/world_map/MapDataManager.gd" id="2_mapdata"]
-[ext_resource type="Script" path="res://scripts/world_map/GameClock.gd" id="3_clock"]
+[ext_resource type="Script" uid="uid://1ib4es73pbl1" path="res://scripts/world_map/WorldMapManager.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bc2yde4sxbnil" path="res://scripts/world_map/MapDataManager.gd" id="2_mapdata"]
+[ext_resource type="Script" uid="uid://cq61cj46ufo01" path="res://scripts/world_map/GameClock.gd" id="3_clock"]
+[ext_resource type="Texture2D" uid="uid://bk4cmjqkk8ik6" path="res://assets/world_map/backgrounds/world_map.png" id="4_bg"]
 
-[node name="WorldMap" type="Node2D"]
+[node name="WorldMap" type="Node2D" unique_id=723743169]
 script = ExtResource("1_script")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-anchor_mode = 1
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1008529223]
 
-[node name="Background" type="Sprite2D" parent="."]
+[node name="Background" type="Sprite2D" parent="." unique_id=1236197131]
+modulate = Color(1, 1, 1, 0.54901963)
 z_index = -1
-centered = true
-position = Vector2(640, 360)
+position = Vector2(1920, 1080)
+scale = Vector2(1.54217, 1.4734)
+texture = ExtResource("4_bg")
 
-[node name="Connections" type="Node2D" parent="."]
+[node name="Connections" type="Node2D" parent="." unique_id=868972344]
 z_index = -1
 
-[node name="MapNodes" type="Node2D" parent="."]
+[node name="MapNodes" type="Node2D" parent="." unique_id=1281960525]
 
-[node name="Armies" type="Node2D" parent="."]
+[node name="Armies" type="Node2D" parent="." unique_id=1148712222]
 z_index = 10
 
-[node name="WorldMapUI" type="CanvasLayer" parent="."]
+[node name="WorldMapUI" type="CanvasLayer" parent="." unique_id=2027543088]
 
-[node name="MapDataManager" type="Node2D" parent="."]
+[node name="MapDataManager" type="Node2D" parent="." unique_id=1881326717]
 script = ExtResource("2_mapdata")
 
-[node name="GameClock" type="Node" parent="."]
+[node name="GameClock" type="Node" parent="." unique_id=1266430248]
 script = ExtResource("3_clock")
