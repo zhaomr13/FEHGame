@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://mapeditorcity_scene"]
+[gd_scene load_steps=5 format=3 uid="uid://oowyAFzbcy6mQ"]
 
 [ext_resource type="Script" path="res://scripts/editor/MapEditorCity.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/world_map/MapNode.tscn" id="2_mapnode"]
