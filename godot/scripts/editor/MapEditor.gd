@@ -19,6 +19,12 @@ var _metadata: Dictionary = {}
 var _cities: Array[Dictionary] = []
 var _city_nodes: Dictionary = {}
 var _selected_city: MapEditorCity = null
+
+func _get_city_data_by_id(city_id: String) -> Dictionary:
+	for city in _cities:
+		if city.get("id", "") == city_id:
+			return city
+	return {}
 var _drag_start: Vector2 = Vector2.ZERO
 var _is_panning: bool = false
 
@@ -145,14 +151,31 @@ func _on_type_changed(new_type: String):
 func _on_connection_toggled(other_id: String, connected: bool):
 	if _selected_city == null:
 		return
+	var selected_id := _selected_city.get_city_id()
+	if selected_id == "":
+		return
+
+	# Ensure arrays exist
 	if not _selected_city.data.has("force_connections"):
 		_selected_city.data["force_connections"] = []
-	var conns: Array = _selected_city.data["force_connections"] as Array
+	var other_city := _get_city_data_by_id(other_id)
+	if other_city.is_empty():
+		return
+	if not other_city.has("force_connections"):
+		other_city["force_connections"] = []
+
+	var selected_conns: Array = _selected_city.data["force_connections"] as Array
+	var other_conns: Array = other_city["force_connections"] as Array
+
 	if connected:
-		if not conns.has(other_id):
-			conns.append(other_id)
+		if not selected_conns.has(other_id):
+			selected_conns.append(other_id)
+		if not other_conns.has(selected_id):
+			other_conns.append(selected_id)
 	else:
-		conns.erase(other_id)
+		selected_conns.erase(other_id)
+		other_conns.erase(selected_id)
+
 	_redraw_connections()
 
 func _redraw_connections():
