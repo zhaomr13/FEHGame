@@ -20,7 +20,9 @@ func _ready():
 
 func setup(city_data: Dictionary):
 	data = city_data
-	var pos = data.get("pos", {})
+	if not data.has("pos"):
+		data["pos"] = {}
+	var pos = data["pos"]
 	position = Vector2(pos.get("x", 0.0), pos.get("y", 0.0))
 	_update_map_node()
 	# Disable MapNode's built-in click handling so the editor wrapper controls selection/drag.
@@ -46,6 +48,8 @@ func _update_map_node():
 	map_node.update_visual()
 
 func set_selected(selected: bool):
+	if is_selected == selected:
+		return
 	is_selected = selected
 	if selection_ring:
 		selection_ring.visible = selected
@@ -56,7 +60,7 @@ func get_city_id() -> String:
 func refresh_visual():
 	_update_map_node()
 
-func _on_area_input_event(viewport, event: InputEvent, shape_idx):
+func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			city_selected.emit(self)
