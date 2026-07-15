@@ -4,185 +4,117 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a C++ OpenGL application for viewing SSBP (Sprite Studio Binary Protocol) version 3 animation files. It is specifically designed for viewing Fire Emblem Heroes character sprite animations.
+This is a Godot 4.6 turn-based strategy RPG inspired by Fire Emblem Heroes and Romance of the Three Kingdoms. The UI is in Chinese. The Godot project lives under `godot/`; the repo root also contains Python tools and design docs.
 
-## Build Commands
+Key design choices:
 
-The project is a simple C++ application that uses g++ directly (no Makefile or CMake).
+- **Static game data in YAML**: character roster (`godot/data/characters.yaml`) and world map (`godot/data/world_map.yaml`) are authored directly; runtime generators have been removed.
+- **Army-Squad unification**: the concept of "squad" and "army" was merged. `GameManager.squad_data` is now the live army configuration; `Army` nodes on the world map are updated in place rather than destroyed and rebuilt when the player edits formations in a city.
+- **Auto-battle**: combat is fully automated based on per-character tactics (condition/target/action priorities similar to *Unicorn Overlord*).
 
-### Dependencies (macOS with Homebrew)
-```bash
-brew install glfw glm webp
-```
+## Common Commands
 
-### Compile
-```bash
-cd /Users/mzhao/workdir/feh/ssbp_VV
-g++ -g -std=c++11 -I./glad/include -I/opt/homebrew/include -I./stb \
-    main.cpp sprite.cpp shader.cpp texture.cpp glad.c \
-    ssbp/SS5Player.cpp ssbp/SS5PlayerPlatform.cpp \
-    ssbp/Common/Animator/ssplayer_PartState.cpp \
-    ssbp/Common/Animator/ssplayer_effect.cpp \
-    ssbp/Common/Animator/ssplayer_effectfunction.cpp \
-    ssbp/Common/Animator/ssplayer_matrix.cpp \
-    ssbp/Common/Helper/DebugPrint.cpp \
-    -framework OpenGL -L/opt/homebrew/lib -lglfw -lWebP -o ssbp_viewer
-```
+All Godot commands are run from the `godot/` directory. On macOS the project uses the Godot editor binary at `/Applications/Godot.app/Contents/MacOS/Godot`.
 
-**Note:** On Intel Macs, replace `/opt/homebrew` with `/usr/local` in the include and library paths.
-
-### Run
-```bash
-# Run with drag-and-drop prompt
-./ssbp_viewer
-
-# Run with specific file
-./ssbp_viewer path/to/file.ssbp
-```
-
-## Project Architecture
-
-### Core Rendering Pipeline
-The application follows a simple OpenGL rendering pipeline:
-
-1. **main.cpp** - Entry point, GLFW window setup, input handling, render loop
-2. **Sprite class** (sprite.h/cpp) - Wraps the SS5Player library, manages animation state (play/pause/loop/speed)
-3. **Quad class** (quad.h) - Base OpenGL geometry (VAO/VBO/EBO) for rendering quads
-4. **Shader class** (shader.h/cpp) - OpenGL shader program compilation and uniform management
-5. **Texture class** (texture.h/cpp) - Loads PNG/WebP textures using stb_image and libwebp
-
-### SS5Player Library (ssbp/)
-This is the Sprite Studio playback engine from Web Technology Corp:
-- **SS5Player.h/cpp** - Core animation player with timeline, parts, and keyframe interpolation
-- **SS5PlayerData.h** - SSBP file format structures
-- **SS5PlayerPlatform.h** - Platform abstraction layer
-- **Common/** - Effect system, matrix math, cell maps, MersenneTwister RNG
-
-The library uses OpenGL 3.3 Core Profile and renders sprite animations from .ssbp files.
-
-### File Loading
-**File_reader.h** - Custom file reader that:
-- Reads binary files for textures (PNG/WebP detection via magic bytes)
-- Reads text files for shaders
-- Supports retry logic for texture paths (walks up directory tree)
-
-### Shaders
-Located in `shaders/`:
-- **sprite.vertex/sprite.fragment** - For rendering sprite animations
-- **background.vertex/background.fragment** - For the background quad
-- **background.png** - Default background texture
-
-## Key Dependencies
-
-- **GLFW** - Window creation and input handling
-- **GLAD** - OpenGL function loading (OpenGL 3.3 Core)
-- **GLM** - Vector/matrix math
-- **stb_image** - PNG image loading (in stb/ directory)
-- **stb_image_write** - PNG export for screenshots
-- **libwebp** - WebP texture support
-
-## Input Controls
-
-- **A/Left Arrow** - Previous animation
-- **S/Right Arrow** - Next animation
-- **L** - Toggle animation loop
-- **Space** - Pause/replay (when not looping)
-- **X** - Flip horizontally
-- **C** - Center camera
-- **Q** - Screenshot (exports all frames when Shift+Q)
-- **W** - Toggle wireframe mode
-- **1/2/3** - Change animation speed
-- **H** - Display help
-- **Mouse Drag** - Pan camera
-- **Scroll** - Zoom
-
-## Data Files
-
-The application expects:
-- **.ssbp files** - Sprite Studio animation files (binary format version 3)
-- **Texture files** - PNG or WebP images referenced by the .ssbp
-
-### Run with Character Name
+Open the project in the Godot editor:
 
 ```bash
-# Using character name (looks in sprites/<Name>/ for .ssbp file)
-./ssbp_viewer Abel
-./ssbp_viewer Byleth_Female
-./ssbp_viewer Alfonse
-
-# With custom weapon
-./ssbp_viewer Abel -w wep_ax.png          # Use axe instead of lance
-./ssbp_viewer Byleth_Female --weapon wep_sw.png  # Use sword
-
-# Still works with direct paths
-./ssbp_viewer sprites/Abel/ch01_16_Abel_M_Normal.ssbp
+cd godot
+/Applications/Godot.app/Contents/MacOS/Godot --editor
 ```
 
-### Weapon & Effect Selection
-
-Use `-w` or `--weapon` to override the default weapon:
-Use `-e` or `--effect` to override the weapon swing effect:
+Run the game directly:
 
 ```bash
-./ssbp_viewer <character> -w <weapon_file>
-./ssbp_viewer <character> -e <effect_file>
-./ssbp_viewer <character> -w <weapon_file> -e <effect_file>
+cd godot
+/Applications/Godot.app/Contents/MacOS/Godot
 ```
 
-**Common weapon files in `Wep/`:**
-- `wep_sw.png` - Sword
-- `wep_lc.png` - Lance
-- `wep_ax.png` - Axe
-- `wep_bw.png` - Bow
-- `wep_mg.png` - Magic/Tome
-- `wep_rd.png` - Rod/Staff
-- `wep_dg.png` - Dagger
+There is currently no test framework, linter, or CI configured. Validation is done by running the game in the editor or via the command above.
 
-Many variants available (e.g., `wep_sw001.png`, `wep_ax024.png`, etc.)
+### Data generation tools
 
-**Common effect files in `Wep/`:**
-- `eff_WepSwing.png` - Default weapon swing effect
-- `Btl_Hit01.png`, `Btl_Hit02.png` - Hit effects
-- `Blt_Mag01.png` - Magic bullet effect
-- Many other effect files available
+If you need to regenerate the static databases:
 
-## Godot Export Workflow
-
-### Prerequisites
 ```bash
-pip3 install Pillow
+# Regenerate characters.yaml (115 characters: 15 story + 100 deterministic generated)
+python3 tools/generate_characters_yaml.py
+
+# Convert world_map.json to world_map.yaml (legacy migration helper)
+python3 tools/convert_world_map_to_yaml.py
 ```
 
-### Step 1: Export SSBP to PNG Frames
-```bash
-./ssbp_viewer path/to/file.ssbp
-# This auto-exports all animations to: file_name_Screenshots/
-```
+Both scripts write into `godot/data/`.
 
-### Step 2: Convert to Godot Atlas
-```bash
-python3 ssbp_to_godot_atlas.py <input_folder> <output_name> [fps]
+## High-Level Architecture
 
-# Example:
-python3 ssbp_to_godot_atlas.py ch90_06_ArmorAX_M_Normal_Screenshots ArmorAX 30
-```
+### Scene and autoload layout
 
-This generates:
-- `ArmorAX.png` - Spritesheet atlas (all frames packed)
-- `ArmorAX.json` - Aseprite-compatible animation metadata
-- `ArmorAX.json.import.cfg` - Godot import hints
+- `godot/project.godot` — main scene is `scenes/Main.tscn`; autoloads are `GameManager` and `SaveManager`.
+- `scripts/Main.gd` — owns the top-level `WorldMap`, `BattleScene`, `MainMenu`, and `FactionSelect` nodes. It switches visibility based on `GameManager.state_changed` and handles faction selection / starting positions.
+- `scripts/autoload/GameManager.gd` — global game state (current faction, `player_army`, `squad_data`/`unassigned_units`, all characters, available recruits, battle signals).
+- `scripts/autoload/SaveManager.gd` — saves/loads `user://savegame.json` and `user://squads.json` (v2 dynamic-squad format).
 
-### Step 3: Import to Godot
+### Game state
 
-1. Install **Aseprite Wizard** plugin from Godot Asset Library
-2. Copy `ArmorAX.png` and `ArmorAX.json` to your Godot project
-3. Godot will auto-import with animation tags preserved
-4. Use `AnimatedSprite2D` node - animations will be available by name (Attack1, Idle, etc.)
+`scripts/utils/Constants.gd` defines `GameConstants.GameState` (MAIN_MENU, WORLD_MAP, BATTLE_DEPLOYMENT, BATTLE_ACTIVE, BATTLE_RESULT, GAME_OVER), `NodeType`, `CharacterClass`, `Formation`, and squad limits (`MAX_SQUADS = 20`, `MAX_SQUAD_SIZE = 6`, `ARMIES_PER_FACTION = 10`).
 
-### Atlas Converter Features
-- Packs all animation frames into optimized spritesheet
-- Generates Aseprite-compatible JSON with animation tags
-- Preserves frame order and timing
-- Supports variable FPS (default: 30)
-- Handles transparent PNGs correctly
-- Pads atlas to power-of-2 for GPU compatibility
+### World map
+
+- `scripts/world_map/MapDataManager.gd` loads `res://data/world_map.yaml` via `YamlParser`, builds a node graph, auto-generates connections, validates connectivity/overlap, and creates `MapNode` instances.
+- `scripts/world_map/WorldMapManager.gd` drives the world-map loop:
+  - **Planning phase**: player selects armies, sets routes by clicking connected cities, and edits garrisons through `ArmyManagePanel`.
+  - **Execution phase**: AI plans moves, all armies move along their routes, and hostile armies that share a city or collide on the same road segment trigger battle.
+  - **Battle phase**: pauses movement, emits battle signal, then returns to planning after `GameManager.battle_ended`.
+- `scripts/world_map/Army.gd` — runtime army node. Tracks `squad_data`, `squad_index` (index into `GameManager.squad_data`), current/target city, route following, and visual state. Armies in cities hide their body but keep the plan line visible.
+- `scripts/world_map/GameClock.gd` — drives the execution-phase timer.
+
+### Army management UI
+
+- `scripts/ui/ArmyManagePanel.gd` / `scenes/ui/ArmyManagePanel.tscn` — replaces the older SquadMenu. Opened from a city menu. Allows creating, splitting, moving, and disbanding armies at the current city. On save, `WorldMapManager._sync_armies_in_place` updates existing `Army` nodes and creates/removes them without resetting the whole map.
+- `scripts/ui/CityMenu.gd` — city actions including the "编队" (formation) button.
+
+### Battle system
+
+Battle is split across several component scripts under `scripts/battle/`:
+
+- `BattleManager.gd` — top-level coordinator. Listens to `GameManager.battle_started_with_background`, creates units via `BattleUnitFactory`, and starts `BattleTurnManager`.
+- `BattleTurnManager.gd` — runs combat rounds, iterates units by speed, awaits each unit's turn, and checks victory.
+- `BattleUnit.gd` — per-unit node with `Character` sub-node. Holds `character_data`, position, and readiness state.
+- `BattleUnitTactics.gd` — evaluates the character's tactic list in priority order and executes the first matching condition.
+- `BattleUnitCombat.gd` — damage calculation, weapon triangle, attack animations, and death handling.
+- `BattleUnitMovement.gd` / `BattleUnitFactory.gd` / `BattleDeploymentManager.gd` / `BattleStatusPanel.gd` / `BattleBackgroundManager.gd` — movement helpers, unit instantiation, deployment UI, status UI, and background selection.
+
+Combat is automatic; the player does not control individual actions.
+
+### Characters and data
+
+- `scripts/character/CharacterData.gd` — `Resource` class with stats, soldiers, weapon type, skills, and tactics.
+- `scripts/character/CharacterDatabase.gd` — loads `res://data/characters.yaml` into `CharacterData` instances at runtime.
+- `scripts/character/Tactic.gd` / `SkillData.gd` — tactic condition/target/action enums and skill data.
+- `scripts/character/Character.gd` — visual wrapper that sets up an `AnimatedSprite2D` from a loaded atlas.
+- `scripts/AtlasLoader.gd` — loads per-animation atlases (`Idle.png` + `Idle.json`, etc.) from `res://assets/characters/<folder>/` and caches `SpriteFrames`.
+
+### YAML parser
+
+`scripts/utils/YamlParser.gd` is a lightweight custom parser supporting a restricted subset: comments, block lists/dicts, indentation, and scalars. It does **not** support anchors, multi-line strings, or flow style. Both `characters.yaml` and `world_map.yaml` must stay within this subset.
+
+## Important File Paths
+
+| Path | Purpose |
+|------|---------|
+| `godot/project.godot` | Godot project config, autoloads, input map |
+| `godot/data/characters.yaml` | 115-character roster |
+| `godot/data/world_map.yaml` | ~80 node map with positions, factions, and connection overrides |
+| `godot/assets/characters/` | Per-animation sprite atlases (`Idle.json/png`, `Attack1.json/png`, ...) |
+| `godot/assets/battle/backgrounds/` | Battle background pairs (`*_bg.png`, `*_fg.png`) |
+| `docs/superpowers/specs/` | Recent design specs (e.g., army-squad unification, three-kingdoms map) |
+| `tools/generate_characters_yaml.py` | Regenerate `characters.yaml` |
+| `tools/convert_world_map_to_yaml.py` | Convert legacy `world_map.json` to YAML |
+
+## Notes for Editing
+
+- The UI text is Chinese; new labels, buttons, and log messages should generally remain in Chinese to match the existing game.
+- `GameManager.squad_data` is an `Array` of `Array[CharacterData]` and is the source of truth for the player's army configuration. `Army.squad_index` maps an army node back to its slot.
+- World-map node IDs follow the `city_NN` format. Faction starting positions are configured in `Main.gd` (`FACTION_START_POSITIONS`).
+- When changing battle or world-map behavior, both `BattleManager`/`BattleTurnManager` and `WorldMapManager`/`Army` may need coordination because battle start/end signals cross the two top-level scenes.
