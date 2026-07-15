@@ -60,6 +60,10 @@ func get_city_id() -> String:
 func refresh_visual():
 	_update_map_node()
 
+func _process(_delta):
+	if _dragging and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		_dragging = false
+
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
