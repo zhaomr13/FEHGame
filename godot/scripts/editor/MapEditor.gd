@@ -14,11 +14,13 @@ const CITY_OVERLAP_THRESHOLD := 60.0
 @onready var ui: CanvasLayer = $UI
 @onready var toolbar: MapEditorToolbar = $UI/Toolbar
 @onready var properties_panel: MapEditorPropertiesPanel = $UI/PropertiesPanel
+@onready var delete_dialog: ConfirmationDialog = $UI/DeleteConfirmationDialog
 
 var _metadata: Dictionary = {}
 var _cities: Array[Dictionary] = []
 var _city_nodes: Dictionary = {}
 var _selected_city: MapEditorCity = null
+var _pending_delete_city: MapEditorCity = null
 
 func _get_city_data_by_id(city_id: String) -> Dictionary:
 	for city in _cities:
@@ -37,6 +39,9 @@ func _ready():
 		camera.position = MAP_SIZE / 2.0
 		camera.zoom = Vector2(0.5, 0.5)
 		_update_camera_limits()
+	if delete_dialog:
+		delete_dialog.confirmed.connect(_on_delete_confirmed)
+		delete_dialog.canceled.connect(_on_delete_canceled)
 
 func _setup_background():
 	if background and background.texture:
@@ -119,12 +124,31 @@ func _generate_new_city_id() -> String:
 	return ""
 
 func _on_delete_city():
-	if _selected_city == null:
+	if _selected_city == null or delete_dialog == null:
 		return
-	var id := _selected_city.get_city_id()
+	_pending_delete_city = _selected_city
+	var city_name: String = _selected_city.data.get("name", _selected_city.get_city_id())
+	var conns: Array = _selected_city.data.get("force_connections", [])
+	if conns.is_empty():
+		delete_dialog.dialog_text = '确认删除城市 "%s"？' % city_name
+	else:
+		delete_dialog.dialog_text = '删除城市 "%s" 将同时移除它的所有连接。继续？' % city_name
+	delete_dialog.popup_centered()
+
+func _on_delete_confirmed():
+	if _pending_delete_city == null:
+		return
+	_perform_delete_city(_pending_delete_city)
+	_pending_delete_city = null
+
+func _on_delete_canceled():
+	_pending_delete_city = null
+
+func _perform_delete_city(city: MapEditorCity):
+	var id := city.get_city_id()
 	_city_nodes.erase(id)
-	_cities.erase(_selected_city.data)
-	_selected_city.queue_free()
+	_cities.erase(city.data)
+	city.queue_free()
 	_remove_connections_to(id)
 	_set_selected_city(null)
 	_redraw_connections()
