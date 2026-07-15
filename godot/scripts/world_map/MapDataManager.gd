@@ -81,6 +81,7 @@ func _build_node_config(data: Dictionary) -> Dictionary:
 
 func _generate_connections(config: Dictionary, data: Dictionary):
 	var metadata = data.get("metadata", {})
+	var strategy = metadata.get("connection_strategy", "auto_with_overrides")
 	var max_dist = metadata.get("max_auto_distance", 320.0)
 	var target = metadata.get("target_connections", 3)
 	var nodes = data.get("nodes", [])
@@ -94,42 +95,16 @@ func _generate_connections(config: Dictionary, data: Dictionary):
 			if config.has(forced):
 				_add_bidirectional_connection(config, id, forced)
 
-	# 2. Auto-connect by distance
-	for node in nodes:
-		var id = node.get("id", "")
-		if not config.has(id):
-			continue
-
-		var blocked: Array = node.get("blocked_neighbors", [])
-		var candidates: Array[Dictionary] = []
-
-		for other in nodes:
-			var other_id = other.get("id", "")
-			if other_id == id or blocked.has(other_id):
+	# 2. Auto-connect by distance (skipped for manual strategy)
+	if strategy != "manual":
+		for node in nodes:
+			var id = node.get("id", "")
+			if not config.has(id):
 				continue
-			if not config.has(other_id):
-				continue
-			var dist = config[id].pos.distance_to(config[other_id].pos)
-			if dist <= max_dist:
-				candidates.append({"id": other_id, "dist": dist})
 
-		candidates.sort_custom(func(a, b): return a.dist < b.dist)
+			var blocked: Array = node.get("blocked_neighbors", [])
+			var candidates: Array[Dictionary] = []
 
-		var added = 0
-		for candidate in candidates:
-			if config[id].connections.has(candidate.id):
-				continue
-			config[id].connections.append(candidate.id)
-			if not config[candidate.id].connections.has(id):
-				config[candidate.id].connections.append(id)
-			added += 1
-			if added >= target:
-				break
-
-		# Fallback: if still isolated, connect to nearest node regardless of max_dist
-		if config[id].connections.is_empty():
-			var nearest_id = ""
-			var nearest_dist = INF
 			for other in nodes:
 				var other_id = other.get("id", "")
 				if other_id == id or blocked.has(other_id):
@@ -137,11 +112,38 @@ func _generate_connections(config: Dictionary, data: Dictionary):
 				if not config.has(other_id):
 					continue
 				var dist = config[id].pos.distance_to(config[other_id].pos)
-				if dist < nearest_dist:
-					nearest_dist = dist
-					nearest_id = other_id
-			if nearest_id != "":
-				_add_bidirectional_connection(config, id, nearest_id)
+				if dist <= max_dist:
+					candidates.append({"id": other_id, "dist": dist})
+
+			candidates.sort_custom(func(a, b): return a.dist < b.dist)
+
+			var added = 0
+			for candidate in candidates:
+				if config[id].connections.has(candidate.id):
+					continue
+				config[id].connections.append(candidate.id)
+				if not config[candidate.id].connections.has(id):
+					config[candidate.id].connections.append(id)
+				added += 1
+				if added >= target:
+					break
+
+			# Fallback: if still isolated, connect to nearest node regardless of max_dist
+			if config[id].connections.is_empty():
+				var nearest_id = ""
+				var nearest_dist = INF
+				for other in nodes:
+					var other_id = other.get("id", "")
+					if other_id == id or blocked.has(other_id):
+						continue
+					if not config.has(other_id):
+						continue
+					var dist = config[id].pos.distance_to(config[other_id].pos)
+					if dist < nearest_dist:
+						nearest_dist = dist
+						nearest_id = other_id
+				if nearest_id != "":
+					_add_bidirectional_connection(config, id, nearest_id)
 
 	# 3. Apply manual connections
 	for link in data.get("manual_connections", []):
@@ -151,7 +153,8 @@ func _generate_connections(config: Dictionary, data: Dictionary):
 			_add_bidirectional_connection(config, from_id, to_id)
 
 	# 4. Final fallback: ensure graph is fully connected by linking components
-	_connect_components(config, nodes)
+	if strategy != "manual":
+		_connect_components(config, nodes)
 
 func _add_bidirectional_connection(config: Dictionary, a: String, b: String) -> void:
 	if not config[a].connections.has(b):
