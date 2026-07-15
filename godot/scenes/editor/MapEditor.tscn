@@ -28,10 +28,12 @@ z_index = -1
 [node name="PropertiesPanel" parent="UI" instance=ExtResource("4_props")]
 
 [node name="DeleteConfirmationDialog" type="ConfirmationDialog" parent="UI"]
+unique_name_in_owner = true
 initial_position = 1
 size = Vector2i(400, 120)
 dialog_text = "确认删除城市？"
 
 [node name="SaveResultDialog" type="AcceptDialog" parent="UI"]
+unique_name_in_owner = true
 initial_position = 1
 size = Vector2i(350, 120)
