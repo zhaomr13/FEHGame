@@ -256,7 +256,7 @@ func _on_save():
 	if error != "":
 		_show_save_result("保存失败: " + error)
 		return
-	var ok := MapEditorYamlWriter.write_world_map(_metadata, _cities)
+	var ok: bool = MapEditorYamlWriter.write_world_map(_metadata, _cities)
 	if ok:
 		_show_save_result("地图已保存")
 	else:
