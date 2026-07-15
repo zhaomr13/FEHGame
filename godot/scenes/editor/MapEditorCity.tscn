@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3 uid="uid://mapeditorcity_scene"]
+
+[ext_resource type="Script" path="res://scripts/editor/MapEditorCity.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/world_map/MapNode.tscn" id="2_mapnode"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 30.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(1, 0.9, 0, 0.3)
+corner_radius_top_left = 35
+corner_radius_top_right = 35
+corner_radius_bottom_left = 35
+corner_radius_bottom_right = 35
+
+[node name="MapEditorCity" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="MapNode" parent="." instance=ExtResource("2_mapnode")]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_1")
+
+[node name="SelectionRing" type="Panel" parent="."]
+z_index = 50
+offset_left = -35.0
+offset_top = -35.0
+offset_right = 35.0
+offset_bottom = 35.0
+visible = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
