@@ -269,6 +269,16 @@ func _show_save_result(message: String):
 		save_dialog.popup_centered()
 
 func _validate_map() -> String:
+	# Check duplicate city IDs
+	var seen_ids := {}
+	for city in _cities:
+		var id: String = city.get("id", "")
+		if id == "":
+			continue
+		if seen_ids.has(id):
+			return "存在重复的城市 ID: %s" % id
+		seen_ids[id] = true
+
 	# Validate positions and overlap
 	for i in range(_cities.size()):
 		var c1 = _cities[i]
@@ -305,18 +315,33 @@ func _validate_map() -> String:
 			if not city_ids.has(conn):
 				return "%s 的连接 %s 不存在" % [city.get("name", id), conn]
 
-	# Validate full graph connectivity
+	# Validate full graph connectivity (treat connections as undirected)
 	if _cities.size() > 0:
+		var adjacency := {}
+		for city in _cities:
+			var id: String = city.get("id", "")
+			if id == "":
+				continue
+			if not adjacency.has(id):
+				adjacency[id] = []
+			for neighbor in city.get("force_connections", []) as Array:
+				var neighbor_id := neighbor as String
+				if neighbor_id == "" or not city_ids.has(neighbor_id):
+					continue
+				if not (adjacency[id] as Array).has(neighbor_id):
+					(adjacency[id] as Array).append(neighbor_id)
+				if not adjacency.has(neighbor_id):
+					adjacency[neighbor_id] = []
+				if not (adjacency[neighbor_id] as Array).has(id):
+					(adjacency[neighbor_id] as Array).append(id)
+
 		var start_id: String = _cities[0].get("id", "")
 		var visited := {}
 		var queue: Array = [start_id]
 		visited[start_id] = true
 		while not queue.is_empty():
 			var current_id: String = queue.pop_front()
-			var current_data := _get_city_data_by_id(current_id)
-			if current_data.is_empty():
-				continue
-			for neighbor in current_data.get("force_connections", []) as Array:
+			for neighbor in adjacency.get(current_id, []):
 				if not visited.has(neighbor):
 					visited[neighbor] = true
 					queue.append(neighbor)

@@ -34,13 +34,39 @@ static func write_world_map(metadata: Dictionary, cities: Array, path: String = 
 	for city in cities:
 		lines.append_array(_emit_city(city))
 
-	var file := FileAccess.open(path, FileAccess.WRITE)
+	var temp_path := path + ".tmp"
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
-		push_error("MapEditorYamlWriter: failed to open file for writing: " + path)
+		push_error("MapEditorYamlWriter: failed to open temp file for writing: " + temp_path)
 		return false
-	file.store_string("\n".join(lines) + "\n")
+
+	var content := "\n".join(lines) + "\n"
+	file.store_string(content)
+	var store_result := file.get_error()
 	file.close()
+	if store_result != OK:
+		push_error("MapEditorYamlWriter: failed to write temp file: " + temp_path)
+		_cleanup_temp_file(temp_path)
+		return false
+
+	if FileAccess.file_exists(path):
+		var remove_result := DirAccess.remove_absolute(path)
+		if remove_result != OK:
+			push_warning("MapEditorYamlWriter: failed to remove existing file before rename: " + path)
+
+	var rename_result := DirAccess.rename_absolute(temp_path, path)
+	if rename_result != OK:
+		push_error("MapEditorYamlWriter: failed to rename temp file to target: " + path)
+		_cleanup_temp_file(temp_path)
+		return false
+
 	return true
+
+static func _cleanup_temp_file(temp_path: String):
+	if FileAccess.file_exists(temp_path):
+		var result := DirAccess.remove_absolute(temp_path)
+		if result != OK:
+			push_warning("MapEditorYamlWriter: failed to clean up temp file: " + temp_path)
 
 static func _emit_metadata(metadata: Dictionary) -> Array[String]:
 	var lines: Array[String] = ["metadata:"]
@@ -55,8 +81,8 @@ static func _emit_metadata(metadata: Dictionary) -> Array[String]:
 			lines.append("manual_connections:")
 			for link in manual_connections:
 				if link is Dictionary:
-					lines.append('  - from: "%s"' % _escape(str(link.get("from", ""))))
-					lines.append('    to: "%s"' % _escape(str(link.get("to", ""))))
+					lines.append('  - from: %s' % _escape(str(link.get("from", ""))))
+					lines.append('    to: %s' % _escape(str(link.get("to", ""))))
 				else:
 					lines.append("  - " + str(link))
 
@@ -74,7 +100,7 @@ static func _emit_yaml_value(lines: Array[String], key: String, value, indent: i
 		for item in value:
 			_emit_yaml_array_item(lines, item, indent + 2)
 	elif value is String:
-		lines.append(prefix + key + ': "' + _escape(value) + '"')
+		lines.append(prefix + key + ': ' + _escape(value))
 	else:
 		lines.append(prefix + key + ": " + str(value))
 
@@ -92,24 +118,24 @@ static func _emit_yaml_array_item(lines: Array[String], item, indent: int):
 			else:
 				lines.append(" ".repeat(indent + 2) + label + ": " + value_str)
 	elif item is String:
-		lines.append(prefix + '- "' + _escape(item) + '"')
+		lines.append(prefix + '- ' + _escape(item))
 	else:
 		lines.append(prefix + "- " + str(item))
 
 static func _scalar(value) -> String:
 	if value is String:
-		return '"' + _escape(value) + '"'
+		return _escape(value)
 	return str(value)
 
 static func _emit_city(city: Dictionary) -> Array[String]:
 	var lines: Array[String] = []
-	lines.append('  - id: "%s"' % city.get("id", ""))
-	lines.append('    name: "%s"' % _escape(city.get("name", "")))
-	lines.append('    type: "%s"' % city.get("type", "city"))
+	lines.append('  - id: %s' % _escape(city.get("id", "")))
+	lines.append('    name: %s' % _escape(city.get("name", "")))
+	lines.append('    type: %s' % _escape(city.get("type", "city")))
 
 	var icon_size: String = city.get("icon_size", "")
 	if icon_size != "":
-		lines.append('    icon_size: "%s"' % icon_size)
+		lines.append('    icon_size: %s' % _escape(icon_size))
 
 	var pos = city.get("pos", {})
 	lines.append("    pos:")
@@ -117,30 +143,41 @@ static func _emit_city(city: Dictionary) -> Array[String]:
 	lines.append("      y: %d" % int(pos.get("y", 0)))
 
 	var faction: String = city.get("faction", "")
-	lines.append('    faction: "%s"' % faction)
+	lines.append('    faction: %s' % _escape(faction))
 
 	var force_connections: Array = city.get("force_connections", [])
 	if force_connections.size() > 0:
 		lines.append("    force_connections:")
 		for conn in force_connections:
-			lines.append('      - "%s"' % conn)
+			lines.append('      - %s' % _escape(conn))
 
 	var blocked_neighbors: Array = city.get("blocked_neighbors", [])
 	if blocked_neighbors.size() > 0:
 		lines.append("    blocked_neighbors:")
 		for blocked in blocked_neighbors:
-			lines.append('      - "%s"' % blocked)
+			lines.append('      - %s' % _escape(blocked))
 
 	return lines
 
+const _YAML_SPECIALS := "\\\"\t\n\r#:&*!|>{}[],"
+
 static func _escape(value: String) -> String:
+	if value == "":
+		return '""'
+	var needs_quotes := false
 	var result := ""
 	for ch in value:
-		match ch:
-			"\\": result += "\\\\"
-			"\"": result += "\\\""
-			"\t": result += "\\t"
-			"\n": result += "\\n"
-			"\r": result += "\\r"
-			_: result += ch
-	return result
+		if _YAML_SPECIALS.find(ch) >= 0:
+			needs_quotes = true
+			match ch:
+				"\\": result += "\\\\"
+				"\"": result += "\\\""
+				"\t": result += "\\t"
+				"\n": result += "\\n"
+				"\r": result += "\\r"
+				_: result += "\\" + ch
+		else:
+			result += ch
+	if needs_quotes:
+		return '"' + result + '"'
+	return value
