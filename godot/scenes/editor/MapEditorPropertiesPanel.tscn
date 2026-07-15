@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://mapeditorprops_scene"]
+
+[ext_resource type="Script" path="res://scripts/editor/MapEditorPropertiesPanel.gd" id="1_script"]
+
+[node name="MapEditorPropertiesPanel" type="Panel"]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -250.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TitleLabel" type="Label" parent="VBox"]
+text = "属性"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="VBox"]
+text = "名称"
+
+[node name="NameEdit" type="LineEdit" parent="VBox"]
+
+[node name="TypeLabel" type="Label" parent="VBox"]
+text = "类型"
+
+[node name="TypeOption" type="OptionButton" parent="VBox"]
+item_count = 3
+popup/item_0/text = "city"
+popup/item_1/text = "fort"
+popup/item_2/text = "village"
+
+[node name="ConnectionsLabel" type="Label" parent="VBox"]
+text = "连接"
+
+[node name="Scroll" type="ScrollContainer" parent="VBox"]
+size_flags_vertical = 3
+
+[node name="ConnectionsList" type="VBoxContainer" parent="VBox/Scroll"]
