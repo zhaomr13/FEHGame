@@ -297,7 +297,7 @@ func _validate_map() -> String:
 				continue
 			var pos2 := Vector2(pos2_dict["x"], pos2_dict["y"])
 			if pos1.distance_to(pos2) < CITY_OVERLAP_THRESHOLD:
-				return "%s 与 %s 重叠" % [c1.get("name", c1["id"]), c2.get("name", c2["id"])]
+				return "%s 与 %s 重叠" % [c1.get("name", c1.get("id", "")), c2.get("name", c2.get("id", ""))]
 
 	# Build id set and validate connections reference existing cities
 	var city_ids := {}
@@ -335,7 +335,14 @@ func _validate_map() -> String:
 				if not (adjacency[neighbor_id] as Array).has(id):
 					(adjacency[neighbor_id] as Array).append(id)
 
-		var start_id: String = _cities[0].get("id", "")
+		var start_id := ""
+		for city in _cities:
+			var id: String = city.get("id", "")
+			if id != "":
+				start_id = id
+				break
+		if start_id == "":
+			return "没有有效的起始城市"
 		var visited := {}
 		var queue: Array = [start_id]
 		visited[start_id] = true
