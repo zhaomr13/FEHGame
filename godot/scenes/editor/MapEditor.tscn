@@ -29,6 +29,7 @@ z_index = -1
 
 [node name="DeleteConfirmationDialog" type="ConfirmationDialog" parent="UI"]
 unique_name_in_owner = true
+title = "确认删除"
 initial_position = 1
 size = Vector2i(400, 120)
 dialog_text = "确认删除城市？"

@@ -22,14 +22,14 @@ var _cities: Array[Dictionary] = []
 var _city_nodes: Dictionary = {}
 var _selected_city: MapEditorCity = null
 var _pending_delete_city: MapEditorCity = null
+var _drag_start: Vector2 = Vector2.ZERO
+var _is_panning: bool = false
 
 func _get_city_data_by_id(city_id: String) -> Dictionary:
 	for city in _cities:
 		if city.get("id", "") == city_id:
 			return city
 	return {}
-var _drag_start: Vector2 = Vector2.ZERO
-var _is_panning: bool = false
 
 func _ready():
 	_setup_background()
@@ -53,6 +53,7 @@ func _load_map():
 	var loaded := MapEditorYamlWriter.load_world_map()
 	_metadata = loaded.get("metadata", {})
 	_cities.assign(loaded.get("cities", []))
+	_preserve_auto_connections()
 	_metadata["connection_strategy"] = "manual"
 	_create_city_nodes()
 	_redraw_connections()
@@ -60,6 +61,23 @@ func _load_map():
 func _create_city_nodes():
 	for city_data in _cities:
 		_create_city_node(city_data)
+
+func _preserve_auto_connections():
+	var original_strategy: String = _metadata.get("connection_strategy", "manual")
+	if original_strategy == "manual":
+		return
+
+	var data_manager := MapDataManager.new()
+	var path := MapEditorYamlWriter.DEFAULT_PATH
+	if not data_manager.load_map_data(path):
+		return
+
+	for city_data in _cities:
+		var id: String = city_data.get("id", "")
+		if id == "" or not data_manager.NODE_CONFIG.has(id):
+			continue
+		var runtime_connections: Array = data_manager.NODE_CONFIG[id].connections.duplicate()
+		city_data["force_connections"] = runtime_connections
 
 func _create_city_node(city_data: Dictionary) -> MapEditorCity:
 	var city := preload("res://scenes/editor/MapEditorCity.tscn").instantiate() as MapEditorCity
@@ -139,6 +157,9 @@ func _on_delete_city():
 func _on_delete_confirmed():
 	if _pending_delete_city == null:
 		return
+	if _pending_delete_city != _selected_city:
+		_pending_delete_city = null
+		return
 	_perform_delete_city(_pending_delete_city)
 	_pending_delete_city = null
 
@@ -165,7 +186,7 @@ func _on_name_changed(new_name: String):
 		return
 	_selected_city.data["name"] = new_name
 	_selected_city.refresh_visual()
-	properties_panel.title_label.text = "属性: %s" % new_name
+	properties_panel.set_title(new_name)
 
 func _on_type_changed(new_type: String):
 	if _selected_city == null:
@@ -248,18 +269,60 @@ func _show_save_result(message: String):
 		save_dialog.popup_centered()
 
 func _validate_map() -> String:
+	# Validate positions and overlap
 	for i in range(_cities.size()):
 		var c1 = _cities[i]
-		var pos1 := Vector2((c1["pos"] as Dictionary)["x"], (c1["pos"] as Dictionary)["y"])
+		if not (c1.get("pos") is Dictionary):
+			return "%s 缺少有效位置" % c1.get("name", c1.get("id", "unknown"))
+		var pos1_dict: Dictionary = c1["pos"]
+		if not pos1_dict.has("x") or not pos1_dict.has("y"):
+			return "%s 位置缺少 x 或 y" % c1.get("name", c1.get("id", "unknown"))
+		var pos1 := Vector2(pos1_dict["x"], pos1_dict["y"])
 		for j in range(i + 1, _cities.size()):
 			var c2 = _cities[j]
-			var pos2 := Vector2((c2["pos"] as Dictionary)["x"], (c2["pos"] as Dictionary)["y"])
+			if not (c2.get("pos") is Dictionary):
+				continue
+			var pos2_dict: Dictionary = c2["pos"]
+			if not pos2_dict.has("x") or not pos2_dict.has("y"):
+				continue
+			var pos2 := Vector2(pos2_dict["x"], pos2_dict["y"])
 			if pos1.distance_to(pos2) < CITY_OVERLAP_THRESHOLD:
 				return "%s 与 %s 重叠" % [c1.get("name", c1["id"]), c2.get("name", c2["id"])]
+
+	# Build id set and validate connections reference existing cities
+	var city_ids := {}
 	for city in _cities:
+		var id: String = city.get("id", "")
+		if id != "":
+			city_ids[id] = true
+
+	for city in _cities:
+		var id: String = city.get("id", "")
 		var conns: Array = city.get("force_connections", []) as Array
 		if conns.is_empty():
-			return "%s 没有连接" % city.get("name", city["id"])
+			return "%s 没有连接" % city.get("name", id)
+		for conn in conns:
+			if not city_ids.has(conn):
+				return "%s 的连接 %s 不存在" % [city.get("name", id), conn]
+
+	# Validate full graph connectivity
+	if _cities.size() > 0:
+		var start_id: String = _cities[0].get("id", "")
+		var visited := {}
+		var queue: Array = [start_id]
+		visited[start_id] = true
+		while not queue.is_empty():
+			var current_id: String = queue.pop_front()
+			var current_data := _get_city_data_by_id(current_id)
+			if current_data.is_empty():
+				continue
+			for neighbor in current_data.get("force_connections", []) as Array:
+				if not visited.has(neighbor):
+					visited[neighbor] = true
+					queue.append(neighbor)
+		if visited.size() != city_ids.size():
+			return "地图未完全连通 (%d/%d 城市可达)" % [visited.size(), city_ids.size()]
+
 	return ""
 
 func _on_back():

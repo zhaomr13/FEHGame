@@ -17,6 +17,8 @@ static func load_world_map(path: String = DEFAULT_PATH) -> Dictionary:
 		return result
 
 	result["metadata"] = parsed.get("metadata", {})
+	if parsed.has("manual_connections"):
+		result["metadata"]["manual_connections"] = parsed.get("manual_connections", [])
 	result["cities"] = parsed.get("nodes", [])
 	return result
 
@@ -42,15 +44,62 @@ static func write_world_map(metadata: Dictionary, cities: Array, path: String = 
 
 static func _emit_metadata(metadata: Dictionary) -> Array[String]:
 	var lines: Array[String] = ["metadata:"]
-	var map_size = metadata.get("map_size", {})
-	lines.append("  map_size:")
-	lines.append("    x: %d" % map_size.get("x", 3840))
-	lines.append("    y: %d" % map_size.get("y", 2160))
-	lines.append('  connection_strategy: "%s"' % metadata.get("connection_strategy", "manual"))
-	lines.append("  max_auto_distance: %d" % metadata.get("max_auto_distance", 320))
-	lines.append("  target_connections: %d" % metadata.get("target_connections", 3))
+	for key in metadata.keys():
+		if key == "manual_connections":
+			continue
+		_emit_yaml_value(lines, key, metadata[key], 2)
+
+	if metadata.has("manual_connections"):
+		var manual_connections = metadata["manual_connections"]
+		if manual_connections is Array:
+			lines.append("manual_connections:")
+			for link in manual_connections:
+				if link is Dictionary:
+					lines.append('  - from: "%s"' % _escape(str(link.get("from", ""))))
+					lines.append('    to: "%s"' % _escape(str(link.get("to", ""))))
+				else:
+					lines.append("  - " + str(link))
+
 	lines.append("")
 	return lines
+
+static func _emit_yaml_value(lines: Array[String], key: String, value, indent: int):
+	var prefix := " ".repeat(indent)
+	if value is Dictionary:
+		lines.append(prefix + key + ":")
+		for sub_key in value.keys():
+			_emit_yaml_value(lines, sub_key, value[sub_key], indent + 2)
+	elif value is Array:
+		lines.append(prefix + key + ":")
+		for item in value:
+			_emit_yaml_array_item(lines, item, indent + 2)
+	elif value is String:
+		lines.append(prefix + key + ': "' + _escape(value) + '"')
+	else:
+		lines.append(prefix + key + ": " + str(value))
+
+static func _emit_yaml_array_item(lines: Array[String], item, indent: int):
+	var prefix := " ".repeat(indent)
+	if item is Dictionary:
+		var first := true
+		for sub_key in item.keys():
+			var label := str(sub_key)
+			var sub_value = item[sub_key]
+			var value_str := _scalar(sub_value)
+			if first:
+				lines.append(prefix + "- " + label + ": " + value_str)
+				first = false
+			else:
+				lines.append(" ".repeat(indent + 2) + label + ": " + value_str)
+	elif item is String:
+		lines.append(prefix + '- "' + _escape(item) + '"')
+	else:
+		lines.append(prefix + "- " + str(item))
+
+static func _scalar(value) -> String:
+	if value is String:
+		return '"' + _escape(value) + '"'
+	return str(value)
 
 static func _emit_city(city: Dictionary) -> Array[String]:
 	var lines: Array[String] = []
@@ -85,4 +134,13 @@ static func _emit_city(city: Dictionary) -> Array[String]:
 	return lines
 
 static func _escape(value: String) -> String:
-	return value.replace("\\", "\\\\").replace("\"", "\\\"")
+	var result := ""
+	for ch in value:
+		match ch:
+			"\\": result += "\\\\"
+			"\"": result += "\\\""
+			"\t": result += "\\t"
+			"\n": result += "\\n"
+			"\r": result += "\\r"
+			_: result += ch
+	return result
