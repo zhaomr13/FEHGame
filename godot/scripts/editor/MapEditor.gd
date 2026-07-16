@@ -6,6 +6,9 @@ const MIN_ZOOM := 0.25
 const MAX_ZOOM := 1.5
 const WHEEL_ZOOM_FACTOR := 1.2
 const CITY_OVERLAP_THRESHOLD := 60.0
+const TOOLBAR_HEIGHT := 50.0
+const PROPERTIES_PANEL_WIDTH := 250.0
+const MAP_FIT_PADDING := 0.9
 
 @onready var camera: Camera2D = $Camera2D
 @onready var background: Sprite2D = $Background
@@ -54,11 +57,22 @@ func _fit_camera():
 	if camera == null:
 		return
 	var viewport_size := get_viewport().get_visible_rect().size
-	var fit_x: float = viewport_size.x / MAP_SIZE.x
-	var fit_y: float = viewport_size.y / MAP_SIZE.y
-	var fit_zoom: float = min(fit_x, fit_y)
+	var usable_size := Vector2(
+		viewport_size.x - PROPERTIES_PANEL_WIDTH,
+		viewport_size.y - TOOLBAR_HEIGHT
+	)
+	if usable_size.x <= 0 or usable_size.y <= 0:
+		return
+	var fit_x: float = usable_size.x / MAP_SIZE.x
+	var fit_y: float = usable_size.y / MAP_SIZE.y
+	var fit_zoom: float = min(fit_x, fit_y) * MAP_FIT_PADDING
 	camera.zoom = Vector2(fit_zoom, fit_zoom)
-	camera.position = MAP_SIZE / 2.0
+	# Anchor the map in the bottom-left usable corner:
+	# world (0, 0) -> screen (0, TOOLBAR_HEIGHT)
+	camera.position = Vector2(
+		viewport_size.x / (2.0 * fit_zoom),
+		(viewport_size.y / 2.0 - TOOLBAR_HEIGHT) / fit_zoom
+	)
 
 func _load_map():
 	var loaded := MapEditorYamlWriter.load_world_map()
