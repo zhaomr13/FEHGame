@@ -51,7 +51,8 @@ const WHEEL_ZOOM_FACTOR: float = 1.2
 const MAP_SIZE: Vector2 = Vector2(3840, 2160)
 const ARMY_OFFSET_RADIUS: float = 0.0
 const ROAD_ENCOUNTER_DISTANCE: float = 24.0
-const MAP_VIEW_RATIO: float = 0.75
+const MAP_FIT_PADDING: float = 0.95
+const PLANNING_UI_HEIGHT: float = 80.0
 
 @onready var camera: Camera2D = $Camera2D
 
@@ -66,9 +67,9 @@ func _ready():
 	setup_battle_result_handler()
 	map_data.node_clicked.connect(_on_node_clicked)
 	if camera:
-		camera.position = MAP_SIZE / 2.0
-		camera.zoom = Vector2(0.5, 0.5)
-		_update_camera_limits()
+		_fit_camera()
+	if get_tree() and get_tree().root:
+		get_tree().root.size_changed.connect(_fit_camera)
 
 func _process(_delta):
 	if current_phase == GamePhase.EXECUTING:
@@ -509,6 +510,20 @@ func setup_background():
 	# Background texture is assigned in WorldMap.tscn via the editor.
 	# This function is kept as a hook for any future runtime background setup.
 	pass
+
+func _fit_camera():
+	if not camera:
+		return
+	var viewport_size := get_viewport().get_visible_rect().size
+	var usable_height := viewport_size.y - PLANNING_UI_HEIGHT
+	if usable_height <= 0:
+		return
+	var fit_x: float = viewport_size.x / MAP_SIZE.x
+	var fit_y: float = usable_height / MAP_SIZE.y
+	var fit_zoom: float = min(fit_x, fit_y) * MAP_FIT_PADDING
+	camera.zoom = Vector2(fit_zoom, fit_zoom)
+	camera.position = MAP_SIZE / 2.0
+	_update_camera_limits()
 
 func setup_ui():
 	setup_city_menu()
