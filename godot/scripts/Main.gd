@@ -59,6 +59,11 @@ func _on_faction_back_pressed():
 func _on_faction_selected(faction: String):
 	selected_faction = faction
 
+	if world_map_hud:
+		var icon = world_map_hud.get_node_or_null("FactionIcon")
+		if icon:
+			icon.texture = GameConstants.get_faction_icon(faction)
+
 	# Initialize player army based on faction
 	initialize_player_army(faction)
 
@@ -136,6 +141,16 @@ func _setup_event_log_panel():
 	world_map_hud = CanvasLayer.new()
 	world_map_hud.name = "WorldMapHUD"
 	add_child(world_map_hud)
+
+	var faction_icon = TextureRect.new()
+	faction_icon.name = "FactionIcon"
+	faction_icon.custom_minimum_size = Vector2(40, 40)
+	faction_icon.size = Vector2(40, 40)
+	faction_icon.position = Vector2(12, 4)
+	faction_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	faction_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	faction_icon.texture = GameConstants.get_faction_icon(selected_faction)
+	world_map_hud.add_child(faction_icon)
 
 	# --- collapsed: small bar at top-right showing latest message ---
 	event_log_collapsed = Control.new()
