@@ -27,6 +27,13 @@ var army_selection_popup: ArmySelectionPopup = null
 var event_log_panel: Control = null
 var event_log_list: VBoxContainer = null
 
+var encounter_banner: BattleEncounterBanner = null
+var _is_encounter_active: bool = false
+var _encounter_input_skip: bool = false
+const ENCOUNTER_DURATION: float = 2.0
+const ENCOUNTER_CAMERA_MOVE_DURATION: float = 0.8
+const ENCOUNTER_CAMERA_ZOOM: float = 1.1
+
 @onready var ui: CanvasLayer = $WorldMapUI
 @onready var background_sprite: Sprite2D = $Background
 @onready var map_data: MapDataManager = $MapDataManager
@@ -65,6 +72,7 @@ func _ready():
 	map_data.draw_connections()
 	setup_ui()
 	setup_battle_result_handler()
+	_setup_encounter_banner()
 	map_data.node_clicked.connect(_on_node_clicked)
 	if camera:
 		_fit_camera()
@@ -76,6 +84,8 @@ func _process(_delta):
 		_check_encounters()
 
 func _check_encounters():
+	if _is_encounter_active:
+		return
 	for i in range(all_armies.size()):
 		var a1 = all_armies[i]
 		if not is_instance_valid(a1):
@@ -116,6 +126,8 @@ func _is_reverse_road_segment(a1: Army, a2: Army) -> bool:
 	return a1.from_city_id == a2.to_city_id and a1.to_city_id == a2.from_city_id
 
 func _on_node_clicked(node: MapNode):
+	if _is_encounter_active:
+		return
 	if current_phase != GamePhase.PLANNING:
 		return
 
@@ -170,6 +182,8 @@ func _can_open_city_menu(node: MapNode) -> bool:
 	return faction == current_faction
 
 func _input(event):
+	if _is_encounter_active:
+		return
 	if event is InputEventMouseButton:
 		match event.button_index:
 			MOUSE_BUTTON_WHEEL_UP:
@@ -207,6 +221,19 @@ func _input(event):
 		if camera:
 			_zoom_camera(event.factor)
 
+func _unhandled_input(event: InputEvent):
+	if not _is_encounter_active:
+		return
+	var skip = false
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		skip = true
+	elif event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE or event.is_action("ui_accept"):
+			skip = true
+	if skip:
+		_encounter_input_skip = true
+		get_viewport().set_input_as_handled()
+
 func _zoom_camera(factor: float):
 	if not camera or not get_viewport():
 		return
@@ -227,6 +254,8 @@ func _handle_world_click():
 		_on_army_clicked(clicked_army)
 
 func _on_army_clicked(army: Army):
+	if _is_encounter_active:
+		return
 	if army.army_type == Army.ArmyType.ENEMY:
 		if selected_army and selected_army.army_type != Army.ArmyType.ENEMY:
 			var path = _find_route(selected_army, army.current_city_id)
@@ -653,6 +682,8 @@ func _on_clear_plans_pressed():
 	_log_event("所有计划已清除。", Color(0.8, 0.8, 0.95))
 
 func _start_execution():
+	if _is_encounter_active:
+		return
 	if current_phase != GamePhase.PLANNING:
 		return
 	current_phase = GamePhase.EXECUTING
@@ -711,6 +742,8 @@ func _on_turn_started():
 	turn_started.emit(turn_count)
 
 func open_city_menu(node: MapNode):
+	if _is_encounter_active:
+		return
 	if city_menu:
 		_last_opened_city_id = node.node_id
 		var garrisoned = _get_player_armies_at_city(node.node_id)
@@ -727,6 +760,8 @@ func _on_city_closed():
 	_clear_selected_army()
 
 func _on_open_formation():
+	if _is_encounter_active:
+		return
 	_clear_selected_army()
 	var city_id = _last_opened_city_id if _last_opened_city_id != "" else current_node_id
 	if not army_manage_panel or city_id == "":
@@ -828,7 +863,73 @@ func _sync_armies_in_place(new_armies: Array, new_unassigned: Array, army_squad_
 
 	_sync_city_faction_colors()
 
+func _setup_encounter_banner():
+	var banner_scene = preload("res://scenes/ui/BattleEncounterBanner.tscn")
+	if banner_scene:
+		encounter_banner = banner_scene.instantiate()
+		add_child(encounter_banner)
+
 func _start_battle(attacker: Army, defender: Army):
+	_start_battle_encounter(attacker, defender)
+
+func _start_battle_encounter(attacker: Army, defender: Army):
+	_is_encounter_active = true
+	_encounter_input_skip = false
+
+	var city_id = _get_battle_city_id(attacker, defender)
+	var city_name = _get_city_display_name(city_id)
+	if city_name == city_id and attacker.from_city_id != "" and attacker.to_city_id != "":
+		city_name = _get_city_display_name(attacker.to_city_id)
+
+	var attacker_name = attacker.get_leader_name()
+	var defender_name = defender.get_leader_name()
+
+	if encounter_banner:
+		encounter_banner.show_encounter(attacker_name, defender_name, city_name, attacker.faction, defender.faction)
+
+	var camera_target = _get_encounter_camera_target(attacker, defender, city_id)
+	var original_position = camera.position if camera else Vector2.ZERO
+	var original_zoom = camera.zoom if camera else Vector2.ONE
+
+	if camera:
+		var tween = create_tween()
+		tween.set_trans(Tween.TRANS_QUAD)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(camera, "position", camera_target, ENCOUNTER_CAMERA_MOVE_DURATION)
+		tween.parallel().tween_property(camera, "zoom", Vector2.ONE * ENCOUNTER_CAMERA_ZOOM, ENCOUNTER_CAMERA_MOVE_DURATION)
+
+	await _wait_for_encounter_or_skip()
+
+	_is_encounter_active = false
+	if encounter_banner:
+		await encounter_banner.hide_banner()
+
+	if camera:
+		var reset_tween = create_tween()
+		reset_tween.set_trans(Tween.TRANS_QUAD)
+		reset_tween.set_ease(Tween.EASE_OUT)
+		reset_tween.tween_property(camera, "position", original_position, 0.3)
+		reset_tween.parallel().tween_property(camera, "zoom", original_zoom, 0.3)
+		await reset_tween.finished
+
+	_enter_battle(attacker, defender)
+
+func _get_encounter_camera_target(attacker: Army, defender: Army, city_id: String) -> Vector2:
+	if city_id != "" and map_data.NODE_CONFIG.has(city_id):
+		return map_data.NODE_CONFIG[city_id]["pos"]
+	if is_instance_valid(attacker) and is_instance_valid(defender):
+		return (attacker.position + defender.position) * 0.5
+	return Vector2.ZERO
+
+func _wait_for_encounter_or_skip():
+	var elapsed = 0.0
+	while elapsed < ENCOUNTER_DURATION:
+		if _encounter_input_skip:
+			break
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+
+func _enter_battle(attacker: Army, defender: Army):
 	_pause_all_armies_for_battle()
 	current_phase = GamePhase.BATTLE
 	phase_changed.emit(current_phase)
