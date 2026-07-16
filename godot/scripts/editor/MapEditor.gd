@@ -37,18 +37,28 @@ func _ready():
 	_connect_toolbar()
 	_connect_properties_panel()
 	if camera:
-		camera.position = MAP_SIZE / 2.0
-		camera.zoom = Vector2(0.5, 0.5)
+		_fit_camera()
 		_update_camera_limits()
+		if get_tree() and get_tree().root:
+			get_tree().root.size_changed.connect(_fit_camera)
 	if delete_dialog:
 		delete_dialog.confirmed.connect(_on_delete_confirmed)
 		delete_dialog.canceled.connect(_on_delete_canceled)
 
 func _setup_background():
 	if background and background.texture:
-		var texture_size := background.texture.get_size()
-		background.position = texture_size / 2.0
-		background.scale = Vector2.ONE
+		background.position = MAP_SIZE / 2.0
+		background.scale = MAP_SIZE / background.texture.get_size()
+
+func _fit_camera():
+	if camera == null:
+		return
+	var viewport_size := get_viewport().get_visible_rect().size
+	var fit_x: float = viewport_size.x / MAP_SIZE.x
+	var fit_y: float = viewport_size.y / MAP_SIZE.y
+	var fit_zoom: float = min(fit_x, fit_y)
+	camera.zoom = Vector2(fit_zoom, fit_zoom)
+	camera.position = MAP_SIZE / 2.0
 
 func _load_map():
 	var loaded := MapEditorYamlWriter.load_world_map()
