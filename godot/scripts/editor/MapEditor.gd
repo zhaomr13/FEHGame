@@ -81,10 +81,10 @@ func _preserve_auto_connections():
 
 func _create_city_node(city_data: Dictionary) -> MapEditorCity:
 	var city := preload("res://scenes/editor/MapEditorCity.tscn").instantiate() as MapEditorCity
-	city.setup(city_data)
 	city.city_selected.connect(_on_city_selected)
 	city.city_moved.connect(_on_city_moved)
 	cities_container.add_child(city)
+	city.setup(city_data)
 	_city_nodes[city.get_city_id()] = city
 	return city
 
