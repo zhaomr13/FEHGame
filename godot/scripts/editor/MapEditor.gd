@@ -68,10 +68,10 @@ func _fit_camera():
 	var fit_zoom: float = min(fit_x, fit_y) * MAP_FIT_PADDING
 	camera.zoom = Vector2(fit_zoom, fit_zoom)
 	# Anchor the map in the bottom-left usable corner:
-	# world (0, 0) -> screen (0, TOOLBAR_HEIGHT)
+	# world (0, MAP_SIZE.y) -> screen (0, viewport_height)
 	camera.position = Vector2(
 		viewport_size.x / (2.0 * fit_zoom),
-		(viewport_size.y / 2.0 - TOOLBAR_HEIGHT) / fit_zoom
+		MAP_SIZE.y - viewport_size.y / (2.0 * fit_zoom)
 	)
 
 func _load_map():
