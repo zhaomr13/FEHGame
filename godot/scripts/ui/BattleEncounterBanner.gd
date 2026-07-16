@@ -5,6 +5,8 @@ extends CanvasLayer
 @onready var title_label: Label = $BannerPanel/TitleLabel
 @onready var attacker_color: ColorRect = $BannerPanel/AttackerColor
 @onready var defender_color: ColorRect = $BannerPanel/DefenderColor
+@onready var attacker_icon: TextureRect = $BannerPanel/AttackerIcon
+@onready var defender_icon: TextureRect = $BannerPanel/DefenderIcon
 @onready var skip_hint_label: Label = $BannerPanel/SkipHintLabel
 
 const FactionColors = {
@@ -27,6 +29,10 @@ func show_encounter(attacker_name: String, defender_name: String, city_name: Str
 	title_label.text = "%s军 与 %s军 战于 %s" % [attacker_name, defender_name, city_name]
 	attacker_color.color = FactionColors.get(attacker_faction, DEFAULT_COLOR)
 	defender_color.color = FactionColors.get(defender_faction, DEFAULT_COLOR)
+	if attacker_icon:
+		attacker_icon.texture = GameConstants.get_faction_icon(attacker_faction)
+	if defender_icon:
+		defender_icon.texture = GameConstants.get_faction_icon(defender_faction)
 
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_QUAD)
