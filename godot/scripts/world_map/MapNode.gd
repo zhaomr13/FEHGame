@@ -25,11 +25,12 @@ const FACTION_COLORS = {
 	"": Color(0.5, 0.5, 0.5)  # Neutral - gray
 }
 
-const LARGE_CITY_TEXTURE = preload("res://assets/ui/large_city.png")
-const SMALL_CITY_TEXTURE = preload("res://assets/ui/small_city.png")
+const CITY_TEXTURE = preload("res://assets/ui/city.png")
+const FORT_TEXTURE = preload("res://assets/ui/fort.png")
+const VILLAGE_TEXTURE = preload("res://assets/ui/village.png")
 
-const LARGE_CITY_SIZE = 48.0
-const SMALL_CITY_SIZE = 32.0
+const LARGE_SIZE = 48.0
+const SMALL_SIZE = 32.0
 
 func _ready():
 	_setup_icon()
@@ -44,15 +45,23 @@ func _ready():
 func _setup_icon():
 	if not sprite:
 		return
+	match node_type:
+		GameConstants.NodeType.FORT:
+			sprite.texture = FORT_TEXTURE
+		GameConstants.NodeType.VILLAGE:
+			sprite.texture = VILLAGE_TEXTURE
+		GameConstants.NodeType.CITY, _:
+			sprite.texture = CITY_TEXTURE
+
+	var target_size: float
 	match icon_size:
 		"small":
-			sprite.texture = SMALL_CITY_TEXTURE
-			var tex_size = SMALL_CITY_TEXTURE.get_size()
-			sprite.scale = Vector2(SMALL_CITY_SIZE / tex_size.x, SMALL_CITY_SIZE / tex_size.y)
+			target_size = SMALL_SIZE
 		"large", _:
-			sprite.texture = LARGE_CITY_TEXTURE
-			var tex_size = LARGE_CITY_TEXTURE.get_size()
-			sprite.scale = Vector2(LARGE_CITY_SIZE / tex_size.x, LARGE_CITY_SIZE / tex_size.y)
+			target_size = LARGE_SIZE
+
+	var tex_size = sprite.texture.get_size()
+	sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
 
 func _on_area_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
