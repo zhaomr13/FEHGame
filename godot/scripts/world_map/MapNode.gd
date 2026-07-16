@@ -29,8 +29,8 @@ const CITY_TEXTURE = preload("res://assets/ui/city.png")
 const FORT_TEXTURE = preload("res://assets/ui/fort.png")
 const VILLAGE_TEXTURE = preload("res://assets/ui/village.png")
 
-const LARGE_SIZE = 48.0
-const SMALL_SIZE = 32.0
+const LARGE_SIZE = 56.0
+const SMALL_SIZE = 40.0
 
 func _ready():
 	_setup_icon()
@@ -90,6 +90,7 @@ func clear_current_marker():
 	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.3)
 
 func update_visual():
+	_setup_icon()
 	if not is_explored:
 		sprite.modulate = Color(0.3, 0.3, 0.3, 1.0)
 		if label:
