@@ -876,6 +876,12 @@ func _start_battle_encounter(attacker: Army, defender: Army):
 	_is_encounter_active = true
 	_encounter_input_skip = false
 
+	# Freeze world time before the camera zoom so armies don't keep moving
+	# and the execution clock doesn't advance during the cutscene.
+	_pause_all_armies_for_battle()
+	if clock:
+		clock.is_running = false
+
 	var city_id = _get_battle_city_id(attacker, defender)
 	var city_name = _get_city_display_name(city_id)
 	if city_name == city_id and attacker.from_city_id != "" and attacker.to_city_id != "":
