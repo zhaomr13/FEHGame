@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3 uid="uid://battle_encounter_banner"]
+
+[ext_resource type="Script" path="res://scripts/ui/BattleEncounterBanner.gd" id="1_t1banner"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t1banner"]
+bg_color = Color(0.05, 0.05, 0.05, 0.88)
+
+[node name="BattleEncounterBanner" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_t1banner")
+
+[node name="BannerPanel" type="Panel" parent="."]
+anchors_preset = 7
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_t1banner")
+
+[node name="TitleLabel" type="Label" parent="BannerPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "敌军与我军战于某地"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackerColor" type="ColorRect" parent="BannerPanel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_left = 0.0
+anchor_top = 0.5
+anchor_right = 0.0
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = 35.0
+offset_right = 40.0
+offset_bottom = 65.0
+grow_horizontal = 0
+grow_vertical = 2
+color = Color(1, 1, 1, 1)
+
+[node name="DefenderColor" type="ColorRect" parent="BannerPanel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_left = 0.0
+anchor_top = 0.5
+anchor_right = 0.0
+anchor_bottom = 0.5
+offset_left = 1240.0
+offset_top = 35.0
+offset_right = 1260.0
+offset_bottom = 65.0
+grow_horizontal = 0
+grow_vertical = 2
+color = Color(1, 1, 1, 1)
+
+[node name="SkipHintLabel" type="Label" parent="BannerPanel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -28.0
+offset_right = -12.0
+offset_bottom = -8.0
+grow_horizontal = 1
+grow_vertical = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
+text = "点击或按空格跳过"
+horizontal_alignment = 2
