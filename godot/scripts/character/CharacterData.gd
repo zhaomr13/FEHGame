@@ -1,7 +1,7 @@
 class_name CharacterData
 extends Resource
 
-@export var character_name: String = "Unnamed"
+@export var character_name: String = "未命名"
 @export var character_class: GameConstants.CharacterClass = GameConstants.CharacterClass.LORD
 @export var level: int = 1
 @export var experience: int = 0

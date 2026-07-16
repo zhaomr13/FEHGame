@@ -31,7 +31,7 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 	# Load JSON
 	var file = FileAccess.open(json_path, FileAccess.READ)
 	if file == null:
-		push_error("Failed to open: " + json_path)
+		push_error("无法打开文件：" + json_path)
 		return
 
 	var json_text = file.get_as_text()
@@ -40,7 +40,7 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 	var json = JSON.new()
 	var error = json.parse(json_text)
 	if error != OK:
-		push_error("JSON parse error: " + json.get_error_message())
+		push_error("JSON 解析错误：" + json.get_error_message())
 		return
 
 	var data = json.data
@@ -49,7 +49,7 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 	# Load PNG texture
 	var full_texture = load(png_path) as Texture2D
 	if full_texture == null:
-		push_error("Failed to load texture: " + png_path)
+		push_error("无法加载纹理：" + png_path)
 		return
 
 	# Add animation to SpriteFrames
@@ -88,7 +88,7 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 	# Load JSON
 	var file = FileAccess.open(json_path, FileAccess.READ)
 	if file == null:
-		push_error("Failed to open: " + json_path)
+		push_error("无法打开文件：" + json_path)
 		return sprite_frames
 
 	var json_text = file.get_as_text()
@@ -97,7 +97,7 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 	var json = JSON.new()
 	var error = json.parse(json_text)
 	if error != OK:
-		push_error("JSON parse error: " + json.get_error_message())
+		push_error("JSON 解析错误：" + json.get_error_message())
 		return sprite_frames
 
 	var data = json.data
@@ -108,7 +108,7 @@ static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
 	# Load PNG texture using load() for proper import
 	var full_texture = load(png_path) as Texture2D
 	if full_texture == null:
-		push_error("Failed to load texture: " + png_path)
+		push_error("无法加载纹理：" + png_path)
 		return sprite_frames
 
 	# Create animations from tags

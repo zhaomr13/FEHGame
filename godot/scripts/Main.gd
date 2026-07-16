@@ -91,7 +91,7 @@ func initialize_player_army(faction: String):
 	for character in faction_characters:
 		character.faction = faction  # Ensure faction is set correctly
 		GameManager.player_army.append(character)
-		print("Assigned ", character.character_name, " to player faction ", faction)
+		print("已将 ", character.character_name, " 分配给玩家势力 ", faction)
 
 	# Set up available recruits (characters from other factions that can be recruited later)
 	GameManager.available_recruits.clear()

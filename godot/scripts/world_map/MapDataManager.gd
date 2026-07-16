@@ -19,7 +19,7 @@ func _ready():
 
 func load_map_data(path: String) -> bool:
 	if not FileAccess.file_exists(path):
-		push_error("Map data file not found: " + path)
+		push_error("地图数据文件未找到：" + path)
 		map_data_loaded.emit(false)
 		return false
 
@@ -27,7 +27,7 @@ func load_map_data(path: String) -> bool:
 	var parser = YamlParser.new()
 	var parsed = parser.parse(yaml_text)
 	if parsed == null or not parsed is Dictionary:
-		push_error("Failed to parse map data YAML")
+		push_error("解析地图数据 YAML 失败")
 		map_data_loaded.emit(false)
 		return false
 
@@ -68,7 +68,7 @@ func _build_node_config(data: Dictionary) -> Dictionary:
 			continue
 		var pos = node.get("pos", {})
 		result[id] = {
-			"name": node.get("name", "Unknown"),
+			"name": node.get("name", "未知"),
 			"type": _node_type_from_string(node.get("type", "city")),
 			"pos": Vector2(pos.get("x", 0.0), pos.get("y", 0.0)),
 			"connections": [],
@@ -348,7 +348,7 @@ func validate_map_data() -> bool:
 	# No isolated nodes
 	for id in NODE_CONFIG.keys():
 		if NODE_CONFIG[id].connections.is_empty():
-			push_warning("Map node %s has no connections" % id)
+			push_warning("地图节点 %s 没有连接" % id)
 			ok = false
 
 	# Graph connectivity
@@ -366,7 +366,7 @@ func validate_map_data() -> bool:
 					queue.append(neighbor)
 
 		if visited.size() != NODE_CONFIG.size():
-			push_warning("Map graph is not fully connected (%d/%d reachable from %s)" % [visited.size(), NODE_CONFIG.size(), start])
+			push_warning("地图图未完全连通（从 %s 出发可到达 %d/%d 个节点）" % [start, visited.size(), NODE_CONFIG.size()])
 			ok = false
 
 	# Overlap check
@@ -375,7 +375,7 @@ func validate_map_data() -> bool:
 		for j in range(i + 1, ids.size()):
 			var dist = NODE_CONFIG[ids[i]].pos.distance_to(NODE_CONFIG[ids[j]].pos)
 			if dist < 60.0:
-				push_warning("Map nodes %s and %s are too close (%.1f px)" % [ids[i], ids[j], dist])
+				push_warning("地图节点 %s 和 %s 距离过近（%.1f 像素）" % [ids[i], ids[j], dist])
 				ok = false
 
 	return ok

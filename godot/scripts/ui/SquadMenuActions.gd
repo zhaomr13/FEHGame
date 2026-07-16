@@ -6,6 +6,22 @@ signal cancelled
 
 var character_info: Label = null
 
+const CLASS_NAME_MAP: Dictionary = {
+	"LORD": "领主",
+	"KNIGHT": "骑士",
+	"FIGHTER": "战士",
+	"MAGE": "法师",
+	"ARCHER": "弓手"
+}
+
+const WEAPON_NAME_MAP: Dictionary = {
+	"sword": "剑",
+	"lance": "枪",
+	"axe": "斧",
+	"bow": "弓",
+	"magic": "魔法"
+}
+
 # Optional overrides for tests. In production these stay null and resolve autoloads.
 var game_manager: Node = null
 var save_manager: Node = null
@@ -54,26 +70,26 @@ func initialize():
 
 func update_character_info():
 	if squad_menu_data.selected_character == null:
-		_set_info_text("Select a character to view details")
+		_set_info_text("选择一个角色查看详情")
 		return
 
 	var selected_character = squad_menu_data.selected_character
-	var info = "[b]%s[/b] Lv.%d %s\n" % [
+	var info = "[b]%s[/b] 等级%d %s\n" % [
 		selected_character.character_name,
 		selected_character.level,
-		GameConstants.CharacterClass.keys()[selected_character.character_class]
+		CLASS_NAME_MAP.get(GameConstants.CharacterClass.keys()[selected_character.character_class], "未知")
 	]
-	info += "HP: %d/%d | ATK: %d | DEF: %d | SPD: %d\n" % [
+	info += "生命: %d/%d | 攻击: %d | 防御: %d | 速度: %d\n" % [
 		selected_character.current_hp,
 		selected_character.max_hp,
 		selected_character.attack,
 		selected_character.defense,
 		selected_character.speed
 	]
-	info += "Soldiers: %d/%d | Weapon: %s" % [
+	info += "兵力: %d/%d | 武器: %s" % [
 		selected_character.soldiers,
 		selected_character.max_soldiers,
-		selected_character.weapon_type
+		WEAPON_NAME_MAP.get(selected_character.weapon_type, selected_character.weapon_type)
 	]
 	_set_info_text(info)
 
@@ -84,22 +100,22 @@ func _set_info_text(text: String):
 func _on_create_squad():
 	var new_index = squad_menu_data.create_squad()
 	if new_index < 0:
-		_set_info_text("Cannot create more squads (max %d)" % GameConstants.MAX_SQUADS)
+		_set_info_text("无法创建更多小队（最多%d个）" % GameConstants.MAX_SQUADS)
 		return
 	lists.rebuild_panels()
-	_set_info_text("Created Squad %d" % (new_index + 1))
+	_set_info_text("已创建第%d小队" % (new_index + 1))
 
 func _on_disband_squad():
 	var squad_index = squad_menu_data.get_selected_squad_index()
 	if squad_index < 0:
-		_set_info_text("Select a character in a squad to disband it")
+		_set_info_text("选择小队中的角色以解散该小队")
 		return
 	var result = squad_menu_data.disband_squad(squad_index)
 	if not result:
-		_set_info_text("Failed to disband squad")
+		_set_info_text("解散小队失败")
 		return
 	lists.refresh_lists()
-	_set_info_text("Disbanded Squad %d" % (squad_index + 1))
+	_set_info_text("已解散第%d小队" % (squad_index + 1))
 
 func _on_move_to_first_non_full_squad():
 	var error = squad_menu_data.move_character_to_first_non_full_squad()

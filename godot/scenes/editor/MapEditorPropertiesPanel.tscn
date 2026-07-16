@@ -34,9 +34,9 @@ text = "类型"
 
 [node name="TypeOption" type="OptionButton" parent="VBox"]
 item_count = 3
-popup/item_0/text = "city"
-popup/item_1/text = "fort"
-popup/item_2/text = "village"
+popup/item_0/text = "城市"
+popup/item_1/text = "要塞"
+popup/item_2/text = "村庄"
 
 [node name="ConnectionsLabel" type="Label" parent="VBox"]
 text = "连接"

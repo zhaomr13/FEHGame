@@ -5,7 +5,7 @@ signal node_clicked(node: MapNode)
 
 @export var node_id: String = ""
 @export var node_type: GameConstants.NodeType = GameConstants.NodeType.CITY
-@export var node_name: String = "Unknown"
+@export var node_name: String = "未知"
 @export var connections: Array = []
 @export var is_explored: bool = false
 @export var icon_size: String = "large"

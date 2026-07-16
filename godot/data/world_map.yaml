@@ -1,663 +1,1039 @@
 # World Map Data
 # Cities/forts/villages, positions, factions, and connection overrides
+
 metadata:
   map_size:
     x: 3840
     y: 2160
-  connection_strategy: "auto_with_overrides"
+  connection_strategy: manual
   max_auto_distance: 320
   target_connections: 3
+manual_connections:
+  - from: city_10
+    to: city_11
+  - from: city_22
+    to: city_33
+  - from: city_32
+    to: city_45
+  - from: city_28
+    to: city_60
+  - from: city_44
+    to: city_72
+  - from: city_59
+    to: city_80
+
 nodes:
-  - id: "city_01"
-    name: "北境要塞"
-    type: "city"
-    icon_size: "large"
+  - id: city_01
+    name: 北境要塞
+    type: city
+    icon_size: large
     pos:
-      x: 2719
-      y: 157
-    faction: "embla"
-  - id: "city_02"
-    name: "冰风哨站"
-    type: "city"
-    icon_size: "large"
+      x: 2609
+      y: 174
+    faction: embla
+    force_connections:
+      - city_07
+      - city_08
+  - id: city_02
+    name: 冰风哨站
+    type: city
+    icon_size: large
     pos:
       x: 1226
       y: 225
-    faction: "embla"
-  - id: "city_03"
-    name: "霜狼营地"
-    type: "fort"
-    icon_size: "large"
+    faction: embla
+    force_connections:
+      - city_06
+      - city_04
+  - id: city_03
+    name: 霜狼营地
+    type: fort
+    icon_size: large
     pos:
-      x: 3116
-      y: 152
-    faction: "embla"
-  - id: "city_04"
-    name: "雪原镇"
-    type: "city"
-    icon_size: "large"
+      x: 2985
+      y: 399
+    faction: embla
+    force_connections:
+      - city_08
+  - id: city_04
+    name: 雪原镇
+    type: city
+    icon_size: large
     pos:
-      x: 2333
-      y: 144
-    faction: "embla"
-  - id: "city_05"
-    name: "极光村"
-    type: "city"
-    icon_size: "large"
+      x: 2250
+      y: 293
+    faction: embla
+    force_connections:
+      - city_07
+      - city_02
+  - id: city_05
+    name: 极光村
+    type: city
+    icon_size: large
     pos:
-      x: 230
-      y: 115
-    faction: "embla"
-  - id: "city_06"
-    name: "冻土驿站"
-    type: "fort"
-    icon_size: "large"
+      x: 1590
+      y: 185
+    faction: embla
+    force_connections:
+      - city_76
+      - city_73
+  - id: city_06
+    name: 冻土驿站
+    type: fort
+    icon_size: large
     pos:
-      x: 1052
-      y: 358
-    faction: "embla"
-  - id: "city_07"
-    name: "寒铁堡"
-    type: "fort"
-    icon_size: "large"
+      x: 1025
+      y: 569
+    faction: embla
+    force_connections:
+      - city_02
+      - city_76
+  - id: city_07
+    name: 寒铁堡
+    type: fort
+    icon_size: large
     pos:
-      x: 2398
-      y: 201
-    faction: "embla"
-  - id: "city_08"
-    name: "白鸦哨所"
-    type: "city"
-    icon_size: "large"
+      x: 2535
+      y: 336
+    faction: embla
+    force_connections:
+      - city_01
+      - city_04
+  - id: city_08
+    name: 白鸦哨所
+    type: city
+    icon_size: large
     pos:
-      x: 2972
-      y: 379
-    faction: "embla"
-  - id: "city_09"
-    name: "冬息村"
-    type: "city"
-    icon_size: "large"
+      x: 2778
+      y: 317
+    faction: embla
+    force_connections:
+      - city_03
+      - city_01
+      - city_26
+  - id: city_09
+    name: 冬息村
+    type: fort
+    icon_size: large
     pos:
-      x: 1939
-      y: 401
-    faction: "embla"
-  - id: "city_10"
-    name: "北望塔"
-    type: "fort"
-    icon_size: "large"
+      x: 2003
+      y: 415
+    faction: embla
+    force_connections:
+      - city_78
+      - city_17
+      - city_13
+      - city_23
+  - id: city_10
+    name: 北望塔
+    type: fort
+    icon_size: large
     pos:
-      x: 3660
-      y: 103
-    faction: "embla"
-  - id: "city_11"
-    name: "王都阿斯卡"
-    type: "city"
-    icon_size: "large"
+      x: 3148
+      y: 557
+    faction: embla
+    force_connections:
+      - city_77
+      - city_11
+  - id: city_11
+    name: 王都阿斯卡
+    type: city
+    icon_size: large
     pos:
       x: 1153
       y: 932
-    faction: "askr"
-  - id: "city_12"
-    name: "中央广场"
-    type: "village"
-    icon_size: "small"
+    faction: askr
+    force_connections:
+      - city_12
+      - city_42
+      - city_37
+      - city_29
+      - city_32
+      - city_10
+  - id: city_12
+    name: 中央广场
+    type: village
+    icon_size: small
     pos:
       x: 1136
       y: 720
-    faction: "askr"
-  - id: "city_13"
-    name: "圣骑士团驻地"
-    type: "city"
-    icon_size: "large"
+    faction: askr
+    force_connections:
+      - city_11
+      - city_14
+      - city_29
+  - id: city_13
+    name: 圣骑士团驻地
+    type: city
+    icon_size: large
     pos:
-      x: 1878
-      y: 604
-    faction: "askr"
-  - id: "city_14"
-    name: "贤者之塔"
-    type: "village"
-    icon_size: "small"
+      x: 2282
+      y: 939
+    faction: askr
+    force_connections:
+      - city_09
+      - city_23
+      - city_78
+      - city_17
+      - city_21
+      - city_31
+  - id: city_14
+    name: 贤者之塔
+    type: village
+    icon_size: small
     pos:
       x: 896
       y: 867
-    faction: "askr"
-  - id: "city_15"
-    name: "商业街"
-    type: "village"
-    icon_size: "small"
+    faction: askr
+    force_connections:
+      - city_12
+      - city_37
+      - city_33
+      - city_30
+      - city_35
+  - id: city_15
+    name: 商业街
+    type: village
+    icon_size: small
     pos:
-      x: 2972
+      x: 2899
       y: 770
-    faction: "askr"
-  - id: "city_16"
-    name: "南门集市"
-    type: "city"
-    icon_size: "large"
+    faction: askr
+    force_connections:
+      - city_50
+      - city_58
+      - city_59
+      - city_26
+      - city_55
+      - city_56
+  - id: city_16
+    name: 南门集市
+    type: city
+    icon_size: large
     pos:
-      x: 2381
-      y: 1049
-    faction: "askr"
-  - id: "city_17"
-    name: "东门工坊"
-    type: "city"
-    icon_size: "large"
+      x: 2418
+      y: 1102
+    faction: askr
+    force_connections:
+      - city_19
+  - id: city_17
+    name: 东门工坊
+    type: city
+    icon_size: large
     pos:
-      x: 2050
-      y: 580
-    faction: "askr"
-  - id: "city_18"
-    name: "西门酒馆"
-    type: "village"
-    icon_size: "small"
+      x: 2601
+      y: 599
+    faction: askr
+    force_connections:
+      - city_09
+      - city_13
+      - city_23
+      - city_78
+  - id: city_18
+    name: 西门酒馆
+    type: village
+    icon_size: small
     pos:
-      x: 3074
-      y: 1133
-    faction: "askr"
-  - id: "city_19"
-    name: "北门军营"
-    type: "city"
-    icon_size: "large"
+      x: 2877
+      y: 1096
+    faction: askr
+    force_connections:
+      - city_51
+      - city_47
+      - city_46
+      - city_25
+      - city_59
+  - id: city_19
+    name: 北门军营
+    type: city
+    icon_size: large
     pos:
-      x: 1981
-      y: 1091
-    faction: "askr"
-  - id: "city_20"
-    name: "皇家图书馆"
-    type: "fort"
-    icon_size: "large"
+      x: 2083
+      y: 1069
+    faction: askr
+    force_connections:
+      - city_16
+      - city_31
+  - id: city_20
+    name: 皇家图书馆
+    type: fort
+    icon_size: large
     pos:
       x: 784
       y: 546
-    faction: "askr"
-  - id: "city_21"
-    name: "治愈教会"
-    type: "village"
-    icon_size: "small"
+    faction: askr
+    force_connections:
+      - city_30
+      - city_35
+      - city_33
+  - id: city_21
+    name: 治愈教会
+    type: village
+    icon_size: small
     pos:
-      x: 1685
-      y: 581
-    faction: "askr"
-  - id: "city_22"
-    name: "勇者大道"
-    type: "fort"
-    icon_size: "large"
+      x: 1743
+      y: 1042
+    faction: askr
+    force_connections:
+      - city_78
+      - city_13
+      - city_27
+  - id: city_22
+    name: 勇者大道
+    type: fort
+    icon_size: large
     pos:
-      x: 1638
-      y: 964
-    faction: "askr"
-  - id: "city_23"
-    name: "冒险者公会"
-    type: "city"
-    icon_size: "large"
+      x: 1867
+      y: 1218
+    faction: askr
+    force_connections:
+      - city_74
+      - city_31
+      - city_28
+      - city_32
+      - city_33
+  - id: city_23
+    name: 冒险者公会
+    type: fort
+    icon_size: large
     pos:
-      x: 1994
-      y: 666
-    faction: "askr"
-  - id: "city_24"
-    name: "旧城区"
-    type: "city"
-    icon_size: "large"
+      x: 2587
+      y: 872
+    faction: askr
+    force_connections:
+      - city_13
+      - city_17
+      - city_78
+      - city_09
+      - city_31
+  - id: city_24
+    name: 旧城区
+    type: city
+    icon_size: large
     pos:
-      x: 1358
-      y: 1186
-    faction: "askr"
-  - id: "city_25"
-    name: "新城区"
-    type: "city"
-    icon_size: "large"
+      x: 1418
+      y: 1243
+    faction: askr
+    force_connections:
+      - city_32
+      - city_44
+      - city_28
+      - city_42
+      - city_74
+  - id: city_25
+    name: 新城区
+    type: city
+    icon_size: large
     pos:
-      x: 3299
-      y: 1163
-    faction: "askr"
-  - id: "city_26"
-    name: "中央车站"
-    type: "city"
-    icon_size: "large"
+      x: 3562
+      y: 1212
+    faction: askr
+    force_connections:
+      - city_47
+      - city_18
+      - city_49
+  - id: city_26
+    name: 中央车站
+    type: city
+    icon_size: large
     pos:
-      x: 3100
-      y: 675
-    faction: "askr"
-  - id: "city_27"
-    name: "王立学院"
-    type: "city"
-    icon_size: "large"
+      x: 2921
+      y: 632
+    faction: askr
+    force_connections:
+      - city_50
+      - city_15
+      - city_58
+      - city_45
+      - city_55
+      - city_59
+      - city_08
+  - id: city_27
+    name: 王立学院
+    type: city
+    icon_size: large
     pos:
-      x: 1502
-      y: 667
-    faction: "askr"
-  - id: "city_28"
-    name: "骑士训练场"
-    type: "fort"
-    icon_size: "large"
+      x: 1652
+      y: 734
+    faction: askr
+    force_connections:
+      - city_21
+      - city_29
+      - city_74
+  - id: city_28
+    name: 骑士训练场
+    type: fort
+    icon_size: large
     pos:
-      x: 1605
-      y: 1155
-    faction: "askr"
-  - id: "city_29"
-    name: "市民广场"
-    type: "village"
-    icon_size: "small"
+      x: 1672
+      y: 1583
+    faction: askr
+    force_connections:
+      - city_22
+      - city_24
+      - city_74
+      - city_32
+      - city_31
+      - city_60
+  - id: city_29
+    name: 市民广场
+    type: village
+    icon_size: small
     pos:
-      x: 1399
-      y: 832
-    faction: "askr"
-  - id: "city_30"
-    name: "中央公园"
-    type: "village"
-    icon_size: "small"
+      x: 1374
+      y: 705
+    faction: askr
+    force_connections:
+      - city_12
+      - city_27
+      - city_74
+      - city_32
+      - city_11
+  - id: city_30
+    name: 中央公园
+    type: village
+    icon_size: small
     pos:
       x: 729
       y: 734
-    faction: "askr"
-  - id: "city_31"
-    name: "大钟楼"
-    type: "city"
-    icon_size: "large"
+    faction: askr
+    force_connections:
+      - city_14
+      - city_20
+      - city_33
+      - city_35
+      - city_37
+  - id: city_31
+    name: 大钟楼
+    type: city
+    icon_size: large
     pos:
-      x: 1792
-      y: 910
-    faction: "askr"
-  - id: "city_32"
-    name: "市政厅"
-    type: "village"
-    icon_size: "small"
+      x: 2107
+      y: 1325
+    faction: askr
+    force_connections:
+      - city_19
+      - city_22
+      - city_23
+      - city_28
+      - city_74
+      - city_13
+  - id: city_32
+    name: 市政厅
+    type: village
+    icon_size: small
     pos:
-      x: 1364
-      y: 1080
-    faction: "askr"
-  - id: "city_33"
-    name: "熔岩要塞"
-    type: "fort"
-    icon_size: "large"
+      x: 1414
+      y: 850
+    faction: askr
+    force_connections:
+      - city_24
+      - city_28
+      - city_29
+      - city_74
+      - city_11
+      - city_22
+      - city_42
+      - city_45
+  - id: city_33
+    name: 熔岩要塞
+    type: fort
+    icon_size: large
     pos:
-      x: 744
-      y: 817
-    faction: "muspell"
-  - id: "city_34"
-    name: "炎狼巢穴"
-    type: "city"
-    icon_size: "large"
+      x: 944
+      y: 1490
+    faction: muspell
+    force_connections:
+      - city_14
+      - city_20
+      - city_30
+      - city_35
+      - city_37
+      - city_22
+  - id: city_34
+    name: 炎狼巢穴
+    type: city
+    icon_size: large
     pos:
-      x: 910
-      y: 1258
-    faction: "muspell"
-  - id: "city_35"
-    name: "灰烬哨站"
-    type: "city"
-    icon_size: "large"
+      x: 1051
+      y: 1681
+    faction: muspell
+    force_connections:
+      - city_42
+      - city_37
+      - city_36
+      - city_44
+  - id: city_35
+    name: 灰烬哨站
+    type: city
+    icon_size: large
     pos:
-      x: 642
-      y: 742
-    faction: "muspell"
-  - id: "city_36"
-    name: "焦土村"
-    type: "city"
-    icon_size: "large"
+      x: 1193
+      y: 1626
+    faction: muspell
+    force_connections:
+      - city_20
+      - city_30
+      - city_33
+      - city_14
+  - id: city_36
+    name: 焦土村
+    type: city
+    icon_size: large
     pos:
-      x: 638
-      y: 1364
-    faction: "muspell"
-  - id: "city_37"
-    name: "火晶矿场"
-    type: "city"
-    icon_size: "large"
+      x: 686
+      y: 1374
+    faction: muspell
+    force_connections:
+      - city_34
+      - city_40
+      - city_66
+  - id: city_37
+    name: 火晶矿场
+    type: city
+    icon_size: large
     pos:
       x: 917
       y: 970
-    faction: "muspell"
-  - id: "city_38"
-    name: "赤焰营地"
-    type: "city"
-    icon_size: "large"
+    faction: muspell
+    force_connections:
+      - city_11
+      - city_14
+      - city_30
+      - city_33
+      - city_34
+      - city_42
+  - id: city_38
+    name: 赤焰营地
+    type: city
+    icon_size: large
     pos:
-      x: 383
-      y: 1121
-    faction: "muspell"
-  - id: "city_39"
-    name: "熔铁工坊"
-    type: "city"
-    icon_size: "large"
+      x: 207
+      y: 897
+    faction: muspell
+    force_connections:
+      - city_41
+      - city_40
+      - city_43
+  - id: city_39
+    name: 熔铁工坊
+    type: city
+    icon_size: large
     pos:
-      x: 196
-      y: 1481
-    faction: "muspell"
-  - id: "city_40"
-    name: "热风驿站"
-    type: "fort"
-    icon_size: "large"
+      x: 697
+      y: 887
+    faction: muspell
+    force_connections:
+      - city_43
+      - city_40
+  - id: city_40
+    name: 热风驿站
+    type: fort
+    icon_size: large
     pos:
-      x: 427
-      y: 1411
-    faction: "muspell"
-  - id: "city_41"
-    name: "焰纹祭坛"
-    type: "city"
-    icon_size: "large"
+      x: 838
+      y: 1278
+    faction: muspell
+    force_connections:
+      - city_36
+      - city_38
+      - city_39
+      - city_66
+  - id: city_41
+    name: 焰纹祭坛
+    type: city
+    icon_size: large
     pos:
-      x: 230
-      y: 994
-    faction: "muspell"
-  - id: "city_42"
-    name: "岩浆渡口"
-    type: "city"
-    icon_size: "large"
+      x: 207
+      y: 1157
+    faction: muspell
+    force_connections:
+      - city_38
+  - id: city_42
+    name: 岩浆渡口
+    type: city
+    icon_size: large
     pos:
-      x: 1058
-      y: 1141
-    faction: "muspell"
-  - id: "city_43"
-    name: "焚风哨所"
-    type: "fort"
-    icon_size: "large"
+      x: 1098
+      y: 1197
+    faction: muspell
+    force_connections:
+      - city_11
+      - city_34
+      - city_37
+      - city_44
+      - city_24
+      - city_32
+  - id: city_43
+    name: 焚风哨所
+    type: fort
+    icon_size: large
     pos:
-      x: 123
-      y: 1296
-    faction: "muspell"
-  - id: "city_44"
-    name: "炎狱之门"
-    type: "city"
-    icon_size: "large"
+      x: 382
+      y: 780
+    faction: muspell
+    force_connections:
+      - city_38
+      - city_39
+  - id: city_44
+    name: 炎狱之门
+    type: city
+    icon_size: large
     pos:
-      x: 1199
-      y: 1368
-    faction: "muspell"
-  - id: "city_45"
-    name: "冰晶神殿"
-    type: "city"
-    icon_size: "large"
+      x: 1145
+      y: 1412
+    faction: muspell
+    force_connections:
+      - city_24
+      - city_42
+      - city_64
+      - city_34
+      - city_72
+  - id: city_45
+    name: 冰晶神殿
+    type: city
+    icon_size: large
     pos:
-      x: 3336
-      y: 714
-    faction: "nifl"
-  - id: "city_46"
-    name: "雪精灵村"
-    type: "city"
-    icon_size: "large"
+      x: 3203
+      y: 758
+    faction: nifl
+    force_connections:
+      - city_55
+      - city_26
+      - city_50
+      - city_53
+      - city_32
+  - id: city_46
+    name: 雪精灵村
+    type: city
+    icon_size: large
     pos:
-      x: 2963
-      y: 1064
-    faction: "nifl"
-  - id: "city_47"
-    name: "极光观测站"
-    type: "fort"
-    icon_size: "large"
+      x: 2929
+      y: 1235
+    faction: nifl
+    force_connections:
+      - city_18
+      - city_51
+      - city_59
+      - city_47
+  - id: city_47
+    name: 极光观测站
+    type: fort
+    icon_size: large
     pos:
-      x: 3179
-      y: 1112
-    faction: "nifl"
-  - id: "city_48"
-    name: "冰瀑镇"
-    type: "village"
-    icon_size: "small"
+      x: 3038
+      y: 1178
+    faction: nifl
+    force_connections:
+      - city_18
+      - city_25
+      - city_46
+      - city_51
+      - city_55
+      - city_59
+  - id: city_48
+    name: 冰瀑镇
+    type: village
+    icon_size: small
     pos:
-      x: 3679
-      y: 708
-    faction: "nifl"
-  - id: "city_49"
-    name: "霜语林地"
-    type: "fort"
-    icon_size: "large"
+      x: 3616
+      y: 944
+    faction: nifl
+    force_connections:
+      - city_53
+      - city_52
+  - id: city_49
+    name: 霜语林地
+    type: fort
+    icon_size: large
     pos:
       x: 3251
       y: 1461
-    faction: "nifl"
-  - id: "city_50"
-    name: "冰镜湖"
-    type: "city"
-    icon_size: "large"
+    faction: nifl
+    force_connections:
+      - city_25
+      - city_54
+  - id: city_50
+    name: 冰镜湖
+    type: city
+    icon_size: large
     pos:
       x: 3047
       y: 756
-    faction: "nifl"
-  - id: "city_51"
-    name: "冬青驿站"
-    type: "village"
-    icon_size: "small"
+    faction: nifl
+    force_connections:
+      - city_15
+      - city_26
+      - city_45
+      - city_59
+      - city_58
+      - city_55
+  - id: city_51
+    name: 冬青驿站
+    type: village
+    icon_size: small
     pos:
-      x: 2970
-      y: 1152
-    faction: "nifl"
-  - id: "city_52"
-    name: "冰牙要塞"
-    type: "city"
-    icon_size: "large"
+      x: 2547
+      y: 1240
+    faction: nifl
+    force_connections:
+      - city_18
+      - city_46
+      - city_47
+      - city_59
+      - city_57
+  - id: city_52
+    name: 冰牙要塞
+    type: city
+    icon_size: large
     pos:
-      x: 3726
-      y: 600
-    faction: "nifl"
-  - id: "city_53"
-    name: "雪豹营地"
-    type: "city"
-    icon_size: "large"
+      x: 3521
+      y: 847
+    faction: nifl
+    force_connections:
+      - city_48
+      - city_53
+      - city_77
+  - id: city_53
+    name: 雪豹营地
+    type: city
+    icon_size: large
     pos:
-      x: 3640
-      y: 619
-    faction: "nifl"
-  - id: "city_54"
-    name: "寒冰矿坑"
-    type: "village"
-    icon_size: "small"
+      x: 3379
+      y: 775
+    faction: nifl
+    force_connections:
+      - city_48
+      - city_52
+      - city_77
+      - city_45
+  - id: city_54
+    name: 寒冰矿坑
+    type: village
+    icon_size: small
     pos:
-      x: 3383
-      y: 1499
-    faction: "nifl"
-  - id: "city_55"
-    name: "冰风峡谷"
-    type: "city"
-    icon_size: "large"
+      x: 3371
+      y: 1408
+    faction: nifl
+    force_connections:
+      - city_49
+      - city_75
+  - id: city_55
+    name: 冰风峡谷
+    type: city
+    icon_size: large
     pos:
-      x: 3269
-      y: 845
-    faction: "nifl"
-  - id: "city_56"
-    name: "永冻港"
-    type: "fort"
-    icon_size: "large"
+      x: 3309
+      y: 872
+    faction: nifl
+    force_connections:
+      - city_45
+      - city_47
+      - city_50
+      - city_26
+      - city_59
+      - city_15
+  - id: city_56
+    name: 永冻港
+    type: fort
+    icon_size: large
     pos:
-      x: 2801
-      y: 687
-    faction: "nifl"
-  - id: "city_57"
-    name: "霜花村"
-    type: "city"
-    icon_size: "large"
+      x: 2743
+      y: 910
+    faction: nifl
+    force_connections:
+      - city_58
+      - city_15
+      - city_59
+  - id: city_57
+    name: 霜花村
+    type: city
+    icon_size: large
     pos:
-      x: 2781
-      y: 1378
-    faction: "nifl"
-  - id: "city_58"
-    name: "冰柱洞窟"
-    type: "fort"
-    icon_size: "large"
+      x: 2706
+      y: 1459
+    faction: nifl
+    force_connections:
+      - city_51
+  - id: city_58
+    name: 冰柱洞窟
+    type: fort
+    icon_size: large
     pos:
-      x: 2897
-      y: 731
-    faction: "nifl"
-  - id: "city_59"
-    name: "雪鸮哨站"
-    type: "city"
-    icon_size: "large"
+      x: 2742
+      y: 697
+    faction: nifl
+    force_connections:
+      - city_15
+      - city_26
+      - city_50
+      - city_56
+      - city_59
+  - id: city_59
+    name: 雪鸮哨站
+    type: city
+    icon_size: large
     pos:
       x: 2978
       y: 871
-    faction: "nifl"
-  - id: "city_60"
-    name: "南风港"
-    type: "village"
-    icon_size: "small"
+    faction: nifl
+    force_connections:
+      - city_15
+      - city_46
+      - city_47
+      - city_50
+      - city_51
+      - city_55
+      - city_56
+      - city_58
+      - city_26
+      - city_18
+      - city_80
+  - id: city_60
+    name: 南风港
+    type: village
+    icon_size: small
     pos:
-      x: 2984
-      y: 1933
+      x: 3074
+      y: 1794
     faction: ""
-  - id: "city_61"
-    name: "绿洲镇"
-    type: "fort"
-    icon_size: "large"
+    force_connections:
+      - city_71
+      - city_65
+      - city_28
+  - id: city_61
+    name: 绿洲镇
+    type: fort
+    icon_size: large
     pos:
-      x: 2708
-      y: 1705
+      x: 2612
+      y: 1662
     faction: ""
-  - id: "city_62"
-    name: "沙漠驿站"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_65
+      - city_63
+      - city_71
+  - id: city_62
+    name: 沙漠驿站
+    type: city
+    icon_size: large
     pos:
       x: 2134
       y: 1882
     faction: ""
-  - id: "city_63"
-    name: "沙丘营地"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_72
+      - city_80
+  - id: city_63
+    name: 沙丘营地
+    type: city
+    icon_size: large
     pos:
       x: 2619
-      y: 1962
+      y: 1982
     faction: ""
-  - id: "city_64"
-    name: "烈日要塞"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_61
+      - city_71
+  - id: city_64
+    name: 烈日要塞
+    type: city
+    icon_size: large
     pos:
       x: 1420
       y: 1565
     faction: ""
-  - id: "city_65"
-    name: "仙人掌村"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_44
+      - city_69
+  - id: city_65
+    name: 仙人掌村
+    type: city
+    icon_size: large
     pos:
-      x: 2909
-      y: 1735
+      x: 3113
+      y: 1581
     faction: ""
-  - id: "city_66"
-    name: "流沙渡口"
-    type: "fort"
-    icon_size: "large"
+    force_connections:
+      - city_60
+      - city_61
+      - city_71
+  - id: city_66
+    name: 流沙渡口
+    type: fort
+    icon_size: large
     pos:
-      x: 529
-      y: 1572
+      x: 730
+      y: 1625
     faction: ""
-  - id: "city_67"
-    name: "热风沙漠"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_36
+      - city_40
+      - city_67
+      - city_68
+  - id: city_67
+    name: 热风沙漠
+    type: city
+    icon_size: large
     pos:
-      x: 741
-      y: 1734
+      x: 750
+      y: 1768
     faction: ""
-  - id: "city_68"
-    name: "绿洲集市"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_66
+      - city_68
+  - id: city_68
+    name: 绿洲集市
+    type: city
+    icon_size: large
     pos:
-      x: 628
-      y: 1838
+      x: 697
+      y: 1902
     faction: ""
-  - id: "city_69"
-    name: "沙蝎巢穴"
-    type: "fort"
-    icon_size: "large"
+    force_connections:
+      - city_66
+      - city_67
+  - id: city_69
+    name: 沙蝎巢穴
+    type: fort
+    icon_size: large
     pos:
-      x: 1474
-      y: 1785
+      x: 1326
+      y: 1742
     faction: ""
-  - id: "city_70"
-    name: "落日哨站"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_64
+      - city_70
+  - id: city_70
+    name: 落日哨站
+    type: city
+    icon_size: large
     pos:
-      x: 1377
-      y: 2052
+      x: 1268
+      y: 1980
     faction: ""
-  - id: "city_71"
-    name: "南方遗迹"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_69
+      - city_79
+  - id: city_71
+    name: 南方遗迹
+    type: city
+    icon_size: large
     pos:
-      x: 2838
-      y: 1984
+      x: 2884
+      y: 1921
     faction: ""
-  - id: "city_72"
-    name: "边境哨站"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_60
+      - city_61
+      - city_63
+      - city_65
+  - id: city_72
+    name: 边境哨站
+    type: city
+    icon_size: large
     pos:
       x: 2037
       y: 1753
     faction: ""
-  - id: "city_73"
-    name: "中立贸易站"
-    type: "fort"
-    icon_size: "large"
+    force_connections:
+      - city_62
+      - city_80
+      - city_44
+  - id: city_73
+    name: 中立贸易站
+    type: fort
+    icon_size: large
     pos:
-      x: 486
-      y: 298
+      x: 995
+      y: 717
     faction: ""
-  - id: "city_74"
-    name: "缓冲营地"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_05
+      - city_76
+  - id: city_74
+    name: 缓冲营地
+    type: city
+    icon_size: large
     pos:
-      x: 1551
-      y: 967
+      x: 1743
+      y: 385
     faction: ""
-  - id: "city_75"
-    name: "界碑村"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_22
+      - city_27
+      - city_28
+      - city_29
+      - city_31
+      - city_32
+      - city_24
+  - id: city_75
+    name: 界碑村
+    type: city
+    icon_size: large
     pos:
-      x: 3638
-      y: 1593
+      x: 3484
+      y: 1332
     faction: ""
-  - id: "city_76"
-    name: "和平驿站"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_54
+  - id: city_76
+    name: 和平驿站
+    type: city
+    icon_size: large
     pos:
-      x: 503
-      y: 224
+      x: 1313
+      y: 447
     faction: ""
-  - id: "city_77"
-    name: "三不管地带"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_05
+      - city_73
+      - city_06
+  - id: city_77
+    name: 三不管地带
+    type: city
+    icon_size: large
     pos:
-      x: 3629
-      y: 323
+      x: 3132
+      y: 908
     faction: ""
-  - id: "city_78"
-    name: "边境集市"
-    type: "city"
-    icon_size: "large"
+    force_connections:
+      - city_10
+      - city_52
+      - city_53
+  - id: city_78
+    name: 边境集市
+    type: city
+    icon_size: large
     pos:
-      x: 1828
-      y: 475
+      x: 1978
+      y: 585
     faction: ""
-  - id: "city_79"
-    name: "无人区前哨"
-    type: "village"
-    icon_size: "small"
+    force_connections:
+      - city_09
+      - city_13
+      - city_17
+      - city_21
+      - city_23
+  - id: city_79
+    name: 无人区前哨
+    type: village
+    icon_size: small
     pos:
-      x: 1123
-      y: 1890
+      x: 1132
+      y: 1812
     faction: ""
-  - id: "city_80"
-    name: "缓冲要塞"
-    type: "village"
-    icon_size: "small"
+    force_connections:
+      - city_70
+  - id: city_80
+    name: 缓冲要塞
+    type: village
+    icon_size: small
     pos:
       x: 1915
       y: 1754
     faction: ""
-manual_connections:
-  - from: "city_10"
-    to: "city_11"
-  - from: "city_22"
-    to: "city_33"
-  - from: "city_32"
-    to: "city_45"
-  - from: "city_28"
-    to: "city_60"
-  - from: "city_44"
-    to: "city_72"
-  - from: "city_59"
-    to: "city_80"
+    force_connections:
+      - city_62
+      - city_72
+      - city_59

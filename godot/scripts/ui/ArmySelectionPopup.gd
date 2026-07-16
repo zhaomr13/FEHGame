@@ -20,7 +20,7 @@ func setup(armies: Array[Army]):
 	for army in armies:
 		if not is_instance_valid(army):
 			continue
-		var text = "%s (%d members)" % [army.army_name, army.squad_data.size()]
+		var text = "%s (%d 人)" % [army.army_name, army.squad_data.size()]
 		item_list.add_item(text)
 
 func popup_at(center_position: Vector2):

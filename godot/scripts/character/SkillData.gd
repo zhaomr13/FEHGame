@@ -4,7 +4,7 @@ extends Resource
 enum SkillType { ACTIVE, PASSIVE, LEADER }
 enum TargetType { SELF, SINGLE, AOE, ALLY, ALL_ALLIES }
 
-@export var skill_name: String = "Unknown Skill"
+@export var skill_name: String = "未知技能"
 @export var description: String = ""
 @export var skill_type: SkillType = SkillType.ACTIVE
 @export var target_type: TargetType = TargetType.SINGLE

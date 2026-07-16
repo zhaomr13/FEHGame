@@ -22,7 +22,7 @@ var all_characters: Array[CharacterData] = []
 var available_recruits: Array[CharacterData] = []  # Characters that can be recruited
 
 func _ready():
-    print("GameManager initialized")
+    print("GameManager 已初始化")
     _initialize_all_characters()
     var t = Time.get_ticks_msec()
     var count = 0
@@ -33,14 +33,14 @@ func _ready():
             done[folder] = true
             preload("res://scripts/AtlasLoader.gd").load_character_atlas(folder)
             count += 1
-    print("Preloaded ", count, " sprite atlases in ", Time.get_ticks_msec() - t, "ms")
+    print("预加载了 ", count, " 个精灵图集，耗时 ", Time.get_ticks_msec() - t, " 毫秒")
 
 func _initialize_all_characters():
     """Initialize all characters by loading them from the YAML database."""
     all_characters.clear()
     var db = CharacterDatabase.new()
     all_characters = db.load_all_characters()
-    print("Loaded ", all_characters.size(), " characters from database")
+    print("已从数据库加载 ", all_characters.size(), " 个角色")
 
 func get_characters_by_faction(faction: String) -> Array[CharacterData]:
     """Get all characters belonging to a specific faction"""
@@ -68,7 +68,7 @@ func recruit_character(character: CharacterData):
 func change_state(new_state: GameConstants.GameState):
     current_state = new_state
     state_changed.emit(new_state)
-    print("State changed to: ", GameConstants.GameState.keys()[new_state])
+    print("状态已切换为：", GameConstants.GameState.keys()[new_state])
 
 func start_battle(player_units: Array, enemy_units: Array):
     battle_started.emit(player_units, enemy_units)

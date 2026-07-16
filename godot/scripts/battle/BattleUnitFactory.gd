@@ -48,7 +48,7 @@ func create_battle_unit(data: CharacterData, position: int, is_player: bool) -> 
 
 func create_default_enemy(index: int) -> CharacterData:
 	var enemy_data = CharacterData.new()
-	enemy_data.character_name = "Enemy " + str(index + 1)
+	enemy_data.character_name = "敌人 " + str(index + 1)
 	enemy_data.max_hp = 20 + randi() % 10
 	enemy_data.current_hp = enemy_data.max_hp
 	enemy_data.attack = 5 + randi() % 5

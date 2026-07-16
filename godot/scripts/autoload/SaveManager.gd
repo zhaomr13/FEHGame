@@ -44,11 +44,11 @@ func save_game():
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(save_data))
 	file.close()
-	print("Game saved to ", SAVE_PATH)
+	print("游戏已保存到 ", SAVE_PATH)
 
 func load_game() -> bool:
 	if not FileAccess.file_exists(SAVE_PATH):
-		print("No save file found")
+		print("未找到存档文件")
 		return false
 
 	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
@@ -58,7 +58,7 @@ func load_game() -> bool:
 	var json = JSON.new()
 	var error = json.parse(json_string)
 	if error != OK:
-		print("JSON parse error: ", json.get_error_message())
+		print("JSON 解析错误：", json.get_error_message())
 		return false
 
 	var save_data = json.data
@@ -99,7 +99,7 @@ func load_game() -> bool:
 	else:
 		_get_gm().initialize_squads()
 
-	print("Game loaded from ", SAVE_PATH)
+	print("游戏已从 ", SAVE_PATH, " 加载")
 	return true
 
 func has_save() -> bool:
@@ -128,7 +128,7 @@ func save_squads(squads: Array, unassigned: Array[CharacterData]):
 	var file = FileAccess.open(SQUAD_SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(squad_save))
 	file.close()
-	print("Squad configuration saved")
+	print("小队配置已保存")
 
 func load_squads() -> Array:
 	"""Load squad configuration from file"""
@@ -191,7 +191,7 @@ func _load_squad_save_data() -> Dictionary:
 	var json = JSON.new()
 	var error = json.parse(json_string)
 	if error != OK:
-		print("Squad JSON parse error: ", json.get_error_message())
+		print("小队 JSON 解析错误：", json.get_error_message())
 		return {}
 
 	if json.data is Dictionary:

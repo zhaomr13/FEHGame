@@ -20,15 +20,15 @@ var is_combat_running: bool = false
 
 func _ready():
 	if not bg_mgr:
-		print("ERROR: BattleManager - BattleBackgroundManager missing!")
+		print("错误：BattleManager - 缺少 BattleBackgroundManager！")
 	if not deployment_mgr:
-		print("ERROR: BattleManager - BattleDeploymentManager missing!")
+		print("错误：BattleManager - 缺少 BattleDeploymentManager！")
 	if not unit_factory:
-		print("ERROR: BattleManager - BattleUnitFactory missing!")
+		print("错误：BattleManager - 缺少 BattleUnitFactory！")
 	if not status_panel:
-		print("ERROR: BattleManager - BattleStatusPanel missing!")
+		print("错误：BattleManager - 缺少 BattleStatusPanel！")
 	if not turn_mgr:
-		print("ERROR: BattleManager - BattleTurnManager missing!")
+		print("错误：BattleManager - 缺少 BattleTurnManager！")
 
 	GameManager.battle_started_with_background.connect(_on_battle_started_with_background)
 	deployment_mgr.deployment_confirmed.connect(_on_deployment_confirmed)

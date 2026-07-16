@@ -253,5 +253,5 @@ func set_position_at_city(city_position: Vector2):
 
 func get_leader_name() -> String:
 	if squad_data.is_empty():
-		return "Unknown"
+		return "未知"
 	return squad_data[0].character_name

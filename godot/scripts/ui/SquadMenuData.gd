@@ -24,7 +24,7 @@ func _get_gm():
 func load_squad_data():
 	var gm = _get_gm()
 	if gm == null:
-		push_error("SquadMenuData: GameManager not found")
+		push_error("SquadMenuData：找不到 GameManager")
 		return
 	squads = gm.squad_data.duplicate(true)
 	unassigned = gm.unassigned_units.duplicate()
@@ -75,13 +75,13 @@ func remove_empty_squads():
 
 func move_character_to_squad(squad_index: int) -> String:
 	if selected_character == null:
-		return "Please select a character first!"
+		return "请先选择一个角色！"
 
 	if squad_index < 0 or squad_index >= squads.size():
-		return "Invalid squad index!"
+		return "小队索引无效！"
 
 	if squads[squad_index].size() >= MAX_SQUAD_SIZE:
-		return "Squad %d is full!" % (squad_index + 1)
+		return "第%d小队已满！" % (squad_index + 1)
 
 	_remove_from_current()
 	squads[squad_index].append(selected_character)
@@ -94,13 +94,13 @@ func move_character_to_squad(squad_index: int) -> String:
 
 func move_character_to_first_non_full_squad() -> String:
 	if selected_character == null:
-		return "Please select a character first!"
+		return "请先选择一个角色！"
 
 	for i in range(squads.size()):
 		if squads[i].size() < MAX_SQUAD_SIZE:
 			return move_character_to_squad(i)
 
-	return "All squads are full!"
+	return "所有小队已满！"
 
 func remove_from_squad() -> String:
 	if selected_character == null:

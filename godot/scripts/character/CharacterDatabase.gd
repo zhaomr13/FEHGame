@@ -13,7 +13,7 @@ const CLASS_MAP: Dictionary = {
 
 func load_all_characters() -> Array[CharacterData]:
     if not FileAccess.file_exists(CHARACTERS_PATH):
-        push_error("Character database not found: %s" % CHARACTERS_PATH)
+        push_error("角色数据库未找到：%s" % CHARACTERS_PATH)
         return []
 
     var yaml_text := FileAccess.get_file_as_string(CHARACTERS_PATH)
@@ -25,7 +25,7 @@ func load_all_characters() -> Array[CharacterData]:
 
     for char_dict in char_list:
         if not char_dict is Dictionary:
-            push_warning("Skipping invalid character entry (not a dictionary)")
+            push_warning("跳过无效的角色条目（不是字典）")
             continue
         var char_data := _create_character_from_dict(char_dict)
         if char_data != null:
@@ -34,10 +34,10 @@ func load_all_characters() -> Array[CharacterData]:
     return characters
 
 func _create_character_from_dict(dict: Dictionary) -> CharacterData:
-    var name: String = dict.get("name", "Unnamed")
+    var name: String = dict.get("name", "未命名")
     var class_str: String = dict.get("class", "LORD")
     if not CLASS_MAP.has(class_str):
-        push_warning("Unknown character class '%s' for '%s', defaulting to LORD" % [class_str, name])
+        push_warning("角色 '%s' 的未知职业 '%s'，使用默认职业 LORD" % [name, class_str])
         class_str = "LORD"
 
     var char_data := CharacterData.new()
@@ -60,7 +60,7 @@ func _create_character_from_dict(dict: Dictionary) -> CharacterData:
     if sprite_folder != "":
         char_data.sprite_frames_path = "res://assets/characters/%s/" % sprite_folder
     else:
-        push_warning("Character '%s' has no sprite_folder" % name)
+        push_warning("角色 '%s' 没有 sprite_folder" % name)
         char_data.sprite_frames_path = ""
 
     # Tactics: use defaults unless explicitly provided

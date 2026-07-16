@@ -18,7 +18,7 @@ func _ready():
 func setup_sprite():
 	# Load atlas using AtlasLoader
 	if character_data.sprite_frames_path.is_empty():
-		push_error("No sprite_frames_path set for character: " + character_data.character_name)
+		push_error("角色未设置 sprite_frames_path：" + character_data.character_name)
 		return
 
 	var atlas_loader = preload("res://scripts/AtlasLoader.gd")

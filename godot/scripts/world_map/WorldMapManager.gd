@@ -59,7 +59,7 @@ const PLANNING_UI_HEIGHT: float = 80.0
 func _ready():
 	setup_background()
 	if not map_data:
-		print("ERROR: WorldMapManager - MapDataManager missing!")
+		print("错误：WorldMapManager - 缺少 MapDataManager！")
 		return
 	map_data.create_map_nodes()
 	map_data.draw_connections()
@@ -387,7 +387,7 @@ func _create_player_armies_from_squads(start_city: String):
 		var offset = _army_offset(squad_index, source_squads.size())
 		var army = _create_army(squad_data, city_id, army_type, offset)
 		army.army_id = "player_squad_%d" % squad_index
-		army.army_name = "Squad %d" % (squad_index + 1) if squad_index > 0 else "Main Army"
+		army.army_name = "第%d队" % (squad_index + 1) if squad_index > 0 else "主队"
 		army.squad_index = squad_index
 		army.faction = current_faction
 		army.army_clicked.connect(_on_army_clicked)
@@ -399,7 +399,7 @@ func _create_player_armies_from_squads(start_city: String):
 		var chars = GameManager.player_army.duplicate()
 		var army = _create_army(chars, start_city, Army.ArmyType.PLAYER_MAIN)
 		army.army_id = "player_main"
-		army.army_name = "Main Army"
+		army.army_name = "主队"
 		army.faction = current_faction
 		army.army_clicked.connect(_on_army_clicked)
 		player_armies.append(army)
@@ -795,7 +795,7 @@ func _sync_armies_in_place(new_armies: Array, new_unassigned: Array, army_squad_
 				used_indices[free_slot_ptr] = true
 				free_slot_ptr += 1
 			else:
-				push_error("_sync_armies_in_place: no free squad slots")
+				push_error("_sync_armies_in_place：没有空闲的小队槽位")
 				army_squad_indices[i] = 0
 
 	# Step 4: Update existing armies and create new ones

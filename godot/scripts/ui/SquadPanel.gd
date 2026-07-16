@@ -30,7 +30,7 @@ func set_squad(squad: Array):
 func _update_count_label(count: int):
 	if count_label == null:
 		return
-	count_label.text = "%d/%d members" % [count, GameConstants.MAX_SQUAD_SIZE]
+	count_label.text = "%d/%d 人" % [count, GameConstants.MAX_SQUAD_SIZE]
 	if count == 0:
 		count_label.modulate = Color.GRAY
 	elif count >= GameConstants.MAX_SQUAD_SIZE:

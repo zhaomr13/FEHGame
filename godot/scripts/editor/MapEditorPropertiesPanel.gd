@@ -10,12 +10,15 @@ signal connection_toggled(city_id: String, connected: bool)
 @onready var type_option: OptionButton = $VBox/TypeOption
 @onready var connections_list: VBoxContainer = $VBox/Scroll/ConnectionsList
 
+const TYPE_DISPLAY_TO_DATA: Dictionary = {"城市": "city", "要塞": "fort", "村庄": "village"}
+const TYPE_DATA_TO_DISPLAY: Dictionary = {"city": "城市", "fort": "要塞", "village": "村庄"}
+
 var _current_city_id: String = ""
 
 func _ready():
 	name_edit.text_submitted.connect(func(text: String): name_changed.emit(text))
 	name_edit.focus_exited.connect(func(): name_changed.emit(name_edit.text))
-	type_option.item_selected.connect(func(index: int): type_changed.emit(type_option.get_item_text(index)))
+	type_option.item_selected.connect(func(index: int): type_changed.emit(TYPE_DISPLAY_TO_DATA.get(type_option.get_item_text(index), "city")))
 
 func set_city(city_data: Dictionary, all_cities: Array[Dictionary]):
 	_current_city_id = city_data.get("id", "")
@@ -23,8 +26,9 @@ func set_city(city_data: Dictionary, all_cities: Array[Dictionary]):
 	name_edit.text = city_data.get("name", "")
 
 	var type = city_data.get("type", "city")
+	var display_type = TYPE_DATA_TO_DISPLAY.get(type, "城市")
 	for i in range(type_option.item_count):
-		if type_option.get_item_text(i) == type:
+		if type_option.get_item_text(i) == display_type:
 			type_option.select(i)
 			break
 

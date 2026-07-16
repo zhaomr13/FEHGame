@@ -35,7 +35,7 @@ func _update_map_node():
 	if map_node == null:
 		return
 	map_node.node_id = data.get("id", "")
-	map_node.node_name = data.get("name", "Unknown")
+	map_node.node_name = data.get("name", "未知")
 	match data.get("type", "city"):
 		"fort":
 			map_node.node_type = GameConstants.NodeType.FORT

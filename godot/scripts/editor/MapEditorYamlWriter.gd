@@ -6,14 +6,14 @@ const DEFAULT_PATH := "res://data/world_map.yaml"
 static func load_world_map(path: String = DEFAULT_PATH) -> Dictionary:
 	var result := {"metadata": {}, "cities": []}
 	if not FileAccess.file_exists(path):
-		push_error("MapEditorYamlWriter: file not found: " + path)
+		push_error("MapEditorYamlWriter：文件未找到：" + path)
 		return result
 
 	var yaml_text := FileAccess.get_file_as_string(path)
 	var parser := YamlParser.new()
 	var parsed := parser.parse(yaml_text)
 	if parsed == null or not parsed is Dictionary:
-		push_error("MapEditorYamlWriter: failed to parse YAML")
+		push_error("MapEditorYamlWriter：解析 YAML 失败")
 		return result
 
 	result["metadata"] = parsed.get("metadata", {})
@@ -37,7 +37,7 @@ static func write_world_map(metadata: Dictionary, cities: Array, path: String = 
 	var temp_path := path + ".tmp"
 	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
-		push_error("MapEditorYamlWriter: failed to open temp file for writing: " + temp_path)
+		push_error("MapEditorYamlWriter：无法打开临时文件进行写入：" + temp_path)
 		return false
 
 	var content := "\n".join(lines) + "\n"
@@ -45,18 +45,18 @@ static func write_world_map(metadata: Dictionary, cities: Array, path: String = 
 	var store_result := file.get_error()
 	file.close()
 	if store_result != OK:
-		push_error("MapEditorYamlWriter: failed to write temp file: " + temp_path)
+		push_error("MapEditorYamlWriter：写入临时文件失败：" + temp_path)
 		_cleanup_temp_file(temp_path)
 		return false
 
 	if FileAccess.file_exists(path):
 		var remove_result := DirAccess.remove_absolute(path)
 		if remove_result != OK:
-			push_warning("MapEditorYamlWriter: failed to remove existing file before rename: " + path)
+			push_warning("MapEditorYamlWriter：重命名前删除现有文件失败：" + path)
 
 	var rename_result := DirAccess.rename_absolute(temp_path, path)
 	if rename_result != OK:
-		push_error("MapEditorYamlWriter: failed to rename temp file to target: " + path)
+		push_error("MapEditorYamlWriter：将临时文件重命名为目标文件失败：" + path)
 		_cleanup_temp_file(temp_path)
 		return false
 
@@ -66,7 +66,7 @@ static func _cleanup_temp_file(temp_path: String):
 	if FileAccess.file_exists(temp_path):
 		var result := DirAccess.remove_absolute(temp_path)
 		if result != OK:
-			push_warning("MapEditorYamlWriter: failed to clean up temp file: " + temp_path)
+			push_warning("MapEditorYamlWriter：清理临时文件失败：" + temp_path)
 
 static func _emit_metadata(metadata: Dictionary) -> Array[String]:
 	var lines: Array[String] = ["metadata:"]
