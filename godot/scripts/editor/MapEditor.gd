@@ -46,8 +46,9 @@ func _ready():
 
 func _setup_background():
 	if background and background.texture:
-		background.position = MAP_SIZE / 2.0
-		background.scale = MAP_SIZE / background.texture.get_size()
+		var texture_size := background.texture.get_size()
+		background.position = texture_size / 2.0
+		background.scale = Vector2.ONE
 
 func _load_map():
 	var loaded := MapEditorYamlWriter.load_world_map()

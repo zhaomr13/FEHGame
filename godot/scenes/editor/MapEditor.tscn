@@ -12,8 +12,7 @@ script = ExtResource("1_script")
 
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -1
-position = Vector2(1920, 1080)
-scale = Vector2(1.54217, 1.4734)
+position = Vector2(1245, 733)
 texture = ExtResource("2_bg")
 
 [node name="Connections" type="Node2D" parent="."]
