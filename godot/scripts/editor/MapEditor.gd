@@ -67,11 +67,11 @@ func _fit_camera():
 	var fit_y: float = usable_size.y / MAP_SIZE.y
 	var fit_zoom: float = min(fit_x, fit_y) * MAP_FIT_PADDING
 	camera.zoom = Vector2(fit_zoom, fit_zoom)
-	# Anchor the map in the bottom-left usable corner:
-	# world (0, MAP_SIZE.y) -> screen (0, viewport_height)
-	camera.position = Vector2(
-		viewport_size.x / (2.0 * fit_zoom),
-		MAP_SIZE.y - viewport_size.y / (2.0 * fit_zoom)
+	# Center the map inside the usable area (below toolbar, left of panel).
+	camera.position = MAP_SIZE / 2.0
+	camera.offset = Vector2(
+		-PROPERTIES_PANEL_WIDTH / 2.0,
+		TOOLBAR_HEIGHT / 2.0
 	)
 
 func _load_map():
