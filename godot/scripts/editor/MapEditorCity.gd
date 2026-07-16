@@ -60,22 +60,28 @@ func get_city_id() -> String:
 func refresh_visual():
 	_update_map_node()
 
+func _input(event: InputEvent):
+	if not _dragging:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		print("DEBUG drag released globally: ", get_city_id())
+		_dragging = false
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseMotion:
+		print("DEBUG dragging motion global, mouse=", get_global_mouse_position(), " new pos=", get_global_mouse_position() + _drag_offset)
+		position = get_global_mouse_position() + _drag_offset
+		data["pos"]["x"] = position.x
+		data["pos"]["y"] = position.y
+		city_moved.emit(self)
+		get_viewport().set_input_as_handled()
+
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
-	print("DEBUG MapEditorCity input event: ", event.get_class(), " button=", event.get("button_index") if event.has_method("get_button_index") else "N/A", " pressed=", event.get("pressed") if event.has_method("get_pressed") else "N/A")
+	print("DEBUG MapEditorCity area input event: ", event.get_class())
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			print("DEBUG mouse pressed on city: ", get_city_id(), " area=", area, " input_pickable=", area.input_pickable if area else "N/A")
+			print("DEBUG mouse pressed on city: ", get_city_id())
 			city_selected.emit(self)
 			_dragging = true
 			_drag_offset = position - get_global_mouse_position()
 			print("DEBUG dragging started, offset=", _drag_offset)
 			get_viewport().set_input_as_handled()
-		else:
-			print("DEBUG mouse released on city: ", get_city_id())
-			_dragging = false
-	elif event is InputEventMouseMotion and _dragging:
-		print("DEBUG dragging motion, mouse=", get_global_mouse_position(), " new pos=", get_global_mouse_position() + _drag_offset)
-		position = get_global_mouse_position() + _drag_offset
-		data["pos"]["x"] = position.x
-		data["pos"]["y"] = position.y
-		city_moved.emit(self)
