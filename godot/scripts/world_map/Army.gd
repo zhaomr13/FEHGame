@@ -47,12 +47,6 @@ var label: Label
 var selection_indicator: Panel
 var plan_line: Line2D
 
-const ARMY_COLORS = {
-	ArmyType.PLAYER_MAIN: Color(0.2, 0.8, 0.2),
-	ArmyType.PLAYER_SQUAD: Color(0.3, 0.7, 0.3),
-	ArmyType.ENEMY: Color(0.9, 0.2, 0.2)
-}
-
 func _ready():
 	setup_visual()
 	update_visibility()
@@ -73,15 +67,15 @@ func _is_selected() -> bool:
 
 func setup_visual():
 	# Faction icon
-	var icon_sprite = Sprite2D.new()
-	icon_sprite.name = "FactionIcon"
 	var icon_texture = GameConstants.get_faction_icon(faction)
 	if icon_texture:
+		var icon_sprite = Sprite2D.new()
+		icon_sprite.name = "FactionIcon"
 		icon_sprite.texture = icon_texture
 		var target_size = 40.0
 		var tex_size = icon_texture.get_size()
 		icon_sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
-	add_child(icon_sprite)
+		add_child(icon_sprite)
 
 	# Border ring to make armies more visible
 	var border = Panel.new()
