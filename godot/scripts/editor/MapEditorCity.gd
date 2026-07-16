@@ -60,10 +60,6 @@ func get_city_id() -> String:
 func refresh_visual():
 	_update_map_node()
 
-func _process(_delta):
-	if _dragging and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		_dragging = false
-
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
 	print("DEBUG MapEditorCity input event: ", event.get_class(), " button=", event.get("button_index") if event.has_method("get_button_index") else "N/A", " pressed=", event.get("pressed") if event.has_method("get_pressed") else "N/A")
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -73,6 +69,7 @@ func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
 			_dragging = true
 			_drag_offset = position - get_global_mouse_position()
 			print("DEBUG dragging started, offset=", _drag_offset)
+			get_viewport().set_input_as_handled()
 		else:
 			print("DEBUG mouse released on city: ", get_city_id())
 			_dragging = false
