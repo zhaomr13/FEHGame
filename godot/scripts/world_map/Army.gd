@@ -60,7 +60,7 @@ func _ready():
 func update_visibility():
 	var hidden = current_city_id != "" and state != ArmyState.MOVING
 	# Hide the army body visuals but keep the node (and plan line) active.
-	for child_name in ["CirclePanel", "BorderPanel", "Label", "ClickButton"]:
+	for child_name in ["FactionIcon", "BorderPanel", "Label", "ClickButton"]:
 		var child = get_node_or_null(child_name)
 		if child:
 			child.visible = not hidden
@@ -72,34 +72,30 @@ func _is_selected() -> bool:
 	return selection_indicator.visible if selection_indicator else false
 
 func setup_visual():
-	# Main circle with faction color
-	var circle = Panel.new()
-	circle.custom_minimum_size = Vector2(32, 32)
-	circle.size = Vector2(32, 32)
-	circle.position = Vector2(-16, -16)
-	circle.name = "CirclePanel"
-	var style = StyleBoxFlat.new()
-	style.bg_color = ARMY_COLORS[army_type]
-	style.corner_radius_top_left = 16
-	style.corner_radius_top_right = 16
-	style.corner_radius_bottom_left = 16
-	style.corner_radius_bottom_right = 16
-	circle.add_theme_stylebox_override("panel", style)
-	add_child(circle)
+	# Faction icon
+	var icon_sprite = Sprite2D.new()
+	icon_sprite.name = "FactionIcon"
+	var icon_texture = GameConstants.get_faction_icon(faction)
+	if icon_texture:
+		icon_sprite.texture = icon_texture
+		var target_size = 40.0
+		var tex_size = icon_texture.get_size()
+		icon_sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
+	add_child(icon_sprite)
 
 	# Border ring to make armies more visible
 	var border = Panel.new()
-	border.custom_minimum_size = Vector2(36, 36)
-	border.size = Vector2(36, 36)
-	border.position = Vector2(-18, -18)
+	border.custom_minimum_size = Vector2(44, 44)
+	border.size = Vector2(44, 44)
+	border.position = Vector2(-22, -22)
 	border.z_index = -1
 	border.name = "BorderPanel"
 	var border_style = StyleBoxFlat.new()
 	border_style.bg_color = Color(0, 0, 0, 0.5)
-	border_style.corner_radius_top_left = 18
-	border_style.corner_radius_top_right = 18
-	border_style.corner_radius_bottom_left = 18
-	border_style.corner_radius_bottom_right = 18
+	border_style.corner_radius_top_left = 22
+	border_style.corner_radius_top_right = 22
+	border_style.corner_radius_bottom_left = 22
+	border_style.corner_radius_bottom_right = 22
 	border.add_theme_stylebox_override("panel", border_style)
 	add_child(border)
 
@@ -139,9 +135,9 @@ func setup_visual():
 	add_child(selection_indicator)
 
 	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(40, 40)
-	btn.size = Vector2(40, 40)
-	btn.position = Vector2(-20, -20)
+	btn.custom_minimum_size = Vector2(44, 44)
+	btn.size = Vector2(44, 44)
+	btn.position = Vector2(-22, -22)
 	btn.flat = true
 	btn.modulate = Color(1, 1, 1, 0.01)
 	btn.name = "ClickButton"
