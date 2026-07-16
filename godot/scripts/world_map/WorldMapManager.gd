@@ -747,7 +747,7 @@ func open_city_menu(node: MapNode):
 	if city_menu:
 		_last_opened_city_id = node.node_id
 		var garrisoned = _get_player_armies_at_city(node.node_id)
-		city_menu.show_city(node.node_name, node.node_type, false, garrisoned)
+		city_menu.show_city(node.node_name, node.node_type, false, garrisoned, node.current_faction)
 
 func _on_city_army_selected(army: Army):
 	if not is_instance_valid(army):

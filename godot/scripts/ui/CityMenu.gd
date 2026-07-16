@@ -12,7 +12,8 @@ var gold_reward: int = 100
 var is_current_city: bool = false
 var _garrisoned_armies: Array[Army] = []
 
-@onready var title_label = $Panel/VBoxContainer/TitleLabel
+@onready var title_label = $Panel/VBoxContainer/TitleRow/TitleLabel
+@onready var faction_icon = $Panel/VBoxContainer/TitleRow/FactionIcon
 @onready var info_label = $Panel/VBoxContainer/InfoLabel
 @onready var garrison_label = $Panel/VBoxContainer/GarrisonLabel
 @onready var garrison_list = $Panel/VBoxContainer/GarrisonScroll/GarrisonList
@@ -29,11 +30,14 @@ func _ready():
 	if deploy_button:
 		deploy_button.pressed.connect(_on_deploy)
 
-func show_city(city_name: String, city_type: int, is_current: bool = false, garrisoned_armies: Array[Army] = []):
+func show_city(city_name: String, city_type: int, is_current: bool = false, garrisoned_armies: Array[Army] = [], faction: String = ""):
 	current_city_name = city_name
 	is_current_city = is_current
 	_garrisoned_armies = garrisoned_armies
 	visible = true
+
+	if faction_icon:
+		faction_icon.texture = GameConstants.get_faction_icon(faction)
 
 	title_label.text = city_name
 

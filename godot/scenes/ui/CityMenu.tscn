@@ -38,7 +38,18 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="TitleRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="FactionIcon" type="TextureRect" parent="Panel/VBoxContainer/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(32, 32)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer/TitleRow"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "城市"
