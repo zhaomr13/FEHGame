@@ -65,6 +65,17 @@ func create_faction_buttons():
 		vbox.add_theme_constant_override("separation", 5)
 		panel.add_child(vbox)
 
+		# Faction icon
+		var icon_texture = GameConstants.get_faction_icon(faction_id)
+		if icon_texture:
+			var icon = TextureRect.new()
+			icon.texture = icon_texture
+			icon.custom_minimum_size = Vector2(64, 64)
+			icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			vbox.add_child(icon)
+
 		# Name label
 		var name_label = Label.new()
 		name_label.text = faction.name
