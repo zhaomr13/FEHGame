@@ -2,18 +2,15 @@ class_name MapEditor
 extends Node2D
 
 const MAP_SIZE := Vector2(3840, 2160)
-const MIN_ZOOM := 0.25
-const MAX_ZOOM := 1.5
-const WHEEL_ZOOM_FACTOR := 1.2
 const CITY_OVERLAP_THRESHOLD := 60.0
 const TOOLBAR_HEIGHT := 50.0
 const PROPERTIES_PANEL_WIDTH := 250.0
 const MAP_FIT_PADDING := 0.9
 
-@onready var camera: Camera2D = $Camera2D
-@onready var background: Sprite2D = $Background
-@onready var cities_container: Node2D = $Cities
-@onready var connections_node: Node2D = $Connections
+@onready var map_container: Node2D = $MapContainer
+@onready var background: Sprite2D = $MapContainer/Background
+@onready var cities_container: Node2D = $MapContainer/Cities
+@onready var connections_node: Node2D = $MapContainer/Connections
 @onready var ui: CanvasLayer = $UI
 @onready var toolbar: MapEditorToolbar = $UI/Toolbar
 @onready var properties_panel: MapEditorPropertiesPanel = $UI/PropertiesPanel
@@ -25,8 +22,6 @@ var _cities: Array[Dictionary] = []
 var _city_nodes: Dictionary = {}
 var _selected_city: MapEditorCity = null
 var _pending_delete_city: MapEditorCity = null
-var _drag_start: Vector2 = Vector2.ZERO
-var _is_panning: bool = false
 
 func _get_city_data_by_id(city_id: String) -> Dictionary:
 	for city in _cities:
@@ -39,11 +34,9 @@ func _ready():
 	_load_map()
 	_connect_toolbar()
 	_connect_properties_panel()
-	if camera:
-		_fit_camera()
-		_update_camera_limits()
-		if get_tree() and get_tree().root:
-			get_tree().root.size_changed.connect(_fit_camera)
+	_fit_map_container()
+	if get_tree() and get_tree().root:
+		get_tree().root.size_changed.connect(_fit_map_container)
 	if delete_dialog:
 		delete_dialog.confirmed.connect(_on_delete_confirmed)
 		delete_dialog.canceled.connect(_on_delete_canceled)
@@ -53,8 +46,8 @@ func _setup_background():
 		background.position = MAP_SIZE / 2.0
 		background.scale = MAP_SIZE / background.texture.get_size()
 
-func _fit_camera():
-	if camera == null:
+func _fit_map_container():
+	if map_container == null:
 		return
 	var viewport_size := get_viewport().get_visible_rect().size
 	var usable_size := Vector2(
@@ -66,13 +59,10 @@ func _fit_camera():
 	var fit_x: float = usable_size.x / MAP_SIZE.x
 	var fit_y: float = usable_size.y / MAP_SIZE.y
 	var fit_zoom: float = min(fit_x, fit_y) * MAP_FIT_PADDING
-	camera.zoom = Vector2(fit_zoom, fit_zoom)
-	# Center the map inside the usable area (below toolbar, left of panel).
-	camera.position = MAP_SIZE / 2.0
-	camera.offset = Vector2(
-		-PROPERTIES_PANEL_WIDTH / 2.0,
-		TOOLBAR_HEIGHT / 2.0
-	)
+	map_container.scale = Vector2(fit_zoom, fit_zoom)
+	# Anchor the map in the bottom-left usable corner (below toolbar, left of panel).
+	var map_size_on_screen := MAP_SIZE * fit_zoom
+	map_container.position = Vector2(0.0, viewport_size.y - map_size_on_screen.y)
 
 func _load_map():
 	var loaded := MapEditorYamlWriter.load_world_map()
@@ -144,7 +134,7 @@ func _set_selected_city(city: MapEditorCity):
 
 func _on_new_city():
 	var new_id := _generate_new_city_id()
-	var center := camera.position
+	var center := MAP_SIZE / 2.0
 	var new_city := {
 		"id": new_id,
 		"name": "新城",
@@ -384,39 +374,3 @@ func _validate_map() -> String:
 
 func _on_back():
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
-
-func _input(event):
-	if event is InputEventMouseButton:
-		match event.button_index:
-			MOUSE_BUTTON_WHEEL_UP:
-				_zoom_camera(WHEEL_ZOOM_FACTOR)
-			MOUSE_BUTTON_WHEEL_DOWN:
-				_zoom_camera(1.0 / WHEEL_ZOOM_FACTOR)
-			MOUSE_BUTTON_LEFT:
-				if event.pressed:
-					_is_panning = Input.is_key_pressed(KEY_SHIFT)
-					if _is_panning:
-						_drag_start = get_global_mouse_position()
-				else:
-					_is_panning = false
-	elif event is InputEventMouseMotion and _is_panning:
-		camera.position -= event.relative / camera.zoom
-
-func _zoom_camera(factor: float):
-	if camera == null:
-		return
-	var new_zoom := (camera.zoom * factor).clamp(Vector2(MIN_ZOOM, MIN_ZOOM), Vector2(MAX_ZOOM, MAX_ZOOM))
-	var viewport := get_viewport()
-	var screen_center := viewport.get_visible_rect().size / 2.0
-	var mouse_screen := viewport.get_mouse_position()
-	var offset := (mouse_screen - screen_center) * (Vector2.ONE / camera.zoom - Vector2.ONE / new_zoom)
-	camera.position += offset
-	camera.zoom = new_zoom
-
-func _update_camera_limits():
-	if camera == null:
-		return
-	camera.limit_left = 0
-	camera.limit_top = 0
-	camera.limit_right = int(MAP_SIZE.x)
-	camera.limit_bottom = int(MAP_SIZE.y)

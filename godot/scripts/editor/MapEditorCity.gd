@@ -64,24 +64,19 @@ func _input(event: InputEvent):
 	if not _dragging:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		print("DEBUG drag released globally: ", get_city_id())
 		_dragging = false
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion:
-		print("DEBUG dragging motion global, mouse=", get_global_mouse_position(), " new pos=", get_global_mouse_position() + _drag_offset)
-		position = get_global_mouse_position() + _drag_offset
+		global_position = get_global_mouse_position() + _drag_offset
 		data["pos"]["x"] = position.x
 		data["pos"]["y"] = position.y
 		city_moved.emit(self)
 		get_viewport().set_input_as_handled()
 
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int):
-	print("DEBUG MapEditorCity area input event: ", event.get_class())
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			print("DEBUG mouse pressed on city: ", get_city_id())
 			city_selected.emit(self)
 			_dragging = true
-			_drag_offset = position - get_global_mouse_position()
-			print("DEBUG dragging started, offset=", _drag_offset)
+			_drag_offset = global_position - get_global_mouse_position()
 			get_viewport().set_input_as_handled()
