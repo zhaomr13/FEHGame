@@ -21,7 +21,7 @@ enum ArmyState {
 var army_id: String = ""
 var army_name: String = "Army"
 var army_type: ArmyType = ArmyType.PLAYER_SQUAD
-var faction: String = ""
+var faction: String = "" : set = set_faction
 var state: ArmyState = ArmyState.IDLE
 
 var current_city_id: String = ""
@@ -66,16 +66,7 @@ func _is_selected() -> bool:
 	return selection_indicator.visible if selection_indicator else false
 
 func setup_visual():
-	# Faction icon
-	var icon_texture = GameConstants.get_faction_icon(faction)
-	if icon_texture:
-		var icon_sprite = Sprite2D.new()
-		icon_sprite.name = "FactionIcon"
-		icon_sprite.texture = icon_texture
-		var target_size = 40.0
-		var tex_size = icon_texture.get_size()
-		icon_sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
-		add_child(icon_sprite)
+	_update_faction_icon()
 
 	# Border ring to make armies more visible
 	var border = Panel.new()
@@ -137,6 +128,29 @@ func setup_visual():
 	btn.name = "ClickButton"
 	btn.pressed.connect(_on_button_pressed)
 	add_child(btn)
+
+func set_faction(value: String):
+	faction = value
+	_update_faction_icon()
+	update_visibility()
+
+func _update_faction_icon():
+	var icon_sprite = get_node_or_null("FactionIcon") as Sprite2D
+	var icon_texture = GameConstants.get_faction_icon(faction)
+	if not icon_texture:
+		if icon_sprite:
+			icon_sprite.queue_free()
+		return
+	# Reuse the existing sprite: freeing and re-adding in the same frame would make
+	# Godot auto-rename the new node, breaking get_node("FactionIcon") lookups.
+	if not icon_sprite:
+		icon_sprite = Sprite2D.new()
+		icon_sprite.name = "FactionIcon"
+		add_child(icon_sprite)
+	icon_sprite.texture = icon_texture
+	var target_size = 40.0
+	var tex_size = icon_texture.get_size()
+	icon_sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
 
 func _on_button_pressed():
 	army_clicked.emit(self)
