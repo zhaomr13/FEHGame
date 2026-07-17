@@ -14,7 +14,6 @@ func _initialize():
 	_test_game_manager_squads(gm)
 	_test_save_manager_v2(gm, sm)
 	_test_save_manager_legacy_fallback(gm, sm)
-	_test_squad_menu_data(gm)
 
 	_cleanup_test_file(sm)
 
@@ -193,56 +192,3 @@ func _test_save_manager_legacy_fallback(gm, sm):
 	assert(loaded_squads[0].size() == 1 and loaded_squads[0][0].character_name == "Alfonse", "Legacy squad 0 should load Alfonse")
 	assert(loaded_squads[1].size() == 1 and loaded_squads[1][0].character_name == "Sharena", "Legacy squad 1 should load Sharena")
 	assert(loaded_unassigned.size() == 1 and loaded_unassigned[0].character_name == "Anna", "Legacy unassigned should load Anna")
-
-func _test_squad_menu_data(gm):
-	gm.initialize_squads()
-	var data = SquadMenuData.new()
-	data.game_manager = gm
-	data.load_squad_data()
-
-	assert(data.squads.size() == GameConstants.MAX_SQUADS, "SquadMenuData should load MAX_SQUADS squads")
-
-	# Shrink to 5 squads so create_squad has room to test.
-	data.squads.resize(5)
-
-	# Move a character to a squad
-	var test_char = gm.unassigned_units[0]
-	data.select("unassigned", 0, test_char)
-	var error = data.move_character_to_first_non_full_squad()
-	assert(error == "", "move_character_to_first_non_full_squad should succeed")
-	assert(data.squads[0].has(test_char), "Character should be in first squad")
-	assert(not data.unassigned.has(test_char), "Character should no longer be unassigned")
-
-	# Create a new squad
-	var new_index = data.create_squad()
-	assert(new_index == 5, "New squad should be appended at index 5")
-	assert(data.squads.size() == 6, "Squad count should increase by 1")
-
-	# Disband the squad containing the character
-	data.select("squad_0", 0, test_char)
-	assert(data.get_selected_squad_index() == 0, "Selected squad index should be 0")
-	assert(data.disband_squad(0) == true, "disband_squad should succeed")
-	assert(data.squads[0].size() == 0, "Squad 0 should be empty after disband")
-	assert(data.unassigned.has(test_char), "Disbanded character should be unassigned")
-
-	# Remove empty squads
-	data.remove_empty_squads()
-	assert(data.squads.size() < 6, "remove_empty_squads should compact")
-
-	# Create a fresh squad to move into
-	var fresh_index = data.create_squad()
-	assert(fresh_index >= 0, "create_squad should succeed after compaction")
-
-	# Move to specific squad
-	var char2 = data.unassigned[0]
-	data.select("unassigned", 0, char2)
-	var move_error = data.move_character_to_squad(fresh_index)
-	assert(move_error == "", "move_character_to_squad should succeed")
-	assert(data.squads[fresh_index].has(char2), "Character should be in squad %d" % fresh_index)
-
-	# Remove from squad
-	var idx_in_squad = data.squads[fresh_index].find(char2)
-	data.select("squad_%d" % fresh_index, idx_in_squad, char2)
-	data.remove_from_squad()
-	assert(not data.squads[fresh_index].has(char2), "Character should be removed from squad")
-	assert(data.unassigned.has(char2), "Character should be unassigned after remove")

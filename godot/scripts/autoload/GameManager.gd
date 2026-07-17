@@ -12,7 +12,7 @@ var player_gold: int = 1000
 var current_battle_background: String = "plain"
 var current_faction: String = ""
 
-# Squad system: dynamic squads, max 10 squads, 6 characters per squad
+# Squad system: dynamic squads, max 20 squads (GameConstants.MAX_SQUADS), 6 characters per squad
 # squad_data is an Array of Arrays, each inner array is a squad's CharacterData[]
 var squad_data: Array = []
 var unassigned_units: Array[CharacterData] = []
@@ -115,7 +115,7 @@ func get_squad(squad_index: int) -> Array:
     return []
 
 func update_squad_data(squads: Array, unassigned: Array[CharacterData]):
-    """Update squad configuration from SquadMenu"""
+    """Update squad configuration from the army management UI (ArmyManagePanel)"""
     squad_data = squads
     unassigned_units = unassigned
 
