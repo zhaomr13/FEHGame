@@ -38,7 +38,7 @@ Headless test scripts live in `godot/tests/` (each extends `SceneTree` and print
 tools/run_tests.sh            # GODOT_BIN and TEST_TIMEOUT env vars override defaults
 ```
 
-The runner treats timeouts, script errors, and missing `PASSED` markers as failures. Note: a failing `assert()` in a test aborts the script before `quit()`, so the process hangs — never run a test without a timeout. There is no linter or CI configured yet.
+The runner treats timeouts, script errors, and missing `PASSED` markers as failures. Note: a failing `assert()` in a test aborts the script before `quit()`, so the process hangs — never run a test without a timeout. The same suite runs in CI via `.github/workflows/tests.yml` on every push to `main`. There is no linter configured yet.
 
 ### Data generation tools
 
