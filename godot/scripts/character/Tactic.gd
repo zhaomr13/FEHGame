@@ -35,6 +35,26 @@ enum ActionType {
 @export var action_type: ActionType = ActionType.ATTACK
 @export var use_skill: bool = false  # If true, use Attack2/skill animation
 
+func to_dict() -> Dictionary:
+    return {
+        "priority": priority,
+        "condition_type": condition_type,
+        "condition_value": condition_value,
+        "target_type": target_type,
+        "action_type": action_type,
+        "use_skill": use_skill,
+    }
+
+static func from_dict(data: Dictionary) -> Tactic:
+    var tactic := Tactic.new()
+    tactic.priority = data.get("priority", 1)
+    tactic.condition_type = data.get("condition_type", ConditionType.ALWAYS)
+    tactic.condition_value = data.get("condition_value", 0.5)
+    tactic.target_type = data.get("target_type", TargetType.NEAREST)
+    tactic.action_type = data.get("action_type", ActionType.ATTACK)
+    tactic.use_skill = data.get("use_skill", false)
+    return tactic
+
 # Condition check - will be implemented when BattleUnit is created
 func is_condition_met(self_unit, all_enemies: Array, all_allies: Array) -> bool:
     match condition_type:

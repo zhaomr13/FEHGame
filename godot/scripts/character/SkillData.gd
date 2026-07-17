@@ -12,6 +12,28 @@ enum TargetType { SELF, SINGLE, AOE, ALLY, ALL_ALLIES }
 @export var cooldown: int = 3
 @export var current_cooldown: int = 0
 
+func to_dict() -> Dictionary:
+	return {
+		"skill_name": skill_name,
+		"description": description,
+		"skill_type": skill_type,
+		"target_type": target_type,
+		"power": power,
+		"cooldown": cooldown,
+		"current_cooldown": current_cooldown,
+	}
+
+static func from_dict(data: Dictionary) -> SkillData:
+	var skill := SkillData.new()
+	skill.skill_name = data.get("skill_name", "Unknown Skill")
+	skill.description = data.get("description", "")
+	skill.skill_type = data.get("skill_type", SkillType.ACTIVE)
+	skill.target_type = data.get("target_type", TargetType.SINGLE)
+	skill.power = data.get("power", 10)
+	skill.cooldown = data.get("cooldown", 3)
+	skill.current_cooldown = data.get("current_cooldown", 0)
+	return skill
+
 func calculate_damage(user: CharacterData, target: CharacterData) -> int:
 	match skill_type:
 		SkillType.ACTIVE:

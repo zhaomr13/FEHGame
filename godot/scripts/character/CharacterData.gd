@@ -32,6 +32,62 @@ var is_defending: bool = false
 # Faction affiliation (askr, embla, nifl, muspell, etc.)
 @export var faction: String = ""
 
+# Save-game serialization. Single source of truth for the on-disk
+# character format — SaveManager saves/loads through these.
+func to_dict() -> Dictionary:
+    var skill_dicts: Array = []
+    for skill in skills:
+        skill_dicts.append(skill.to_dict())
+    var tactic_dicts: Array = []
+    for tactic in tactics:
+        tactic_dicts.append(tactic.to_dict())
+    return {
+        "name": character_name,
+        "class": character_class,
+        "level": level,
+        "exp": experience,
+        "hp": current_hp,
+        "max_hp": max_hp,
+        "attack": attack,
+        "defense": defense,
+        "speed": speed,
+        "leadership": leadership,
+        "weapon_type": weapon_type,
+        "soldiers": soldiers,
+        "max_soldiers": max_soldiers,
+        "faction": faction,
+        "sprite_frames_path": sprite_frames_path,
+        "skills": skill_dicts,
+        "tactics": tactic_dicts,
+    }
+
+static func from_dict(data: Dictionary, default_faction: String = "") -> CharacterData:
+    var character := CharacterData.new()
+    character.character_name = data.get("name", "Unknown")
+    character.character_class = data.get("class", GameConstants.CharacterClass.LORD)
+    character.level = data.get("level", 1)
+    character.experience = data.get("exp", 0)
+    character.current_hp = data.get("hp", 20)
+    character.max_hp = data.get("max_hp", 20)
+    character.attack = data.get("attack", 5)
+    character.defense = data.get("defense", 3)
+    character.speed = data.get("speed", 5)
+    character.leadership = data.get("leadership", 5)
+    character.weapon_type = data.get("weapon_type", "sword")
+    character.soldiers = data.get("soldiers", 100)
+    character.max_soldiers = data.get("max_soldiers", character.soldiers)
+    character.faction = data.get("faction", default_faction)
+    character.sprite_frames_path = data.get("sprite_frames_path", "")
+    for skill_data in data.get("skills", []):
+        if skill_data is Dictionary:
+            character.skills.append(SkillData.from_dict(skill_data))
+    for tactic_data in data.get("tactics", []):
+        if tactic_data is Dictionary:
+            character.tactics.append(Tactic.from_dict(tactic_data))
+    if character.tactics.is_empty():
+        character.setup_default_tactics()
+    return character
+
 # Default tactics for new characters
 func setup_default_tactics():
     """Create default 4-slot tactics for new characters"""
