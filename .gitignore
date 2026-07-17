@@ -6,6 +6,12 @@
 # Claude Code worktrees
 .claude/worktrees/
 
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# Superpowers task artifacts
+.superpowers/
+
 # Godot 4+ specific ignores
 .godot/
 *.tmp
