@@ -6,12 +6,14 @@ func _initialize():
 
     var parser = parser_script.new()
 
+    # NOTE: the parser requires documents to start at column 0 (indented
+    # top-level lines are skipped), so these YAML strings are flush-left.
     # Test 1: Basic key-value parsing
     var yaml1 = """
-    name: "Test"
-    level: 5
-    alive: true
-    """
+name: "Test"
+level: 5
+alive: true
+"""
     var result1 = parser.parse(yaml1)
     assert(result1 is Dictionary, "Parser should return Dictionary")
     assert(result1.get("name") == "Test", "Name should be 'Test'")
@@ -20,11 +22,11 @@ func _initialize():
 
     # Test 2: List of scalars
     var yaml2 = """
-    factions:
-      - askr
-      - embla
-      - nifl
-    """
+factions:
+  - askr
+  - embla
+  - nifl
+"""
     var result2 = parser.parse(yaml2)
     var factions = result2.get("factions", [])
     assert(factions is Array, "factions should be an Array")
@@ -35,14 +37,14 @@ func _initialize():
 
     # Test 3: List of dictionaries (character database shape)
     var yaml3 = """
-    characters:
-      - name: "Sharena"
-        class: "KNIGHT"
-        max_hp: 30
-      - name: "Alfonse"
-        class: "LORD"
-        max_hp: 25
-    """
+characters:
+  - name: "Sharena"
+    class: "KNIGHT"
+    max_hp: 30
+  - name: "Alfonse"
+    class: "LORD"
+    max_hp: 25
+"""
     var result3 = parser.parse(yaml3)
     var chars = result3.get("characters", [])
     assert(chars is Array, "characters should be an Array")
@@ -56,23 +58,23 @@ func _initialize():
 
     # Test 4: Comments
     var yaml4 = """
-    # This is a comment
-    key: value
-    # Another comment
-    list:
-      - item1
-      - item2
-    """
+# This is a comment
+key: value
+# Another comment
+list:
+  - item1
+  - item2
+"""
     var result4 = parser.parse(yaml4)
     assert(result4.get("key") == "value", "Should parse key despite comments")
     assert(result4.get("list", []).size() == 2, "Should parse list despite comments")
 
     # Test 5: Nested dictionary
     var yaml5 = """
-    root:
-      child:
-        grandchild: 42
-    """
+root:
+  child:
+    grandchild: 42
+"""
     var result5 = parser.parse(yaml5)
     var root = result5.get("root", {})
     assert(root is Dictionary, "root should be Dictionary")

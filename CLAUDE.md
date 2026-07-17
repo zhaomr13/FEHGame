@@ -30,7 +30,15 @@ cd godot
 /Applications/Godot.app/Contents/MacOS/Godot
 ```
 
-There is currently no test framework, linter, or CI configured. Validation is done by running the game in the editor or via the command above.
+### Tests
+
+Headless test scripts live in `godot/tests/` (each extends `SceneTree` and prints a `PASSED` marker on success). Run the whole suite from the repo root:
+
+```bash
+tools/run_tests.sh            # GODOT_BIN and TEST_TIMEOUT env vars override defaults
+```
+
+The runner treats timeouts, script errors, and missing `PASSED` markers as failures. Note: a failing `assert()` in a test aborts the script before `quit()`, so the process hangs — never run a test without a timeout. There is no linter or CI configured yet.
 
 ### Data generation tools
 
