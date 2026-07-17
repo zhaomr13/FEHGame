@@ -18,6 +18,13 @@ jobs:
           unzip -q godot.zip
           chmod +x Godot_v4.6.3-stable_linux.x86_64
 
+      # A fresh checkout has no .godot/ cache: without an import pass,
+      # class_name globals (GameConstants, Army, ...) do not resolve and
+      # texture load()/preload() fails.
+      - name: Import project resources
+        working-directory: godot
+        run: ${{ github.workspace }}/Godot_v4.6.3-stable_linux.x86_64 --headless --import
+
       - name: Run headless test suite
         env:
           GODOT_BIN: ${{ github.workspace }}/Godot_v4.6.3-stable_linux.x86_64
