@@ -21,19 +21,37 @@ var unassigned_units: Array[CharacterData] = []
 var all_characters: Array[CharacterData] = []
 var available_recruits: Array[CharacterData] = []  # Characters that can be recruited
 
+var _preload_thread: Thread = null
+
 func _ready():
     print("GameManager 已初始化")
     _initialize_all_characters()
-    var t = Time.get_ticks_msec()
-    var count = 0
-    var done = {}
+    _start_atlas_preload()
+
+func _start_atlas_preload():
+    """Stream sprite atlases into AtlasLoader's cache on a background thread.
+
+    Startup stays instant; Character.gd falls back to an on-demand
+    (thread-safe) load if an atlas is needed before the thread reaches it.
+    Headless runs (tests/CI) skip the preload entirely."""
+    if DisplayServer.get_name() == "headless":
+        return
+    var folders := {}
     for cd in all_characters:
-        var folder = cd.sprite_frames_path.get_base_dir()
-        if not done.has(folder):
-            done[folder] = true
-            preload("res://scripts/AtlasLoader.gd").load_character_atlas(folder)
-            count += 1
-    print("预加载了 ", count, " 个精灵图集，耗时 ", Time.get_ticks_msec() - t, " 毫秒")
+        if cd.sprite_frames_path != "":
+            folders[cd.sprite_frames_path.get_base_dir()] = true
+    _preload_thread = Thread.new()
+    _preload_thread.start(_preload_atlases.bind(folders.keys()))
+
+func _preload_atlases(folders: Array):
+    var t = Time.get_ticks_msec()
+    for folder in folders:
+        preload("res://scripts/AtlasLoader.gd").load_character_atlas(folder)
+    print("后台预加载了 ", folders.size(), " 个精灵图集，耗时 ", Time.get_ticks_msec() - t, " 毫秒")
+
+func _exit_tree():
+    if _preload_thread and _preload_thread.is_alive():
+        _preload_thread.wait_to_finish()
 
 func _initialize_all_characters():
     """Initialize all characters by loading them from the YAML database."""

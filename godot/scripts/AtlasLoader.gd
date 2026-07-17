@@ -2,9 +2,19 @@ extends Node
 ## Runtime atlas loader - creates SpriteFrames from JSON atlas without plugin
 
 static var _cache: Dictionary = {}
+static var _mutex := Mutex.new()
 
 ## Load all animations from a character folder (e.g., res://assets/characters/char_01_alm/)
+## Thread-safe: the GameManager preload thread and on-demand loads from the
+## main thread may call this concurrently; the mutex also prevents duplicate
+## loads of the same folder.
 static func load_character_atlas(character_folder: String) -> SpriteFrames:
+	_mutex.lock()
+	var result = _load_character_atlas_locked(character_folder)
+	_mutex.unlock()
+	return result
+
+static func _load_character_atlas_locked(character_folder: String) -> SpriteFrames:
 	if _cache.has(character_folder):
 		return _cache[character_folder]
 
@@ -79,6 +89,12 @@ static func _load_single_animation(sprite_frames: SpriteFrames, anim_name: Strin
 		sprite_frames.add_frame(anim_name, atlas_tex, duration_frames)
 
 static func load_atlas(json_path: String, png_path: String) -> SpriteFrames:
+	_mutex.lock()
+	var result = _load_atlas_locked(json_path, png_path)
+	_mutex.unlock()
+	return result
+
+static func _load_atlas_locked(json_path: String, png_path: String) -> SpriteFrames:
 	var cache_key = json_path + "|" + png_path
 	if _cache.has(cache_key):
 		return _cache[cache_key]
